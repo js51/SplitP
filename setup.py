@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
 	name="SplitP",
-	version="0.0.1",
+	version="0.0.2",
 	author="Joshua Stevenson",
 	author_email="joshua.stevenson@utas.edu.au",
 	description="SplitP",
