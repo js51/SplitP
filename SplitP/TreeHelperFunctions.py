@@ -23,6 +23,11 @@ def fNorm(m):
     norm = np.sqrt(norm)
     return norm
 
+def makeSubsMatrix(subs_prob, k):
+    matrix = []
+    for i in range(k):
+        matrix.append([1-subs_prob if j==i else subs_prob/(k-1) for j in range(k)])
+    return matrix
 
 def generateAllSplits(num_taxa, trivial=True, onlyTrivial=False, onlyBalance=-1):
     """Generates all splits as string-representations

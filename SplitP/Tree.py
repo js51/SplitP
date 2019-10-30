@@ -109,10 +109,14 @@ class tree:
         """
 
         def toInt(p):
-            if p == 'A': return 0
-            if p == 'C': return 1
-            if p == 'G': return 2
-            if p == 'T': return 3
+            if p == 'A':
+                return 0
+            if p == 'C':
+                return 1
+            if p == 'G':
+                return 2
+            if p == 'T':
+                return 3
             return int(p)
 
         pattern = [toInt(p) for p in pattern]  # A list of indices which correspond to taxa.
@@ -205,20 +209,6 @@ class tree:
             return np.array(
                 [['{:0{}b}'.format(i, self.getNumTaxa()), data[i]] for i in range(self.num_bases ** self.getNumTaxa())])
         elif self.num_bases == 4:
-            patterns = list(itertools.product('ACGT', repeat=self.getNumTaxa()))
-            patterns = [''.join(c) for c in patterns]
-            return np.array([[patterns[i], data[i]] for i in range(self.num_bases ** self.getNumTaxa())])
-
-    def drawFromMultinomialFast(self, LT, n):
-        """Use a given table of probabilities from getLikelihoods() and draw from its distribution"""
-        probs = list(LT.iloc[:, 1])
-        probs = [float(p) for p in probs]
-        data = np.random.multinomial(n, probs)
-        data = [d / n for d in data]
-        if self.num_bases == 2:
-            return np.array(
-                [['{:0{}b}'.format(i, self.getNumTaxa()), data[i]] for i in range(self.num_bases ** self.getNumTaxa())])
-        elif self.num_bases == 4:
             patterns = list(LT.iloc[:, 0])
             results = []
             for i in range(len(patterns)):
@@ -280,102 +270,43 @@ class tree:
             text = text + tabs + '</' + str(n) + '>\n'
         return text
 
-    def subFlatteningAlt(self, F, S=None, returnLRMats=False):
-        def makeMat(S_hat, left=True):
-            if left:
-                M = np.empty((0, F.shape[0]))
-                rows = len(rowLabels[0])
-            else:
-                M = np.empty((0, F.shape[1]))
-                rows = len(colLabels[0])
-            O = np.ones(len(S_hat) + 1)
-            for r in range(rows):
-                A = np.empty((0, 0))
-                if r == 0:  # First row of M
-                    A = S_hat
-                    for i in range(rows - 1):
-                        A = np.kron(A, O)
-                else:
-                    A = O
-                    for i in range(0, r - 1):
-                        A = np.kron(A, O)
-                    A = np.kron(A, S_hat)
-                    for i in range(rows - r - 1):
-                        A = np.kron(A, O)
-
-                M = np.append(M, A, axis=0)
-
-            rowOfOnes = O
-            for i in range(rows - 1):
-                rowOfOnes = np.kron(rowOfOnes, O)
-            rowOfOnes = rowOfOnes.reshape((1, -1))
-            M = np.append(M, rowOfOnes, axis=0)
-            return M
-
-        # end makeMat()
-
+    def __makeMat(self, F, S_hat, left=True):
         colLabels = list(F)
         rowLabels = F.index
-
-        if np.all(S) == None:
-            S = np.matrix([[1, -1], [1, 1]])  # Swapped rows compared to other way
-            S = np.kron(S, S)
-
-        # Remove the constant row to obtain S
-        S_hat = np.empty((0, 4))
-        for row in S:
-            if list(np.asarray(row)[0]) != [1, 1, 1, 1]:
-                S_hat = np.append(S_hat, row, axis=0)
-
-        L = makeMat(S_hat, True)
-        R = makeMat(S_hat, False)
-        F = np.asarray(F, dtype=np.float64)
-        if not returnLRMats:
-            return L @ F @ R.T
+        if (str(S_hat), left, F.shape) in self.subflatLRMats:
+            return self.subflatLRMats[(str(S_hat), left, F.shape)]
+        if left:
+            M = np.empty((0, F.shape[0]))
+            rows = len(rowLabels[0])
         else:
-            return (L @ F @ R.T, L, R)
-
-    def subFlatteningAltFast(self, F, S=None, returnLRMats=False):
-
-        def makeMat(S_hat, left=True):
-            if (str(S_hat), left, F.shape) in self.subflatLRMats:
-                return self.subflatLRMats[(str(S_hat), left, F.shape)]
-            if left:
-                M = np.empty((0, F.shape[0]))
-                rows = len(rowLabels[0])
+            M = np.empty((0, F.shape[1]))
+            rows = len(colLabels[0])
+        O = np.ones(len(S_hat) + 1)
+        for r in range(rows):
+            A = np.empty((0, 0))
+            if r == 0:  # First row of M
+                A = S_hat
+                for i in range(rows - 1):
+                    A = np.kron(A, O)
             else:
-                M = np.empty((0, F.shape[1]))
-                rows = len(colLabels[0])
-            O = np.ones(len(S_hat) + 1)
-            for r in range(rows):
-                A = np.empty((0, 0))
-                if r == 0:  # First row of M
-                    A = S_hat
-                    for i in range(rows - 1):
-                        A = np.kron(A, O)
-                else:
-                    A = O
-                    for i in range(0, r - 1):
-                        A = np.kron(A, O)
-                    A = np.kron(A, S_hat)
-                    for i in range(rows - r - 1):
-                        A = np.kron(A, O)
+                A = O
+                for i in range(0, r - 1):
+                    A = np.kron(A, O)
+                A = np.kron(A, S_hat)
+                for i in range(rows - r - 1):
+                    A = np.kron(A, O)
 
-                M = np.append(M, A, axis=0)
+            M = np.append(M, A, axis=0)
 
-            rowOfOnes = O
-            for i in range(rows - 1):
-                rowOfOnes = np.kron(rowOfOnes, O)
-            rowOfOnes = rowOfOnes.reshape((1, -1))
-            M = np.append(M, rowOfOnes, axis=0)
-            self.subflatLRMats[(str(S_hat), left, F.shape)] = M
-            return M
+        rowOfOnes = O
+        for i in range(rows - 1):
+            rowOfOnes = np.kron(rowOfOnes, O)
+        rowOfOnes = rowOfOnes.reshape((1, -1))
+        M = np.append(M, rowOfOnes, axis=0)
+        self.subflatLRMats[(str(S_hat), left, F.shape)] = M
+        return M
 
-        # end makeMat()
-
-        colLabels = list(F)
-        rowLabels = F.index
-
+    def subFlatteningAlt(self, F, S=None, returnLRMats=False):
         if np.all(S) == None:
             S = np.matrix([[1, -1], [1, 1]])  # Swapped rows compared to other way
             S = np.kron(S, S)
@@ -386,8 +317,8 @@ class tree:
             if list(np.asarray(row)[0]) != [1 for i in range(self.num_bases)]:
                 S_hat = np.append(S_hat, row, axis=0)
 
-        L = makeMat(S_hat, True)
-        R = makeMat(S_hat, False)
+        L = self.__makeMat(F, S_hat, True)
+        R = self.__makeMat(F, S_hat, False)
         F = np.asarray(F)  # , dtype=np.float64)
         if not returnLRMats:
             return L @ F @ R.T
