@@ -2,9 +2,7 @@ import numpy as np
 import copy as cp
 import pandas as pd
 import itertools
-import collections
 from SplitP import TreeHelperFunctions as hf
-from itertools import permutations
 
 class tree:
     """A rooted phylogenetic tree.
@@ -37,7 +35,7 @@ class tree:
         self.subflatLRMats = {}
         
     def __str__(self):
-        return str(self.adjM)
+        return str(self.toXML())
         
     def addNode(self, n, in_node = None):
         """Adds a new node to the tree
