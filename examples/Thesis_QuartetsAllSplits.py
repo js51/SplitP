@@ -28,7 +28,7 @@ for t, tree in enumerate(theQuartets):
 
     for i in range(numRuns):
         print("Run " + str(i))
-        DTable = tree.drawFromMultinomialFast(patternProbs, 1000)
+        DTable = tree.drawFromMultinomial(patternProbs, 1000)
         for split in all_splits:
             print(split)
             F = tree.flattening(split, DTable)
@@ -38,7 +38,7 @@ for t, tree in enumerate(theQuartets):
                     results[str(lam)][split].append(tree.splitScore(F))
                 else:
                     print('Scaling by:', sp.scaledHMatrix(lam)[1])
-                    SF = tree.subFlatteningAltFast(F, sp.scaledHMatrix(lam)[0])
+                    SF = tree.subFlatteningAlt(F, sp.scaledHMatrix(lam)[0])
                     score = tree.splitScore(SF)
                     results[str(lam)][split].append(score)
 

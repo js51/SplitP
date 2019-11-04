@@ -18,7 +18,6 @@ true_splits = treeTuple[2]
 sequenceLengths = [100*n for n in range(1, 11)]
 numRuns = 1000
 
-finalResults = {str(subflat) : [0 for sequenceLength in sequenceLengths] for subflat in subflattenings}
 numSpecies = tree.getNumTaxa()
 all_splits = generateAllSplits(numSpecies, trivial=False)
 patternProbs = tree.getLikelihoods()
@@ -27,7 +26,7 @@ results = {str(subflat) : {split : [] for split in all_splits} for subflat in su
 
 for i in range(numRuns):
     print("Run " + str(i))
-    DTable = tree.drawFromMultinomialFast(patternProbs, 1000)
+    DTable = tree.drawFromMultinomial(patternProbs, 1000)
     for split in all_splits:
         print(split)
         F = tree.flattening(split, DTable)

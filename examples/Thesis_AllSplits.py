@@ -15,7 +15,6 @@ def sort(string):
 # Settings
 true_splits = treeTuple[2]
 scalingFactors = [None, 1, 2, "H/2", "Alt Identity", "Identity"]
-sequenceLengths = [100*n for n in range(1, 11)]
 numRuns = 1000
 
 def scaledHMatrix(lam):
@@ -26,7 +25,6 @@ def scaledHMatrix(lam):
     else:
         return sp.scaledHMatrix(lam)
 
-finalResults = {str(lam) : [0 for sequenceLength in sequenceLengths] for lam in scalingFactors}
 numSpecies = tree.getNumTaxa()
 all_splits = generateAllSplits(numSpecies, trivial=False)
 patternProbs = tree.getLikelihoods()
@@ -35,7 +33,7 @@ results = {str(lam) : {split : [] for split in all_splits} for lam in scalingFac
 
 for i in range(numRuns):
     print("Run " + str(i))
-    DTable = tree.drawFromMultinomialFast(patternProbs, 1000)
+    DTable = tree.drawFromMultinomial(patternProbs, 1000)
     for split in all_splits:
         print(split)
         F = tree.flattening(split, DTable)
@@ -55,7 +53,7 @@ for i in range(numRuns):
                 results[str(lam)][split].append(score)
             else:
                 print('Scaling by:', scaledHMatrix(lam)[1])
-                SF = tree.subFlatteningAltFast(F, scaledHMatrix(lam)[0])
+                SF = tree.subFlatteningAlt(F, scaledHMatrix(lam)[0])
                 score = tree.splitScore(SF)
                 results[str(lam)][split].append(score)
 

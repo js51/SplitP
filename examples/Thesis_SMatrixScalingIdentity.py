@@ -37,7 +37,7 @@ for i in range(numRuns):
     print(str(key), "taxon tree")
     scoreDiffs = []
     scoreDiffs2 = []
-    empericalProbs = value[0].drawFromMultinomialFast(sitePatternProbs, trials)
+    empericalProbs = value[0].drawFromMultinomial(sitePatternProbs, trials)
 
     for H in HMats:
         # Preparation
@@ -49,7 +49,7 @@ for i in range(numRuns):
             # print("Split:", split)
             F = value[0].flattening(split, empericalProbs)
             if H[1] != None:
-                SF = value[0].subFlatteningAltFast(F, S=H[0], returnLRMats=False)
+                SF = value[0].subFlatteningAlt(F, S=H[0], returnLRMats=False)
             else:
                 SF = F
             score = value[0].splitScore(SF)

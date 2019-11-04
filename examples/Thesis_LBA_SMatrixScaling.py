@@ -34,13 +34,13 @@ for t, tree in enumerate(theTrees):
     # { Matrix : [[qualityMeasure1s], [qualityMeasure2s]] }
     for run in range(numRuns):
         print("Run " + str(run) + " of " + str(numRuns))
-        empericalProbs = tree.drawFromMultinomialFast(patternProbs, sequenceLength)
+        empericalProbs = tree.drawFromMultinomial(patternProbs, sequenceLength)
 
         scoreLists = {mat : [] for mat in matNames}
         for split in all_splits:
             F = tree.flattening(split, empericalProbs)
             for i, H in enumerate(HMats):
-                SF = tree.subFlatteningAltFast(F, S=H[0])
+                SF = tree.subFlatteningAlt(F, S=H[0])
                 score = tree.splitScore(SF)
                 scoreLists[matNames[i]].append(score)
 

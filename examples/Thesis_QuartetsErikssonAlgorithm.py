@@ -28,7 +28,7 @@ for t, tree in enumerate(theTrees):
         for run in range(numRuns):
             print("Run", run, "of", numRuns, end='')
             print(" (length: " + str(sequenceLength) + ")")
-            empericalProbs = tree.drawFromMultinomialFast(patternProbs, sequenceLength)
+            empericalProbs = tree.drawFromMultinomial(patternProbs, sequenceLength)
             flattenings = {}
             for lam in scalingFactors:
                 #print("\t" + str(lam), end='')
@@ -48,7 +48,7 @@ for t, tree in enumerate(theTrees):
                                 F = tree.flattening(split, empericalProbs)
                                 flattenings[split] = F
                             if lam != None:
-                                F = tree.subFlatteningAltFast(F, sp.scaledHMatrix(lam)[0])
+                                F = tree.subFlatteningAlt(F, sp.scaledHMatrix(lam)[0])
                             results[(pair, split)] = tree.splitScore(F)
                         bestSplit = min(results, key=results.get)
                         if bestSplit[1] not in true_splits:

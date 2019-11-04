@@ -28,7 +28,7 @@ for t, tree in enumerate(theTrees):
         for run in range(numRuns):
             print("Run", run, "of", numRuns, end='')
             print(" (length: " + str(sequenceLength) + ")")
-            empericalProbs = tree.drawFromMultinomialFast(patternProbs, sequenceLength)
+            empericalProbs = tree.drawFromMultinomial(patternProbs, sequenceLength)
             flattenings = {}
             for subflat in subflattenings:
                 taxa = [str(i) for i in range(numSpecies)]
