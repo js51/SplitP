@@ -5,3 +5,5 @@ Python package which implements split-based and rank-based phylogenetic tools an
 
 The latest version of SplitP can be installed via the command
 `pip install SplitP`
+
+Code written to perform the simulations and analysis outlined in my honours thesis is available in the `examples` folder.
