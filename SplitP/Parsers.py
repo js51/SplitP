@@ -1,5 +1,5 @@
 def newick_to_json(newick_string, namestring = "id", lengthstring = "branch_length", childrenstring = "children", generate_names=False):
-	"""Parses a newick string (example "((A,B),C);") into JSON format accepted by NetworkX
+	"""Parses a newick string (example "((A,B),C)") into JSON format accepted by NetworkX
 
 	Args:
 		newick_string: The newick string to convert to JSON. Names, branch lengths and named 
@@ -7,6 +7,7 @@ def newick_to_json(newick_string, namestring = "id", lengthstring = "branch_leng
 		namestring: The label for node name to use in the JSON (default "id").
 		lengthstring: The label for branch length to use in the JSON (default "branch_length").
 		childrenstring: The label for children arrays to use in the JSON (default "children").
+		generate_names: Whether or not to generate names if none are given
 	"""
 	def splitIntoChildren(children_string):
 		""" Helper function for splitting a newick string into siblings """
@@ -25,21 +26,13 @@ def newick_to_json(newick_string, namestring = "id", lengthstring = "branch_leng
 				last_stop = i+1
 		pieces.append(string[last_stop:])
 		return(pieces)
-		
-	try: 
-		newick_to_json.counter += 1
-	except:
-		newick_to_json.counter = 0
-	import re
+
 	newick_string = newick_string.strip(";")
 	node = dict()
 	info = newick_string[newick_string.rfind(")")+1:]
 	info = info.split(":")
 	name = info[0]
-	if name == "" and generate_names:
-		node[namestring] = newick_to_json.counter
-	else:
-		node[namestring] = name
+	node[namestring] = name
 	length = ""
 	if len(info) > 1:
 		length = info[1]
@@ -51,7 +44,25 @@ def newick_to_json(newick_string, namestring = "id", lengthstring = "branch_leng
 		children_string = splitIntoChildren(children_string)
 		child_nodes_JSON = []
 		for child_string in children_string:
-			child_nodes_JSON.append(newick_to_json(child_string, namestring, lengthstring, childrenstring))
+			child_JSON = newick_to_json(child_string, namestring, lengthstring, childrenstring, generate_names)
+			if (not name) and generate_names:
+				node[namestring] += child_JSON[namestring]
+			child_nodes_JSON.append(child_JSON)
 		node[childrenstring] = child_nodes_JSON
 	return node
-	
+
+def json_to_newick(json_dict, namestring = "id", lengthstring = "branch_length", childrenstring = "children"):
+	if not isinstance(json_dict, list):
+		string = ""
+		if childrenstring in json_dict:
+			string += "(" + json_to_newick(json_dict[childrenstring]) + ")" + json_dict[namestring]
+		else:
+			string += json_dict[namestring]
+		if lengthstring in json_dict:
+			string += (':' + str(json_dict[lengthstring]))
+		return string
+	else:
+		string = ""
+		for dict in json_dict:
+			string += json_to_newick(dict) + ","
+		return string[0:-1]
