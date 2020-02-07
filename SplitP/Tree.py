@@ -4,7 +4,6 @@ import pandas as pd
 import itertools
 from SplitP import TreeHelperFunctions as hf
 
-
 class tree:
     """A rooted phylogenetic tree.
 

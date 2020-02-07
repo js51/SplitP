@@ -5,7 +5,6 @@ import itertools
 import collections
 from itertools import permutations
 
-
 def getBalance(s, asTuple=False):
     """Returns a string formatted 'X|X' which describes the balance of a given split string"""
     s = s.split("|")
@@ -13,7 +12,6 @@ def getBalance(s, asTuple=False):
         return str(len(s[0])) + '|' + str(len(s[1]))
     else:
         return (len(s[0]), len(s[1]))
-
 
 def fNorm(m):
     """Calculates the Frobenius Norm for a given numpy array"""
