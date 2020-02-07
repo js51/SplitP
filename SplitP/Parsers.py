@@ -1,9 +1,9 @@
-def newick_to_json(newick_string, namestring = "id", lengthstring = "branch_length", childrenstring = "children"):
+def newick_to_json(newick_string, namestring = "id", lengthstring = "branch_length", childrenstring = "children", generate_names=False):
 	"""Parses a newick string (example "((A,B),C);") into JSON format accepted by NetworkX
 
 	Args:
 		newick_string: The newick string to convert to JSON. Names, branch lengths and named 
-			internal nodes accepted. If no names are given, an ID is generated for the name.
+			internal nodes accepted. If no names are given, an ID is generated for the name if generate_names=True.
 		namestring: The label for node name to use in the JSON (default "id").
 		lengthstring: The label for branch length to use in the JSON (default "branch_length").
 		childrenstring: The label for children arrays to use in the JSON (default "children").
@@ -36,7 +36,7 @@ def newick_to_json(newick_string, namestring = "id", lengthstring = "branch_leng
 	info = newick_string[newick_string.rfind(")")+1:]
 	info = info.split(":")
 	name = info[0]
-	if name == "":
+	if name == "" and generate_names:
 		node[namestring] = newick_to_json.counter
 	else:
 		node[namestring] = name
