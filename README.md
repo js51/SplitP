@@ -1,4 +1,5 @@
-# SplitP 
+<img src="https://user-images.githubusercontent.com/27327007/74098153-c1e65080-4b68-11ea-9e06-a68936237176.png" alt="SplitP" width="130"/>
+
 ![](https://github.com/js51/SplitP/workflows/build/badge.svg)
 
 Python package which implements split-based and rank-based phylogenetic tools and methods.
