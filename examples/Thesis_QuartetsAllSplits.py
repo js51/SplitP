@@ -22,7 +22,7 @@ for t, tree in enumerate(theQuartets):
 
     finalResults = {str(lam): [0 for sequenceLength in sequenceLengths] for lam in scalingFactors}
     numSpecies = tree.get_num_taxa()
-    all_splits = sp.generateAllSplits(numSpecies, trivial=False)
+    all_splits = sp.generate_all_splits(numSpecies, trivial=False)
     patternProbs = tree.get_pattern_probabilities()
     results = {str(lam): {split: [] for split in all_splits} for lam in scalingFactors}
 
@@ -37,8 +37,8 @@ for t, tree in enumerate(theQuartets):
                     print('Flattening')
                     results[str(lam)][split].append(tree.split_score(F))
                 else:
-                    print('Scaling by:', sp.scaledHMatrix(lam)[1])
-                    SF = tree.subflattening_alt(F, sp.scaledHMatrix(lam)[0])
+                    print('Scaling by:', sp.scaled_h_matrix(lam)[1])
+                    SF = tree.subflattening_alt(F, sp.scaled_h_matrix(lam)[0])
                     score = tree.split_score(SF)
                     results[str(lam)][split].append(score)
 

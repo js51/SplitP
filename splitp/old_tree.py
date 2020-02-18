@@ -4,7 +4,7 @@ import pandas as pd
 import itertools
 from splitp import tree_helper_functions as hf
 
-class tree:
+class old_tree:
     """A rooted phylogenetic tree.
 
     A rooted phylogenetic tree consisting of a collection of node objects and an adjacency matrix
@@ -168,7 +168,7 @@ class tree:
         for i in range(1, (self.num_bases if not k else k)):
             sumSq2 += (sVals[i]) ** 2
 
-        score = np.sqrt(sumSq) / hf.fNorm(np.array(M).astype(np.float64))
+        score = np.sqrt(sumSq) / hf.frob_norm(np.array(M).astype(np.float64))
 
         if singularValues:
             return score, sing_vals

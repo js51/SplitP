@@ -23,10 +23,10 @@ def scaledHMatrix(lam):
     elif lam == "Identity":
         return (np.matrix([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]), "Identity")
     else:
-        return sp.scaledHMatrix(lam)
+        return sp.scaled_h_matrix(lam)
 
 numSpecies = tree.get_num_taxa()
-all_splits = generateAllSplits(numSpecies, trivial=False)
+all_splits = generate_all_splits(numSpecies, trivial=False)
 patternProbs = tree.get_pattern_probabilities()
 
 results = {str(lam) : {split : [] for split in all_splits} for lam in scalingFactors}

@@ -9,7 +9,7 @@ matrix 			= [[0.95, 0.05/3, 0.05/3, 0.05/3],		# ACGT
 		  		   [0.05/3, 0.95, 0.05/3, 0.05/3],
                     [0.05/3, 0.05/3, 0.95, 0.05/3],
                     [0.05/3, 0.05/3, 0.05/3, 0.95]]
-T1 = tree(num_nodes, num_bases)
+T1 = old_tree(num_nodes, num_bases)
 T1.initDist = initial_dist
 # Adding nodes to the tree, each is given a matrix for it's incoming edge and an ID.
 # The second parameter is the id of the parent node.
@@ -26,7 +26,7 @@ T1.addNode(node(matrix, 9),  4)
 T1.addNode(node(matrix, 10), 4)
 ###
 
-T = nx_tree("(((A,B),C),(D,(E,F)));")
+T = NXTree("(((A,B),C),(D,(E,F)));")
 
 T.reassign_all_transition_matrices(np.array([[0.95, 0.05/3, 0.05/3, 0.05/3],
                                     [0.05/3, 0.95, 0.05/3, 0.05/3],

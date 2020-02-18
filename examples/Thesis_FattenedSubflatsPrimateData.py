@@ -2,9 +2,9 @@ from splitp import *
 import matplotlib.pyplot as plt
 from more_itertools import sort_together
 
-DTable = hf.patternProbsFromAlignment("input/infile_primate_sorted.fa")[0]
-tree = tree(5,4,"Primate_Data_Empty_Tree")
-splits = hf.generateAllSplits(5, trivial=False)
+DTable = hf.pattern_probs_from_alignment("input/infile_primate_sorted.fa")[0]
+tree = old_tree(5, 4, "Primate_Data_Empty_Tree")
+splits = hf.generate_all_splits(5, trivial=False)
 
 splitScores = [splits, [], [], [], [], []]
 for sp in splits:

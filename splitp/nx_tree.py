@@ -28,8 +28,8 @@ class NXTree:
             self.state_space = ('A', 'C', 'G', 'T')
         json_tree = parsers.newick_to_json(newickString, generate_names=True)
         self.nx_graph = json_graph.tree_graph(json_tree)
+        self.subflatLRMats = {}
         # Check if branch lengths have been assigned for every edge:
-
         if all(('branch_length' in self.nx_graph.nodes[n]) or self.is_root(n) for n in self.nx_graph.nodes):
             print("Branch lengths assigned")
             for n in self.nx_graph.nodes:
@@ -219,7 +219,7 @@ class NXTree:
         for i in range(1, (self.num_bases if not k else k)):
             sumSq2 += (sVals[i]) ** 2
 
-        score = np.sqrt(sumSq) / hf.fNorm(np.array(M).astype(np.float64))
+        score = np.sqrt(sumSq) / hf.frob_norm(np.array(M).astype(np.float64))
 
         if singularValues:
             return score, sing_vals

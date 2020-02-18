@@ -18,9 +18,9 @@ matNames.append(-0.01)
 matNames.append(0.01)
 matNames.sort()
 lambdas = [i for i in range(len(matNames))]
-HMats = [hf.scaledHMatrix(i) for i in matNames]
+HMats = [hf.scaled_h_matrix(i) for i in matNames]
 
-all_splits = hf.generateAllSplits(numSpecies, trivial=False)
+all_splits = hf.generate_all_splits(numSpecies, trivial=False)
 patternProbs = tree.get_pattern_probabilities()
 numRuns = 1000
 

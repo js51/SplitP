@@ -13,7 +13,7 @@ trials = 1000
 
 lambdas = [0,1,2]
 matNames = [None, 1, "identity"]
-HMats = [hf.scaledHMatrix(i) for i in matNames]
+HMats = [hf.scaled_h_matrix(i) for i in matNames]
 
 plt.figure(0)
 
@@ -25,7 +25,7 @@ for k, v in trees.items():
         value = v
 
 # Constants for each tree
-splits = hf.generateAllSplits(key, trivial=False)
+splits = hf.generate_all_splits(key, trivial=False)
 sitePatternProbs = value[0].get_pattern_probabilities()
 numRuns = 1000  # number of lines to plot
 

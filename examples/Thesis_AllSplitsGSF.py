@@ -19,7 +19,7 @@ sequenceLengths = [100*n for n in range(1, 11)]
 numRuns = 1000
 
 numSpecies = tree.get_num_taxa()
-all_splits = generateAllSplits(numSpecies, trivial=False)
+all_splits = generate_all_splits(numSpecies, trivial=False)
 patternProbs = tree.get_pattern_probabilities()
 
 results = {str(subflat) : {split : [] for split in all_splits} for subflat in subflattenings}

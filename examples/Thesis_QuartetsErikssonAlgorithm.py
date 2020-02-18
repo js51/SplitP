@@ -21,7 +21,7 @@ for t, tree in enumerate(theTrees):
     print("TREE", t)
     finalResults = {str(lam) : [0 for sequenceLength in sequenceLengths] for lam in scalingFactors}
     numSpecies = tree.get_num_taxa()
-    all_splits = sp.generateAllSplits(numSpecies, trivial=False)
+    all_splits = sp.generate_all_splits(numSpecies, trivial=False)
     patternProbs = tree.get_pattern_probabilities()
     for i, sequenceLength in enumerate(sequenceLengths):
         start = time.time()
@@ -48,7 +48,7 @@ for t, tree in enumerate(theTrees):
                                 F = tree.flattening(split, empericalProbs)
                                 flattenings[split] = F
                             if lam != None:
-                                F = tree.subflattening_alt(F, sp.scaledHMatrix(lam)[0])
+                                F = tree.subflattening_alt(F, sp.scaled_h_matrix(lam)[0])
                             results[(pair, split)] = tree.split_score(F)
                         bestSplit = min(results, key=results.get)
                         if bestSplit[1] not in true_splits:

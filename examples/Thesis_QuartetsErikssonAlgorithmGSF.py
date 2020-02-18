@@ -21,7 +21,7 @@ for t, tree in enumerate(theTrees):
     print("TREE", t)
     finalResults = {str(subflat) : [0 for sequenceLength in sequenceLengths] for subflat in subflattenings}
     numSpecies = tree.get_num_taxa()
-    all_splits = sp.generateAllSplits(numSpecies, trivial=False)
+    all_splits = sp.generate_all_splits(numSpecies, trivial=False)
     patternProbs = tree.get_pattern_probabilities()
     for i, sequenceLength in enumerate(sequenceLengths):
         start = time.time()
