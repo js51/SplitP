@@ -1,7 +1,7 @@
 import pytest
 from splitp import *
 
-def both_implementations_give_same_probabilities():
+def test_both_implementations_give_same_probabilities():
     """ Code the same tree under both implementations, and check that the same
     site-pattern probability distribution is produced"""
     # 6 Taxa Tree (for old tree implementation)
