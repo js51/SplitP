@@ -131,21 +131,22 @@ class nxtree:
         """Returns the parent node for a given node"""
         return list(self.nx_graph.predecessors(n))[0]
 
-    def getDescendants(self, n):
+    def getDescendants(self, n, return_iter=False):
         """Returns a list of children/descendents of a given node"""
-        return list(self.nx_graph.successors(n))
+        return list(self.nx_graph.successors(n)) if not return_iter else self.nx_graph.successors(n)
 
     def __likelihood(self, n, lTable):
         """Recursive part of the likelihood algorithm"""
         for b in range(self.num_bases):
             L = 1
-            for d in self.getDescendants(n):
+            for d in self.getDescendants(n, return_iter=True):
+                d_index = self.node_index(d)
                 M = (self.nx_graph.nodes[d])['transition_matrix']
                 s = 0
                 for b2 in range(self.num_bases):
-                    if lTable[self.node_index(d), b2] == None:
+                    if lTable[d_index, b2] == None:
                         self.__likelihood(d, lTable)
-                    s += M[b2, b] * lTable[self.node_index(d), b2]
+                    s += M[b2, b] * lTable[d_index, b2]
                 L *= s
             lTable[self.node_index(n), b] = L
         if not self.isRoot(n):
@@ -168,7 +169,7 @@ class nxtree:
             return self.state_space.index(p)
 
         pattern = [toInt(p) for p in pattern]  # A list of indices which correspond to taxa.
-        taxa = [n for n in self.nx_graph.nodes if self.isLeaf(n)]  # The list of taxa.
+        taxa = self.taxa  # The list of taxa.
         # Likelihood table for dynamic prog alg ~ lTable[node_index, character]
         lTable = np.array([[None for _ in range(self.num_bases)] for _ in range(self.num_nodes())])
 
