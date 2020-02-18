@@ -357,14 +357,14 @@ class NXTree:
 
     def subflattening_alt(self, F, S=None, returnLRMats=False):
         if np.all(S) == None:
-            S = np.matrix([[1, -1], [1, 1]])  # Swapped rows compared to other way
+            S = np.array([[1, -1], [1, 1]])  # Swapped rows compared to other way
             S = np.kron(S, S)
 
         # Remove the constant row to obtain S
         S_hat = np.empty((0, self.num_bases))
         for row in S:
-            if list(np.asarray(row)[0]) != [1 for i in range(self.num_bases)]:
-                S_hat = np.append(S_hat, row, axis=0)
+            if list(np.asarray(row)) != [1 for i in range(self.num_bases)]:
+                S_hat = np.append(S_hat, [row], axis=0)
 
         L = self.__make_mat(F, S_hat, True)
         R = self.__make_mat(F, S_hat, False)
@@ -377,12 +377,12 @@ class NXTree:
     def transformed_flattening(self, F, S=None):
         """ Creates a transformed flattening from a flattening data frame """
         if np.all(S) == None:
-            H = np.matrix([[1, -1], [1, 1]])  # Swapped rows compared to other way
+            H = np.array([[1, -1], [1, 1]])  # Swapped rows compared to other way
             S = np.kron(H, H)
 
         colLabels = list(F)
         rowLabels = F.index
-        F = np.matrix(F).astype(np.float64)
+        F = np.array(F).astype(np.float64)
         L, R = S, S
         while L.shape[0] != F.shape[0]:
             L = np.kron(L, S)
@@ -410,7 +410,7 @@ class NXTree:
                     if len("".join([x for x in r if x != specialState])) <= type[0] and len(
                             "".join([x for x in c if x != specialState])) <= type[1]:
                         row.append(Ft.loc[r, c])
-                if row != []: matrix.append(row)
+                if row: matrix.append(row)
         return np.asarray(matrix)
 
     def parsimony_score(self, pattern):

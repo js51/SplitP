@@ -1,34 +1,32 @@
 import pytest
 from splitp import *
 
-
 @pytest.fixture(scope='class')
-def get_trees():
-    matrix_1 = [[0.95, 0.05 / 3, 0.05 / 3, 0.05 / 3],
-                [0.05 / 3, 0.95, 0.05 / 3, 0.05 / 3],
-                [0.05 / 3, 0.05 / 3, 0.95, 0.05 / 3],
-                [0.05 / 3, 0.05 / 3, 0.05 / 3, 0.95]]
-    trees = []
+def get_test_cases():
+    cases = []
+    matrix_1 = [[0.95, 0.05 / 3, 0.05 / 3, 0.05 / 3], [0.05 / 3, 0.95, 0.05 / 3, 0.05 / 3],
+                [0.05 / 3, 0.05 / 3, 0.95, 0.05 / 3], [0.05 / 3, 0.05 / 3, 0.05 / 3, 0.95]]
     t1 = NXTree("(((A,B),C),(D,(E,F)));")
     t1.reassign_all_transition_matrices(np.array(matrix_1))
-    trees.append(t1)
-    return trees
+    cases.append({'tree': t1,
+                  'pars_tests': {'012|345': 1, '024|135': 3, '0145|23': 2},
+                  })
+    return cases
 
-
-def test_trivial_parsimony(get_trees):
+def test_parsimony(get_test_cases):
     """ Testing that all trivial splits have parsimony of 1 """
-    for tree in get_trees:
-        splits = generate_all_splits(tree.get_num_taxa(), True, True)
-        scores = [tree.parsimony_score(s) for s in splits]
-        assert all([s == 1 for s in scores])
+    for case in get_test_cases:
+        trivial_splits = generate_all_splits(case['tree'].get_num_taxa(), True, True)
+        scores = [case['tree'].parsimony_score(s) for s in trivial_splits]
+        assert all(case['tree'].parsimony_score(sp) == case['pars_tests'][sp] for sp in case['pars_tests'].keys()) and all([s == 1 for s in scores])
 
 
-def test_subflats_equal(get_trees):
-    for tree in get_trees:
-        splits = generate_all_splits(tree.get_num_taxa(), trivial=False)
-        pattern_probs = tree.get_pattern_probabilities()
+def test_subflats_equal(get_test_cases):
+    for case in get_test_cases:
+        splits = generate_all_splits(case['tree'].get_num_taxa(), trivial=False)
+        pattern_probs = case['tree'].get_pattern_probabilities()
         for sp in splits[::6]:
-            flat = tree.flattening(sp, pattern_probs)
-            sf1 = tree.subflattening(tree.transformed_flattening(flat))
-            sf2 = tree.subflattening_alt(flat)
+            flat = case['tree'].flattening(sp, pattern_probs)
+            sf1 = case['tree'].subflattening(case['tree'].transformed_flattening(flat))
+            sf2 = case['tree'].subflattening_alt(flat)
             assert np.all(np.isclose(sf1, sf2))
