@@ -1,4 +1,4 @@
-from SplitP import *
+from splitp import *
 import trees
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -18,32 +18,32 @@ true_splits = treeTuple[2]
 sequenceLengths = [100*n for n in range(1, 11)]
 numRuns = 1000
 
-numSpecies = tree.getNumTaxa()
+numSpecies = tree.get_num_taxa()
 all_splits = generateAllSplits(numSpecies, trivial=False)
-patternProbs = tree.getLikelihoods()
+patternProbs = tree.get_pattern_probabilities()
 
 results = {str(subflat) : {split : [] for split in all_splits} for subflat in subflattenings}
 
 for i in range(numRuns):
     print("Run " + str(i))
-    DTable = tree.drawFromMultinomial(patternProbs, 1000)
+    DTable = tree.draw_from_multinomial(patternProbs, 1000)
     for split in all_splits:
         print(split)
         F = tree.flattening(split, DTable)
-        TF = tree.transformedFlattening(F)
+        TF = tree.transformed_flattening(F)
         for subflat in subflattenings:
             score = None
             if subflat == "Flattening":
                 print('Flattening')
-                score = tree.splitScore(F)
+                score = tree.split_score(F)
             elif subflat == "Subflattening":
                 print('Subflat')
-                SF = tree.subFlattening(TF)
-                score = tree.splitScore(SF)
+                SF = tree.subflattening(TF)
+                score = tree.split_score(SF)
             else:
                 print('Subflattening: ', str(subflat))
-                SF = tree.subFlattening(TF, type=subflat)
-                score = tree.splitScore(SF)
+                SF = tree.subflattening(TF, type=subflat)
+                score = tree.split_score(SF)
             results[str(subflat)][split].append(score)
 
 

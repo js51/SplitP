@@ -1,5 +1,5 @@
 import pandas as pd
-import SplitP as sp
+import splitp as sp
 import time
 import trees
 import itertools
@@ -20,15 +20,15 @@ theTrees = [trees.trees['T4A'][0], trees.trees['T4B'][0], trees.trees['T4C'][0],
 for t, tree in enumerate(theTrees):
     print("TREE", t)
     finalResults = {str(subflat) : [0 for sequenceLength in sequenceLengths] for subflat in subflattenings}
-    numSpecies = tree.getNumTaxa()
+    numSpecies = tree.get_num_taxa()
     all_splits = sp.generateAllSplits(numSpecies, trivial=False)
-    patternProbs = tree.getLikelihoods()
+    patternProbs = tree.get_pattern_probabilities()
     for i, sequenceLength in enumerate(sequenceLengths):
         start = time.time()
         for run in range(numRuns):
             print("Run", run, "of", numRuns, end='')
             print(" (length: " + str(sequenceLength) + ")")
-            empericalProbs = tree.drawFromMultinomial(patternProbs, sequenceLength)
+            empericalProbs = tree.draw_from_multinomial(patternProbs, sequenceLength)
             flattenings = {}
             for subflat in subflattenings:
                 taxa = [str(i) for i in range(numSpecies)]
@@ -47,10 +47,10 @@ for t, tree in enumerate(theTrees):
                                 F = tree.flattening(split, empericalProbs)
                                 flattenings[split] = F
                             if subflat != "Flattening":
-                                F = tree.transformedFlattening(F)
+                                F = tree.transformed_flattening(F)
                                 if subflat != "Transformed":
-                                    F = tree.subFlattening(F, type=subflat if subflat != "Subflattening" else (1,1))
-                            results[(pair, split)] = tree.splitScore(F)
+                                    F = tree.subflattening(F, type=subflat if subflat != "Subflattening" else (1, 1))
+                            results[(pair, split)] = tree.split_score(F)
                         bestSplit = min(results, key=results.get)
                         if bestSplit[1] not in true_splits:
                             done = True

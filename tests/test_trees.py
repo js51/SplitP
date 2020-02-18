@@ -1,5 +1,5 @@
 import pytest
-from SplitP import *
+from splitp import *
 
 
 @pytest.fixture(scope='class')
@@ -51,18 +51,18 @@ def get_trees():
 def test_trivial_parsimony(get_trees):
     """ Testing that all trivial splits have parsimony of 1 """
     for tree in get_trees:
-        splits = generateAllSplits(tree.getNumTaxa(), True, True)
-        scores = [tree.getParsimony(s) for s in splits]
+        splits = generateAllSplits(tree.get_num_taxa(), True, True)
+        scores = [tree.parsimony_score(s) for s in splits]
         assert all([s == 1 for s in scores])
 
 
 def test_subflats_equal(get_trees):
     for tree in get_trees:
         if tree.num_bases == 4:
-            splits = generateAllSplits(tree.getNumTaxa(), trivial=False)
-            patternProbs = tree.getLikelihoods()
+            splits = generateAllSplits(tree.get_num_taxa(), trivial=False)
+            patternProbs = tree.get_pattern_probabilities()
             for sp in splits[::6]:
                 F = tree.flattening(sp, patternProbs)
-                SF1 = tree.subFlattening(tree.transformedFlattening(F))
-                SF2 = tree.subFlatteningAlt(F)
+                SF1 = tree.subflattening(tree.transformed_flattening(F))
+                SF2 = tree.subflattening_alt(F)
                 assert np.all(np.isclose(SF1, SF2))

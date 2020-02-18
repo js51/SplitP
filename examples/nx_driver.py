@@ -1,9 +1,10 @@
-from SplitP import *
+from splitp import *
 
-newick_tree_string = "((A,B),(C,D));"
-json_tree_string = newick_to_json(newick_tree_string, generate_names=True)
-print(json_to_newick(json_tree_string))
-
-print(json_tree_string)
-
-T = nxtree(newick_tree_string)
+newick_tree_string = "(((A,B),C),(D,(E,F)));"
+T = NXTree(newick_tree_string)
+T.reassign_all_transition_matrices(np.array([[0.95, 0.05/3, 0.05/3, 0.05/3],
+                                    [0.05/3, 0.95, 0.05/3, 0.05/3],
+                                    [0.05/3, 0.05/3, 0.95, 0.05/3],
+                                    [0.05/3, 0.05/3, 0.05/3, 0.95]]))
+#T.addNode("Hello", 100)
+LTable = T.get_pattern_probabilities()

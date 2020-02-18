@@ -26,7 +26,7 @@ for k, v in trees.items():
 
 # Constants for each tree
 splits = hf.generateAllSplits(key, trivial=False)
-sitePatternProbs = value[0].getLikelihoods()
+sitePatternProbs = value[0].get_pattern_probabilities()
 numRuns = 1000  # number of lines to plot
 
 scoreDiffsCollection = []
@@ -37,7 +37,7 @@ for i in range(numRuns):
     print(str(key), "taxon tree")
     scoreDiffs = []
     scoreDiffs2 = []
-    empericalProbs = value[0].drawFromMultinomial(sitePatternProbs, trials)
+    empericalProbs = value[0].draw_from_multinomial(sitePatternProbs, trials)
 
     for H in HMats:
         # Preparation
@@ -49,10 +49,10 @@ for i in range(numRuns):
             # print("Split:", split)
             F = value[0].flattening(split, empericalProbs)
             if H[1] != None:
-                SF = value[0].subFlatteningAlt(F, S=H[0], returnLRMats=False)
+                SF = value[0].subflattening_alt(F, S=H[0], returnLRMats=False)
             else:
                 SF = F
-            score = value[0].splitScore(SF)
+            score = value[0].split_score(SF)
             splitScores.append(score)
         trueScores = sorted(splitScores)[0:value[1]]
         falseScores = sorted(splitScores)[value[1]:]

@@ -1,14 +1,13 @@
 import numpy as np
 import copy as cp
-import networkx as nx
 from networkx.readwrite import json_graph
 import pandas as pd
 import itertools
-from SplitP import TreeHelperFunctions as hf
-from SplitP import Parsers
+from splitp import tree_helper_functions as hf
+from splitp import parsers
 
 
-class nxtree:
+class NXTree:
     """A rooted phylogenetic tree.
 
     A rooted phylogenetic tree consisting of a collection of node objects and an adjacency matrix
@@ -27,21 +26,21 @@ class nxtree:
         self.initDist = [1/4,1/4,1/4,1/4]
         if self.num_bases == 4:
             self.state_space = ('A', 'C', 'G', 'T')
-        json_tree = Parsers.newick_to_json(newickString, generate_names=True)
+        json_tree = parsers.newick_to_json(newickString, generate_names=True)
         self.nx_graph = json_graph.tree_graph(json_tree)
         # Check if branch lengths have been assigned for every edge:
 
-        if all(('branch_length' in self.nx_graph.nodes[n]) or self.isRoot(n) for n in self.nx_graph.nodes):
+        if all(('branch_length' in self.nx_graph.nodes[n]) or self.is_root(n) for n in self.nx_graph.nodes):
             print("Branch lengths assigned")
             for n in self.nx_graph.nodes:
-                if not self.isRoot(n):
+                if not self.is_root(n):
                     b = self.nx_graph.nodes[n]['branch_length']
                     self.nx_graph.nodes[n]['transition_matrix'] = self.build_JC_matrix(b)
         else:
             print("Branch lengths missing: none were assigned")
 
         if not taxa_ordering:
-            taxa_ordering = [n for n in self.nx_graph.nodes if self.isLeaf(n)]
+            taxa_ordering = [n for n in self.nx_graph.nodes if self.is_leaf(n)]
         self.taxa = taxa_ordering
         for i, taxon_name in enumerate(self.taxa):
             self.nx_graph.nodes[taxon_name]['t_index'] = i
@@ -51,12 +50,12 @@ class nxtree:
         self.name = name
 
     def __str__(self):
-        return Parsers.json_to_newick(json_graph.tree_data(self.nx_graph, self.getRoot(return_index=False)))
+        return parsers.json_to_newick(json_graph.tree_data(self.nx_graph, self.get_root(return_index=False)))
 
     def reassign_all_transition_matrices(self, matrix):
         for n in self.nx_graph.nodes:
             self.nx_graph.nodes[n]['transition_matrix'] = matrix
-        # Recompute branch lengths ??
+            if 'branch_length' in self.nx_graph.nodes[n]: self.nx_graph.nodes[n]['branch_length'].pop() # TODO: recompute branch lengths instead
 
     def build_JC_matrix(self, l):
         from math import exp
@@ -67,13 +66,15 @@ class nxtree:
                     (-4 * l) / 3)
         return np.array(matrix).T
 
-    def addNode(self, n, branch_length=0, in_node=None):
+    def add_node(self, n, branch_length=0, in_node=None):
         """Adds a new node to the tree
 
         Args:
             n: The node object to add into the tree.
             in_node: The name of the parent node, default is None and is used for the root.
         """
+        from warnings import warn
+        warn("addNode is deprecated, trees should be instantiated from newick strings and never changed.", DeprecationWarning)
         self.nx_graph.add_node(n,
                                branch_length=branch_length,
                                transition_matrix=self.build_JC_matrix(branch_length)
@@ -81,11 +82,11 @@ class nxtree:
         if in_node:
             self.nx_graph.add_edge(in_node, n)
 
-    def getNumTaxa(self):
+    def get_num_taxa(self):
         """Returns the number of taxa/leaf-nodes in the tree"""
         num_leaves = 0
-        for i, n in enumerate(self.nodes_collection()):
-            if self.isLeaf(i):
+        for i, n in enumerate(self.nodes()):
+            if self.is_leaf(i):
                 num_leaves += 1
         return num_leaves
 
@@ -98,27 +99,27 @@ class nxtree:
     def nodes_list(self):
         return list(self.nx_graph.nodes)
 
-    def nodes_collection(self):
+    def nodes(self):
         return self.nx_graph.nodes
 
-    def isLeaf(self, n_index_or_name):
+    def is_leaf(self, n_index_or_name):
         """Determines whether a node is a leaf node from it's index."""
         if type(n_index_or_name) == type(str()):
             return self.nx_graph.out_degree(n_index_or_name) == 0
         else:
             return self.nx_graph.out_degree(list(self.nx_graph.nodes)[n_index_or_name]) == 0
 
-    def isRoot(self, n_index_or_name):
+    def is_root(self, n_index_or_name):
         """Determines whether a node is a root node from it's index."""
         if type(n_index_or_name) == type(str()):
             return self.nx_graph.in_degree(n_index_or_name) == 0
         else:
             return self.nx_graph.in_degree(list(self.nx_graph.nodes)[n_index_or_name]) == 0
 
-    def getRoot(self, return_index=True):
+    def get_root(self, return_index=True):
         """Returns the root node"""
-        for i, n in enumerate(self.nodes_collection()):
-            if self.isRoot(n):
+        for i, n in enumerate(self.nx_graph.nodes):
+            if self.is_root(n):
                 return i if return_index else n
 
     def index_of_node(self, node_name):
@@ -127,11 +128,11 @@ class nxtree:
     def node_name(self, index):
         return self.nodes_list()[index]
 
-    def getParent(self, n):
+    def get_parent(self, n):
         """Returns the parent node for a given node"""
         return list(self.nx_graph.predecessors(n))[0]
 
-    def getDescendants(self, n, return_iter=False):
+    def get_descendants(self, n, return_iter=False):
         """Returns a list of children/descendents of a given node"""
         return list(self.nx_graph.successors(n)) if not return_iter else self.nx_graph.successors(n)
 
@@ -139,7 +140,7 @@ class nxtree:
         """Recursive part of the likelihood algorithm"""
         for b in range(self.num_bases):
             L = 1
-            for d in self.getDescendants(n, return_iter=True):
+            for d in self.get_descendants(n, return_iter=True):
                 d_index = self.node_index(d)
                 M = (self.nx_graph.nodes[d])['transition_matrix']
                 s = 0
@@ -149,8 +150,8 @@ class nxtree:
                     s += M[b2, b] * lTable[d_index, b2]
                 L *= s
             lTable[self.node_index(n), b] = L
-        if not self.isRoot(n):
-            self.__likelihood(self.getParent(n), lTable)
+        if not self.is_root(n):
+            self.__likelihood(self.get_parent(n), lTable)
 
     def __likelihood_start(self, pattern):
 
@@ -165,10 +166,10 @@ class nxtree:
             A probability (range 0-1) of observing the given site pattern given the tree.
         """
 
-        def toInt(p):
+        def _to_int(p):
             return self.state_space.index(p)
 
-        pattern = [toInt(p) for p in pattern]  # A list of indices which correspond to taxa.
+        pattern = [_to_int(p) for p in pattern]  # A list of indices which correspond to taxa.
         taxa = self.taxa  # The list of taxa.
         # Likelihood table for dynamic prog alg ~ lTable[node_index, character]
         lTable = np.array([[None for _ in range(self.num_bases)] for _ in range(self.num_nodes())])
@@ -181,20 +182,20 @@ class nxtree:
         # Starting with node which has all descendants as leaves
         initNode = None
         for n in self.nx_graph.nodes:
-            desc = self.getDescendants(n)
-            if desc and all(self.isLeaf(d) for d in desc):  # If the node has descendants and they are all leaves
+            desc = self.get_descendants(n)
+            if desc and all(self.is_leaf(d) for d in desc):  # If the node has descendants and they are all leaves
                 initNode = n
 
         self.__likelihood(initNode, lTable)  # Should fill in the entire table
 
-        root_index = self.node_index(self.getRoot(return_index=False))
+        root_index = self.node_index(self.get_root(return_index=False))
         L = 0
         for i in range(self.num_bases):
             L += self.initDist[i] * lTable[root_index, i]
 
         return L
 
-    def SVDError(self, M):
+    def svd_error(self, M):
         """"Returns the SVD for a given matrix (All but two/four largest SVs)"""
         sv = list(np.linalg.svd(np.array(M).astype(np.float64), compute_uv=False))
         sv[0] = 0
@@ -204,10 +205,10 @@ class nxtree:
             sv[3] = 0
         return sum(sv)
 
-    def allSVs(self, M):
+    def all_singular_values(self, M):
         return (list(np.linalg.svd(np.array(M).astype(np.float64), compute_uv=False)))
 
-    def splitScore(self, M, k=None, singularValues=False):
+    def split_score(self, M, k=None, singularValues=False):
         """Returns the split score for a given flattening matrix"""
         sVals = list(np.linalg.svd(np.array(M).astype(np.float64), compute_uv=False))
         if singularValues: sing_vals = sVals.copy()
@@ -224,19 +225,19 @@ class nxtree:
             return score, sing_vals
         return score
 
-    def getLikelihoods(self):
+    def get_pattern_probabilities(self):
         """Returns a full table of site-pattern probabilities (binary character set)"""
         # Creating a table with binary labels and calling likelihood_start() to fill it in with probabilities
         if self.num_bases == 2:
             emptyArray = np.array(
                 [
-                    ['{:0{}b}'.format(i, self.getNumTaxa()),
-                     self.__likelihood_start('{:0{}b}'.format(i, self.getNumTaxa()))]
-                    for i in range(self.num_bases ** self.getNumTaxa())
+                    ['{:0{}b}'.format(i, self.get_num_taxa()),
+                     self.__likelihood_start('{:0{}b}'.format(i, self.get_num_taxa()))]
+                    for i in range(self.num_bases ** self.get_num_taxa())
                 ]
             )
         elif self.num_bases == 4:
-            combinations = list(itertools.product(''.join(s for s in self.state_space), repeat=self.getNumTaxa()))
+            combinations = list(itertools.product(''.join(s for s in self.state_space), repeat=self.get_num_taxa()))
             combinations = [''.join(c) for c in combinations]
             emptyArray = pd.DataFrame(
                 [
@@ -247,7 +248,7 @@ class nxtree:
 
         return emptyArray
 
-    def drawFromMultinomial(self, LT, n):
+    def draw_from_multinomial(self, LT, n):
         """Use a given table of probabilities from getLikelihoods() and draw from its distribution"""
         probs = list(LT.iloc[:, 1])
         probs = [float(p) for p in probs]
@@ -255,7 +256,7 @@ class nxtree:
         data = [d / n for d in data]
         if self.num_bases == 2:
             return np.array(
-                [['{:0{}b}'.format(i, self.getNumTaxa()), data[i]] for i in range(self.num_bases ** self.getNumTaxa())])
+                [['{:0{}b}'.format(i, self.get_num_taxa()), data[i]] for i in range(self.num_bases ** self.get_num_taxa())])
         elif self.num_bases == 4:
             patterns = list(LT.iloc[:, 0])
             results = []
@@ -280,8 +281,8 @@ class nxtree:
             rowLables = ['{:0{}b}'.format(i, len(split[0])) for i in range(2 ** len(split[0]))]
             colLables = ['{:0{}b}'.format(i, len(split[1])) for i in range(2 ** len(split[1]))]
         elif self.num_bases == 4:
-            rowLables = list(map(''.join, list(itertools.product('ACGT', repeat=len(split[0])))))
-            colLables = list(map(''.join, list(itertools.product('ACGT', repeat=len(split[1])))))
+            rowLables = list(map(''.join, list(itertools.product(''.join(self.state_space), repeat=len(split[0])))))
+            colLables = list(map(''.join, list(itertools.product(''.join(self.state_space), repeat=len(split[1])))))
 
         F = pd.DataFrame(0, index=rowLables, columns=colLables, dtype=np.float64)
         # Searching through data table and moving likelihoods to the F matrix
@@ -294,31 +295,31 @@ class nxtree:
 
         return F  # .astype(pd.SparseDtype("float64", 0))
 
-    def toXML(self):
+    def to_xml(self):
         """ Returns a string-representation of the tree """
         h = 0
         tree_text = '<?xml version="1.0" encoding="UTF-8"?>\n<tree>\n'
-        r = self.getRoot()
+        r = self.get_root()
         tree_text = tree_text + '<' + str(r) + '>\n'
-        for c in self.getDescendants(r):
-            tree_text = tree_text + self.__nodeXML(self.nodes[c], h + 1)
+        for c in self.get_descendants(r):
+            tree_text = tree_text + self.__node_xml(self.nodes[c], h + 1)
         tree_text = tree_text + '</' + str(r) + '>\n</tree>'
         return tree_text
 
-    def __nodeXML(self, n, h):
+    def __node_xml(self, n, h):
         text = ''
         tabs = ''.join('\t' for x in range(h))
-        children = self.getDescendants(n)
+        children = self.get_descendants(n)
         if not children:
             text = text + tabs + '<' + str(n) + '/>\n'
         else:
             text = text + tabs + '<' + str(n) + '>\n'
-            for c in self.getDescendants(n):
-                text = text + self.__nodeXML(self.nodes[c], h + 1)
+            for c in self.get_descendants(n):
+                text = text + self.__node_xml(self.nodes[c], h + 1)
             text = text + tabs + '</' + str(n) + '>\n'
         return text
 
-    def __makeMat(self, F, S_hat, left=True):
+    def __make_mat(self, F, S_hat, left=True):
         colLabels = list(F)
         rowLabels = F.index
         if (str(S_hat), left, F.shape) in self.subflatLRMats:
@@ -354,7 +355,7 @@ class nxtree:
         self.subflatLRMats[(str(S_hat), left, F.shape)] = M
         return M
 
-    def subFlatteningAlt(self, F, S=None, returnLRMats=False):
+    def subflattening_alt(self, F, S=None, returnLRMats=False):
         if np.all(S) == None:
             S = np.matrix([[1, -1], [1, 1]])  # Swapped rows compared to other way
             S = np.kron(S, S)
@@ -365,15 +366,15 @@ class nxtree:
             if list(np.asarray(row)[0]) != [1 for i in range(self.num_bases)]:
                 S_hat = np.append(S_hat, row, axis=0)
 
-        L = self.__makeMat(F, S_hat, True)
-        R = self.__makeMat(F, S_hat, False)
+        L = self.__make_mat(F, S_hat, True)
+        R = self.__make_mat(F, S_hat, False)
         F = np.asarray(F)  # , dtype=np.float64)
         if not returnLRMats:
             return L @ F @ R.T
         else:
             return (L @ F @ R.T, L, R)
 
-    def transformedFlattening(self, F, S=None):
+    def transformed_flattening(self, F, S=None):
         """ Creates a transformed flattening from a flattening data frame """
         if np.all(S) == None:
             H = np.matrix([[1, -1], [1, 1]])  # Swapped rows compared to other way
@@ -390,7 +391,7 @@ class nxtree:
         Ft = np.matmul(np.matmul(L, F), np.transpose(R))
         return pd.DataFrame(Ft, index=rowLabels, columns=colLabels, dtype=np.float64)
 
-    def subFlattening(self, Ft, specialState='T', type=(1, 1)):
+    def subflattening(self, Ft, specialState='T', type=(1, 1)):
         """ Creates a subflattening from a transformed flattening data frame """
         matrix = []
         self.special_state = specialState
@@ -412,7 +413,7 @@ class nxtree:
                 if row != []: matrix.append(row)
         return np.asarray(matrix)
 
-    def getParsimony(self, pattern):
+    def parsimony_score(self, pattern):
         """Calculate a parsimony score for a site pattern or split
 
         Args:
@@ -431,19 +432,19 @@ class nxtree:
                 i += 1
             pattern = "".join(str(i) for i in pattern2)
 
-        taxa = [n for n in nodes if self.isLeaf(n)]
+        taxa = [n for n in nodes if self.is_leaf(n)]
         for i, t in enumerate(taxa):
             nodes[t]['pars'] = set(pattern[i])
         score = 0
         for n in nodes:
-            if not self.isLeaf(n) and 'pars' not in nodes[n]:
+            if not self.is_leaf(n) and 'pars' not in nodes[n]:
                 score += self.__parsimony(n, nodes=nodes)
         return score
 
     def __parsimony(self, n, nodes=None):
         """Recursive step in Finch's Algorithm"""
         score = 0
-        children = self.getDescendants(n)
+        children = self.get_descendants(n)
         for c in children:
             if 'pars' not in nodes[c]:
                 score += self.__parsimony(c, nodes)
@@ -458,7 +459,7 @@ class nxtree:
             return score + 1
         return score
 
-    def wronginess(self, split, verbose=False):
+    def shared_edges_score(self, split, verbose=False):
 
         split = split.split("|")
         S1 = set([int(i) for i in split[0]])
@@ -472,7 +473,7 @@ class nxtree:
         for S in partition:
             T = cp.deepcopy(self)
 
-            taxa = [n for n in T.nodes if T.isLeaf(n.index)]
+            taxa = [n for n in T.nodes if T.is_leaf(n.index)]
 
             for s in S:
                 for i in range(len(T.adjM[:, taxa[s].index])):
@@ -481,7 +482,7 @@ class nxtree:
                     T.nodes.remove(taxa[s])
                     T.num_nodes -= 1
 
-            new_taxa = [n for n in T.nodes if T.isLeaf(n.index)]
+            new_taxa = [n for n in T.nodes if T.is_leaf(n.index)]
             new_taxa = [t for t in new_taxa if t not in taxa]
 
             while new_taxa != []:
@@ -492,7 +493,7 @@ class nxtree:
                         T.nodes.remove(t)
                         T.num_nodes -= 1
 
-                new_taxa = [n for n in T.nodes if T.isLeaf(n.index)]
+                new_taxa = [n for n in T.nodes if T.is_leaf(n.index)]
                 new_taxa = [t for t in new_taxa if t not in taxa]
 
             # After all new taxa are removed, we remove roots with only one descendants,
@@ -501,8 +502,8 @@ class nxtree:
 
             rootMightNeedRemoving = True  # placeholder
             while rootMightNeedRemoving:
-                root = T.getRoot()
-                rootDes = T.getDescendants(root)
+                root = T.get_root()
+                rootDes = T.get_descendants(root)
                 if len(rootDes) == 1:
                     for i in range(len(T.adjM[:, root.index])):
                         T.adjM[:, root.index] = 0
@@ -512,11 +513,11 @@ class nxtree:
                 else:
                     rootMightNeedRemoving = False
 
-                root = T.getRoot()
-                if len(T.getDescendants(root)) == 1:
+                root = T.get_root()
+                if len(T.get_descendants(root)) == 1:
                     rootMightNeedRemoving = True
 
-            rootDes = T.getDescendants(T.getRoot())
+            rootDes = T.get_descendants(T.get_root())
             rootDesNodes = [n for n in T.nodes if (n.index in rootDes)]
             for d in rootDesNodes:
                 if np.array_equal(d.inEdgeMat, np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]])):

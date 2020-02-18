@@ -1,5 +1,5 @@
 import pytest
-from SplitP import *
+from splitp import *
 
 @pytest.fixture(scope='class')
 def get_newick_strings():

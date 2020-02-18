@@ -1,4 +1,4 @@
-from SplitP import *
+from splitp import *
 import matplotlib.pyplot as plt
 from more_itertools import sort_together
 

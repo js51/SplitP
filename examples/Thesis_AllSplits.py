@@ -1,5 +1,5 @@
-import SplitP as sp
-from SplitP import *
+import splitp as sp
+from splitp import *
 import trees
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -25,36 +25,36 @@ def scaledHMatrix(lam):
     else:
         return sp.scaledHMatrix(lam)
 
-numSpecies = tree.getNumTaxa()
+numSpecies = tree.get_num_taxa()
 all_splits = generateAllSplits(numSpecies, trivial=False)
-patternProbs = tree.getLikelihoods()
+patternProbs = tree.get_pattern_probabilities()
 
 results = {str(lam) : {split : [] for split in all_splits} for lam in scalingFactors}
 
 for i in range(numRuns):
     print("Run " + str(i))
-    DTable = tree.drawFromMultinomial(patternProbs, 1000)
+    DTable = tree.draw_from_multinomial(patternProbs, 1000)
     for split in all_splits:
         print(split)
         F = tree.flattening(split, DTable)
         for lam in scalingFactors:
             if lam == None:
                 print('Flattening')
-                results[str(lam)][split].append(tree.splitScore(F))
+                results[str(lam)][split].append(tree.split_score(F))
             elif lam == "Identity":
                 print('Identity Matrix')
-                SF = tree.subFlattening(tree.transformedFlattening(F, S=np.matrix([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]])))
-                score = tree.splitScore(SF)
+                SF = tree.subflattening(tree.transformed_flattening(F, S=np.matrix([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]])))
+                score = tree.split_score(SF)
                 results[str(lam)][split].append(score)
             elif lam == "H/2":
                 print('Full H matrix divided by 2')
-                SF = tree.subFlattening(tree.transformedFlattening(F, S=(1/2)*scaledHMatrix(1)[0]))
-                score = tree.splitScore(SF)
+                SF = tree.subflattening(tree.transformed_flattening(F, S=(1 / 2) * scaledHMatrix(1)[0]))
+                score = tree.split_score(SF)
                 results[str(lam)][split].append(score)
             else:
                 print('Scaling by:', scaledHMatrix(lam)[1])
-                SF = tree.subFlatteningAlt(F, scaledHMatrix(lam)[0])
-                score = tree.splitScore(SF)
+                SF = tree.subflattening_alt(F, scaledHMatrix(lam)[0])
+                score = tree.split_score(SF)
                 results[str(lam)][split].append(score)
 
 

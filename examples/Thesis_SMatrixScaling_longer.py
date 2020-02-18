@@ -1,5 +1,5 @@
 # imports
-from SplitP import *
+from splitp import *
 import trees
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -9,7 +9,7 @@ trees = trees.trees
 treeTuple = trees[6]
 tree = treeTuple[0]
 trueSplits = treeTuple[2]
-numSpecies = tree.getNumTaxa()
+numSpecies = tree.get_num_taxa()
 
 sequenceLength = 1000
 matNames = [n for n in range(-20, 20+1)]
@@ -21,7 +21,7 @@ lambdas = [i for i in range(len(matNames))]
 HMats = [hf.scaledHMatrix(i) for i in matNames]
 
 all_splits = hf.generateAllSplits(numSpecies, trivial=False)
-patternProbs = tree.getLikelihoods()
+patternProbs = tree.get_pattern_probabilities()
 numRuns = 1000  # number of lines to plot
 
 scoreDiffsCollection = []
@@ -32,14 +32,14 @@ singleRun = []
 # { Matrix : [[qualityMeasure1s], [qualityMeasure2s]] }
 for run in range(numRuns):
     print("Run " + str(run) + " of " + str(numRuns))
-    empericalProbs = tree.drawFromMultinomial(patternProbs, sequenceLength)
+    empericalProbs = tree.draw_from_multinomial(patternProbs, sequenceLength)
 
     scoreLists = {mat : [] for mat in matNames}
     for split in all_splits:
         F = tree.flattening(split, empericalProbs)
         for i, H in enumerate(HMats):
-            SF = tree.subFlatteningAlt(F, S=H[0])
-            score = tree.splitScore(SF)
+            SF = tree.subflattening_alt(F, S=H[0])
+            score = tree.split_score(SF)
             scoreLists[matNames[i]].append(score)
 
     for matName, scoreList in scoreLists.items():

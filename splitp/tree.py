@@ -2,7 +2,7 @@ import numpy as np
 import copy as cp
 import pandas as pd
 import itertools
-from SplitP import TreeHelperFunctions as hf
+from splitp import tree_helper_functions as hf
 
 class tree:
     """A rooted phylogenetic tree.

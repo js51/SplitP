@@ -9,7 +9,7 @@ def newick_to_json(newick_string, namestring = "id", lengthstring = "branch_leng
 		childrenstring: The label for children arrays to use in the JSON (default "children").
 		generate_names: Whether or not to generate names if none are given
 	"""
-	def splitIntoChildren(children_string):
+	def __split_into_children(children_string):
 		""" Helper function for splitting a newick string into siblings """
 		string = children_string
 		opened = 0
@@ -41,7 +41,7 @@ def newick_to_json(newick_string, namestring = "id", lengthstring = "branch_leng
 	if children_string != "":
 		if children_string[-1] == ")":
 				children_string = children_string[1:-1]
-		children_string = splitIntoChildren(children_string)
+		children_string = __split_into_children(children_string)
 		child_nodes_JSON = []
 		for child_string in children_string:
 			child_JSON = newick_to_json(child_string, namestring, lengthstring, childrenstring, generate_names)

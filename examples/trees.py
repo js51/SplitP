@@ -1,4 +1,4 @@
-from SplitP import *
+from splitp import *
 
 def makeSubsMatrix(subs_prob, k):
     matrix = []

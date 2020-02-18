@@ -4,11 +4,11 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="SplitP",
+    name="splitp",
     version="0.0.3",
     author="Joshua Stevenson",
     author_email="joshua.stevenson@utas.edu.au",
-    description="SplitP",
+    description="splitp",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/js51/SplitP",

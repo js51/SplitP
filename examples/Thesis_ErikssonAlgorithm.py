@@ -1,6 +1,6 @@
 import pandas as pd
-from SplitP import *
-import SplitP as sp
+from splitp import *
+import splitp as sp
 import time
 import trees
 import itertools
@@ -21,15 +21,15 @@ sequenceLengths = [100*n for n in range(1, 11)]
 numRuns = 1000
 
 finalResults = {str(lam) : [0 for sequenceLength in sequenceLengths] for lam in scalingFactors}
-numSpecies = tree.getNumTaxa()
+numSpecies = tree.get_num_taxa()
 all_splits = sp.generateAllSplits(numSpecies, trivial=False)
-patternProbs = tree.getLikelihoods()
+patternProbs = tree.get_pattern_probabilities()
 for i, sequenceLength in enumerate(sequenceLengths):
     start = time.time()
     for run in range(numRuns):
         print("Run", run, "of", numRuns, end='')
         print(" (length: " + str(sequenceLength) + ")")
-        empericalProbs = tree.drawFromMultinomial(patternProbs, sequenceLength)
+        empericalProbs = tree.draw_from_multinomial(patternProbs, sequenceLength)
         flattenings = {}
         for lam in scalingFactors:
             print("\t" + str(lam), end='')
@@ -49,8 +49,8 @@ for i, sequenceLength in enumerate(sequenceLengths):
                             F = tree.flattening(split, empericalProbs)
                             flattenings[split] = F
                         if lam != None:
-                            F = tree.subFlatteningAlt(F, sp.scaledHMatrix(lam)[0])
-                        results[(pair, split)] = tree.splitScore(F)
+                            F = tree.subflattening_alt(F, sp.scaledHMatrix(lam)[0])
+                        results[(pair, split)] = tree.split_score(F)
                     bestSplit = min(results, key=results.get)
                     if bestSplit[1] not in true_splits:
                         done = True
