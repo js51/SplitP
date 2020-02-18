@@ -7,6 +7,7 @@ import itertools
 from SplitP import TreeHelperFunctions as hf
 from SplitP import Parsers
 
+
 class nxtree:
     """A rooted phylogenetic tree.
 
@@ -20,73 +21,134 @@ class nxtree:
         initDist: The initial distribution of states/characters at the root of the tree.
     """
 
-    def __init__(self, newickString, name=None, numStates=4):
+    def __init__(self, newickString, name=None, numStates=4, taxa_ordering=None):
         """Initialises a tree with the number of nodes and size of the character set"""
         self.num_bases = numStates
+        self.initDist = [1/4,1/4,1/4,1/4]
         if self.num_bases == 4:
-            self.state_space = ('A', 'G', 'C', 'T')
+            self.state_space = ('A', 'C', 'G', 'T')
         json_tree = Parsers.newick_to_json(newickString, generate_names=True)
         self.nx_graph = json_graph.tree_graph(json_tree)
+        # Check if branch lengths have been assigned for every edge:
+
+        if all(('branch_length' in self.nx_graph.nodes[n]) or self.isRoot(n) for n in self.nx_graph.nodes):
+            print("Branch lengths assigned")
+            for n in self.nx_graph.nodes:
+                if not self.isRoot(n):
+                    b = self.nx_graph.nodes[n]['branch_length']
+                    self.nx_graph.nodes[n]['transition_matrix'] = self.build_JC_matrix(b)
+        else:
+            print("Branch lengths missing: none were assigned")
+
+        if not taxa_ordering:
+            taxa_ordering = [n for n in self.nx_graph.nodes if self.isLeaf(n)]
+        self.taxa = taxa_ordering
+        for i, taxon_name in enumerate(self.taxa):
+            self.nx_graph.nodes[taxon_name]['t_index'] = i
+
+        for i, n in enumerate(self.nx_graph.nodes):
+            self.nx_graph.nodes[n]['index'] = i
         self.name = name
 
     def __str__(self):
-        return "" # Use JSON to Newick parser to return newick string # str(self.toXML())
+        return Parsers.json_to_newick(json_graph.tree_data(self.nx_graph, self.getRoot(return_index=False)))
 
-    def addNode(self, n, in_node=None):
+    def reassign_all_transition_matrices(self, matrix):
+        for n in self.nx_graph.nodes:
+            self.nx_graph.nodes[n]['transition_matrix'] = matrix
+        # Recompute branch lengths ??
+
+    def build_JC_matrix(self, l):
+        from math import exp
+        matrix = [[0 for i in range(self.num_bases)] for n in range(self.num_bases)]
+        for r, row in enumerate(matrix):
+            for c, _ in enumerate(row):
+                matrix[r][c] = (1 / 4) + (3 / 4) * exp((-4 * l) / 3) if r == c else (1 / 4) - (1 / 4) * exp(
+                    (-4 * l) / 3)
+        return np.array(matrix).T
+
+    def addNode(self, n, branch_length=0, in_node=None):
         """Adds a new node to the tree
 
         Args:
             n: The node object to add into the tree.
-            in_node: The index of the parent node, default is None and is used for the root.
+            in_node: The name of the parent node, default is None and is used for the root.
         """
-        self.nodes[n.index] = n
-        if in_node != None:
-            self.adjM[in_node][n.index] = 1
+        self.nx_graph.add_node(n,
+                               branch_length=branch_length,
+                               transition_matrix=self.build_JC_matrix(branch_length)
+                               )
+        if in_node:
+            self.nx_graph.add_edge(in_node, n)
 
     def getNumTaxa(self):
         """Returns the number of taxa/leaf-nodes in the tree"""
-        o = 0
-        for n in self.nodes:
-            if self.isLeaf(n.index):
-                o += 1
-        return o
+        num_leaves = 0
+        for i, n in enumerate(self.nodes_collection()):
+            if self.isLeaf(i):
+                num_leaves += 1
+        return num_leaves
 
-    def isLeaf(self, n_index):
+    def num_nodes(self):
+        return len(list(self.nx_graph.nodes))
+
+    def node_index(self, n):
+        return self.nx_graph.nodes[n]['index']
+
+    def nodes_list(self):
+        return list(self.nx_graph.nodes)
+
+    def nodes_collection(self):
+        return self.nx_graph.nodes
+
+    def isLeaf(self, n_index_or_name):
         """Determines whether a node is a leaf node from it's index."""
-        return np.all(self.adjM[n_index][:] == 0)
+        if type(n_index_or_name) == type(str()):
+            return self.nx_graph.out_degree(n_index_or_name) == 0
+        else:
+            return self.nx_graph.out_degree(list(self.nx_graph.nodes)[n_index_or_name]) == 0
 
-    def isRoot(self, n_index):
+    def isRoot(self, n_index_or_name):
         """Determines whether a node is a root node from it's index."""
-        return np.all(self.adjM[:, n_index] == 0) and not np.all(self.adjM[n_index, :] == 0)  # THE AND PART IS UNTESTED
+        if type(n_index_or_name) == type(str()):
+            return self.nx_graph.in_degree(n_index_or_name) == 0
+        else:
+            return self.nx_graph.in_degree(list(self.nx_graph.nodes)[n_index_or_name]) == 0
 
-    def getRoot(self):
+    def getRoot(self, return_index=True):
         """Returns the root node"""
-        for n in self.nodes:
-            if self.isRoot(n.index):
-                return n
+        for i, n in enumerate(self.nodes_collection()):
+            if self.isRoot(n):
+                return i if return_index else n
+
+    def index_of_node(self, node_name):
+        return self.nodes_list().index(node_name)
+
+    def node_name(self, index):
+        return self.nodes_list()[index]
 
     def getParent(self, n):
         """Returns the parent node for a given node"""
-        return self.nodes[np.nonzero(self.adjM[:, n.index])[0][0]]
+        return list(self.nx_graph.predecessors(n))[0]
 
     def getDescendants(self, n):
         """Returns a list of children/descendents of a given node"""
-        return list(np.nonzero(self.adjM[n.index, :])[0])
+        return list(self.nx_graph.successors(n))
 
     def __likelihood(self, n, lTable):
         """Recursive part of the likelihood algorithm"""
         for b in range(self.num_bases):
             L = 1
             for d in self.getDescendants(n):
-                M = (self.nodes[d]).inEdgeMat
+                M = (self.nx_graph.nodes[d])['transition_matrix']
                 s = 0
                 for b2 in range(self.num_bases):
-                    if lTable[d, b2] == None:
-                        self.__likelihood(self.nodes[d], lTable)
-                    s += M[b2, b] * lTable[d, b2]
+                    if lTable[self.node_index(d), b2] == None:
+                        self.__likelihood(d, lTable)
+                    s += M[b2, b] * lTable[self.node_index(d), b2]
                 L *= s
-            lTable[n.index, b] = L
-        if not self.isRoot(n.index):
+            lTable[self.node_index(n), b] = L
+        if not self.isRoot(n):
             self.__likelihood(self.getParent(n), lTable)
 
     def __likelihood_start(self, pattern):
@@ -103,36 +165,28 @@ class nxtree:
         """
 
         def toInt(p):
-            if p == 'A':
-                return 0
-            if p == 'C':
-                return 1
-            if p == 'G':
-                return 2
-            if p == 'T':
-                return 3
-            return int(p)
+            return self.state_space.index(p)
 
         pattern = [toInt(p) for p in pattern]  # A list of indices which correspond to taxa.
-        taxa = [n for n in self.nodes if self.isLeaf(n.index)]  # The list of taxa.
+        taxa = [n for n in self.nx_graph.nodes if self.isLeaf(n)]  # The list of taxa.
         # Likelihood table for dynamic prog alg ~ lTable[node_index, character]
-        lTable = np.array([[None for x in range(self.num_bases)] for x in range(self.num_nodes)])
+        lTable = np.array([[None for _ in range(self.num_bases)] for _ in range(self.num_nodes())])
 
         # Encoding pattern into likelihood table
-        for i in range(len(pattern)):
-            lTable[taxa[i].index, :] = [0 for x in range(self.num_bases)]
-            lTable[taxa[i].index, pattern[i]] = 1
+        for i, p in enumerate(pattern):
+            lTable[self.node_index(taxa[i]), :] = [0 for _ in range(self.num_bases)]
+            lTable[self.node_index(taxa[i]), p] = 1
 
         # Starting with node which has all descendants as leaves
         initNode = None
-        for n in self.nodes:
+        for n in self.nx_graph.nodes:
             desc = self.getDescendants(n)
             if desc and all(self.isLeaf(d) for d in desc):  # If the node has descendants and they are all leaves
                 initNode = n
 
         self.__likelihood(initNode, lTable)  # Should fill in the entire table
 
-        root_index = self.getRoot().index
+        root_index = self.node_index(self.getRoot(return_index=False))
         L = 0
         for i in range(self.num_bases):
             L += self.initDist[i] * lTable[root_index, i]
@@ -180,9 +234,8 @@ class nxtree:
                     for i in range(self.num_bases ** self.getNumTaxa())
                 ]
             )
-
         elif self.num_bases == 4:
-            combinations = list(itertools.product('ACGT', repeat=self.getNumTaxa()))
+            combinations = list(itertools.product(''.join(s for s in self.state_space), repeat=self.getNumTaxa()))
             combinations = [''.join(c) for c in combinations]
             emptyArray = pd.DataFrame(
                 [
@@ -367,6 +420,8 @@ class nxtree:
         Returns:
             A parsimony score for the given split or site pattern
         """
+        graph = self.nx_graph.copy()
+        nodes = graph.nodes
         if '|' in pattern:
             pattern2 = [0 for x in range(len(pattern) - 1)]
             i = 0
@@ -375,33 +430,30 @@ class nxtree:
                 i += 1
             pattern = "".join(str(i) for i in pattern2)
 
-        taxa = [n for n in self.nodes if self.isLeaf(n.index)]
-        for i in range(len(taxa)):
-            taxa[i].pars = set(pattern[i])
+        taxa = [n for n in nodes if self.isLeaf(n)]
+        for i, t in enumerate(taxa):
+            nodes[t]['pars'] = set(pattern[i])
         score = 0
-        for n in self.nodes:
-            if not self.isLeaf(n.index) and n.pars == None:
-                score += self.__parsimony(n)
-        for n in self.nodes:
-            n.pars = None
+        for n in nodes:
+            if not self.isLeaf(n) and 'pars' not in nodes[n]:
+                score += self.__parsimony(n, nodes=nodes)
         return score
 
-    def __parsimony(self, n):
+    def __parsimony(self, n, nodes=None):
         """Recursive step in Finch's Algorithm"""
         score = 0
         children = self.getDescendants(n)
-        children = [self.nodes[c] for c in children]
         for c in children:
-            if c.pars == None:
-                score += self.__parsimony(c)
+            if 'pars' not in nodes[c]:
+                score += self.__parsimony(c, nodes)
 
-        n.pars = children[0].pars
-        for c in range(1, len(children)):
-            n.pars = (n.pars).intersection(children[c].pars)
-        if not n.pars:
-            n.pars = children[0].pars
-            for c in range(1, len(children)):
-                n.pars = (n.pars).union(children[c].pars)
+        nodes[n]['pars'] = nodes[children[0]]['pars'] # children[0].pars
+        for c in children:
+            nodes[n]['pars'] = nodes[n]['pars'].intersection(nodes[c]['pars'])
+        if nodes[n]['pars'] == set():
+            nodes[n]['pars'] = nodes[children[0]]['pars']
+            for c in children:
+                nodes[n]['pars'] = (nodes[n]['pars']).union(nodes[c]['pars'])
             return score + 1
         return score
 
@@ -479,25 +531,3 @@ class nxtree:
         else:
             sharedEdges = np.sum(diffMat)
         return sharedEdges
-
-
-class node:
-    """Represents a node, used by the tree class.
-
-    Attributes:
-        index: The number of nodes in the tree
-        pars: The size of the character set for the phylogeny
-        inEdgeMat: A list of node objects representing the nodes in the tree
-    """
-
-    def __init__(self, mat=None, index=None):
-        self.index = index
-        self.pars = None
-        self.inEdgeMat = np.array(mat)
-
-    def __str__(self):
-        return "n_" + str(self.index)
-
-    def checkMatrix(self, M):
-        # Check that the transition matrix makes sense.
-        pass
