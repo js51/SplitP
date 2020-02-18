@@ -18,7 +18,10 @@ def test_parsimony(get_test_cases):
     for case in get_test_cases:
         trivial_splits = generate_all_splits(case['tree'].get_num_taxa(), True, True)
         scores = [case['tree'].parsimony_score(s) for s in trivial_splits]
-        assert all(case['tree'].parsimony_score(sp) == case['pars_tests'][sp] for sp in case['pars_tests'].keys()) and all([s == 1 for s in scores])
+        corr_triv_scores = all([s == 1 for s in scores])
+        pars_tests = case['pars_tests']
+        corr_other_scores = all(case['tree'].parsimony_score(test[0]) == test[1] for test in pars_tests.items())
+        assert corr_other_scores and corr_triv_scores
 
 
 def test_subflats_equal(get_test_cases):

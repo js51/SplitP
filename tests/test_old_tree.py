@@ -1,7 +1,6 @@
 import pytest
 from splitp import *
 
-
 @pytest.fixture(scope='class')
 def get_trees():
     matrix = [[0.95, 0.05],[0.05, 0.95]]
