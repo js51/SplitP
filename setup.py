@@ -8,7 +8,7 @@ setuptools.setup(
     version="0.0.3",
     author="Joshua Stevenson",
     author_email="joshua.stevenson@utas.edu.au",
-    description="splitp",
+    description="Phylogenetic tools and methods involving splits and matrix rank",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/js51/SplitP",
@@ -18,5 +18,5 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    python_requires='>=3.5',
+    python_requires='>=3.6',
 )
