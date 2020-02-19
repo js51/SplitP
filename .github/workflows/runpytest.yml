@@ -36,5 +36,5 @@ jobs:
         pip install pytest
         pip install coverage
         pip install coveralls
-        coverage run -m pytest
+        coverage run --omit="*/test*" -m pytest
         coveralls
