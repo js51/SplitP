@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="splitp",
-    version="0.0.3",
+    version="0.1.0",
     author="Joshua Stevenson",
     author_email="joshua.stevenson@utas.edu.au",
     description="Phylogenetic tools and methods involving splits and matrix rank",
