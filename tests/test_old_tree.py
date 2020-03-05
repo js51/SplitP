@@ -1,13 +1,12 @@
 import pytest
-from SplitP import *
-
+from splitp import *
 
 @pytest.fixture(scope='class')
 def get_trees():
     matrix = [[0.95, 0.05],[0.05, 0.95]]
     initial_dist = [0.50, 0.50]
     ### Tree 1 (6 Taxon binary) ###
-    T6_2 = tree(11, 2)
+    T6_2 = old_tree(11, 2)
     T6_2.initDist = initial_dist
     T6_2.addNode(node(None, 0))
     T6_2.addNode(node(matrix, 1),  0)
@@ -25,10 +24,10 @@ def get_trees():
     num_nodes = 13
     num_bases = 4
     initial_dist = [0.25, 0.25, 0.25, 0.25]
-    matrix_a = makeSubsMatrix(0.01, 4)
-    matrix_b = makeSubsMatrix(0.03, 4)
-    matrix_c = makeSubsMatrix(0.08, 4)
-    T7_4 = tree(num_nodes, num_bases, name="7TaxonTreeA")
+    matrix_a = make_substitution_matrix(0.01, 4)
+    matrix_b = make_substitution_matrix(0.03, 4)
+    matrix_c = make_substitution_matrix(0.08, 4)
+    T7_4 = old_tree(num_nodes, num_bases, name="7TaxonTreeA")
     T7_4.initDist = initial_dist
     T7_4.addNode(node(None, 0))  # Root Node
     T7_4.addNode(node(matrix_a, 1), 0)
@@ -51,7 +50,7 @@ def get_trees():
 def test_trivial_parsimony(get_trees):
     """ Testing that all trivial splits have parsimony of 1 """
     for tree in get_trees:
-        splits = generateAllSplits(tree.getNumTaxa(), True, True)
+        splits = generate_all_splits(tree.getNumTaxa(), True, True)
         scores = [tree.getParsimony(s) for s in splits]
         assert all([s == 1 for s in scores])
 
@@ -59,7 +58,7 @@ def test_trivial_parsimony(get_trees):
 def test_subflats_equal(get_trees):
     for tree in get_trees:
         if tree.num_bases == 4:
-            splits = generateAllSplits(tree.getNumTaxa(), trivial=False)
+            splits = generate_all_splits(tree.getNumTaxa(), trivial=False)
             patternProbs = tree.getLikelihoods()
             for sp in splits[::6]:
                 F = tree.flattening(sp, patternProbs)

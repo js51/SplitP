@@ -1,0 +1,506 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Documentation &#8212; SplitP 0.1.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="documentation">
+<h1>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+</div>
+<div class="section" id="module-splitp.nx_tree">
+<span id="splitp-nx-tree"></span><h2>SplitP nx_tree<a class="headerlink" href="#module-splitp.nx_tree" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="splitp.nx_tree.NXTree">
+<em class="property">class </em><code class="sig-prename descclassname">splitp.nx_tree.</code><code class="sig-name descname">NXTree</code><span class="sig-paren">(</span><em class="sig-param">newickString</em>, <em class="sig-param">name=None</em>, <em class="sig-param">numStates=4</em>, <em class="sig-param">taxa_ordering=None</em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree" title="Permalink to this definition">¶</a></dt>
+<dd><p>A rooted phylogenetic tree.</p>
+<p>A rooted phylogenetic tree consisting of a collection of node objects and an adjacency matrix</p>
+<dl class="attribute">
+<dt id="splitp.nx_tree.NXTree.num_nodes">
+<code class="sig-name descname">num_nodes</code><a class="headerlink" href="#splitp.nx_tree.NXTree.num_nodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of nodes in the tree</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="splitp.nx_tree.NXTree.num_bases">
+<code class="sig-name descname">num_bases</code><a class="headerlink" href="#splitp.nx_tree.NXTree.num_bases" title="Permalink to this definition">¶</a></dt>
+<dd><p>The size of the character set for the phylogeny</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="splitp.nx_tree.NXTree.nodes">
+<code class="sig-name descname">nodes</code><a class="headerlink" href="#splitp.nx_tree.NXTree.nodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>A list of node objects representing the nodes in the tree</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="splitp.nx_tree.NXTree.adjM">
+<code class="sig-name descname">adjM</code><a class="headerlink" href="#splitp.nx_tree.NXTree.adjM" title="Permalink to this definition">¶</a></dt>
+<dd><p>An adjacency matrix describing the connections within the tree</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="splitp.nx_tree.NXTree.initDist">
+<code class="sig-name descname">initDist</code><a class="headerlink" href="#splitp.nx_tree.NXTree.initDist" title="Permalink to this definition">¶</a></dt>
+<dd><p>The initial distribution of states/characters at the root of the tree.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="splitp.nx_tree.NXTree.add_node">
+<code class="sig-name descname">add_node</code><span class="sig-paren">(</span><em class="sig-param">n</em>, <em class="sig-param">branch_length=0</em>, <em class="sig-param">in_node=None</em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.add_node" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a new node to the tree</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n</strong> – The node object to add into the tree.</p></li>
+<li><p><strong>in_node</strong> – The name of the parent node, default is None and is used for the root.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="splitp.nx_tree.NXTree.draw_from_multinomial">
+<code class="sig-name descname">draw_from_multinomial</code><span class="sig-paren">(</span><em class="sig-param">LT</em>, <em class="sig-param">n</em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.draw_from_multinomial" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use a given table of probabilities from getLikelihoods() and draw from its distribution</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="splitp.nx_tree.NXTree.flattening">
+<code class="sig-name descname">flattening</code><span class="sig-paren">(</span><em class="sig-param">split</em>, <em class="sig-param">table</em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.flattening" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build a flattening matrix from a split</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>split</strong> – A string representing the split to build the flattening from</p></li>
+<li><p><strong>table</strong> – A pandas data-frame table with site pattern <a href="#id1"><span class="problematic" id="id2">`</span></a>probabilities’</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A flattening matrix as a data-frame (to provide labels)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="splitp.nx_tree.NXTree.get_descendants">
+<code class="sig-name descname">get_descendants</code><span class="sig-paren">(</span><em class="sig-param">n</em>, <em class="sig-param">return_iter=False</em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.get_descendants" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of children/descendents of a given node</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="splitp.nx_tree.NXTree.get_num_taxa">
+<code class="sig-name descname">get_num_taxa</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.get_num_taxa" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of taxa/leaf-nodes in the tree</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="splitp.nx_tree.NXTree.get_parent">
+<code class="sig-name descname">get_parent</code><span class="sig-paren">(</span><em class="sig-param">n</em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.get_parent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the parent node for a given node</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="splitp.nx_tree.NXTree.get_pattern_probabilities">
+<code class="sig-name descname">get_pattern_probabilities</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.get_pattern_probabilities" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a full table of site-pattern probabilities (binary character set)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="splitp.nx_tree.NXTree.get_root">
+<code class="sig-name descname">get_root</code><span class="sig-paren">(</span><em class="sig-param">return_index=True</em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.get_root" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the root node</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="splitp.nx_tree.NXTree.is_leaf">
+<code class="sig-name descname">is_leaf</code><span class="sig-paren">(</span><em class="sig-param">n_index_or_name</em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.is_leaf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines whether a node is a leaf node from it’s index.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="splitp.nx_tree.NXTree.is_root">
+<code class="sig-name descname">is_root</code><span class="sig-paren">(</span><em class="sig-param">n_index_or_name</em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.is_root" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines whether a node is a root node from it’s index.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="splitp.nx_tree.NXTree.parsimony_score">
+<code class="sig-name descname">parsimony_score</code><span class="sig-paren">(</span><em class="sig-param">pattern</em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.parsimony_score" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate a parsimony score for a site pattern or split</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>pattern</strong> – A string representing a site pattern or split</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A parsimony score for the given split or site pattern</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="splitp.nx_tree.NXTree.split_score">
+<code class="sig-name descname">split_score</code><span class="sig-paren">(</span><em class="sig-param">M</em>, <em class="sig-param">k=None</em>, <em class="sig-param">singularValues=False</em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.split_score" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the split score for a given flattening matrix</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="splitp.nx_tree.NXTree.subflattening">
+<code class="sig-name descname">subflattening</code><span class="sig-paren">(</span><em class="sig-param">Ft</em>, <em class="sig-param">specialState='T'</em>, <em class="sig-param">type=(1</em>, <em class="sig-param">1)</em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.subflattening" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a subflattening from a transformed flattening data frame</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="splitp.nx_tree.NXTree.svd_error">
+<code class="sig-name descname">svd_error</code><span class="sig-paren">(</span><em class="sig-param">M</em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.svd_error" title="Permalink to this definition">¶</a></dt>
+<dd><p>“Returns the SVD for a given matrix (All but two/four largest SVs)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="splitp.nx_tree.NXTree.to_xml">
+<code class="sig-name descname">to_xml</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.to_xml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a string-representation of the tree</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="splitp.nx_tree.NXTree.transformed_flattening">
+<code class="sig-name descname">transformed_flattening</code><span class="sig-paren">(</span><em class="sig-param">F</em>, <em class="sig-param">S=None</em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.transformed_flattening" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a transformed flattening from a flattening data frame</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-splitp.old_tree">
+<span id="splitp-old-tree"></span><h2>SplitP old_tree<a class="headerlink" href="#module-splitp.old_tree" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="splitp.old_tree.node">
+<em class="property">class </em><code class="sig-prename descclassname">splitp.old_tree.</code><code class="sig-name descname">node</code><span class="sig-paren">(</span><em class="sig-param">mat=None</em>, <em class="sig-param">index=None</em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.old_tree.node" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents a node, used by the tree class.</p>
+<dl class="attribute">
+<dt id="splitp.old_tree.node.index">
+<code class="sig-name descname">index</code><a class="headerlink" href="#splitp.old_tree.node.index" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of nodes in the tree</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="splitp.old_tree.node.pars">
+<code class="sig-name descname">pars</code><a class="headerlink" href="#splitp.old_tree.node.pars" title="Permalink to this definition">¶</a></dt>
+<dd><p>The size of the character set for the phylogeny</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="splitp.old_tree.node.inEdgeMat">
+<code class="sig-name descname">inEdgeMat</code><a class="headerlink" href="#splitp.old_tree.node.inEdgeMat" title="Permalink to this definition">¶</a></dt>
+<dd><p>A list of node objects representing the nodes in the tree</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="splitp.old_tree.old_tree">
+<em class="property">class </em><code class="sig-prename descclassname">splitp.old_tree.</code><code class="sig-name descname">old_tree</code><span class="sig-paren">(</span><em class="sig-param">n</em>, <em class="sig-param">b</em>, <em class="sig-param">name=''</em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.old_tree.old_tree" title="Permalink to this definition">¶</a></dt>
+<dd><p>A rooted phylogenetic tree.</p>
+<p>A rooted phylogenetic tree consisting of a collection of node objects and an adjacency matrix</p>
+<dl class="attribute">
+<dt id="splitp.old_tree.old_tree.num_nodes">
+<code class="sig-name descname">num_nodes</code><a class="headerlink" href="#splitp.old_tree.old_tree.num_nodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of nodes in the tree</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="splitp.old_tree.old_tree.num_bases">
+<code class="sig-name descname">num_bases</code><a class="headerlink" href="#splitp.old_tree.old_tree.num_bases" title="Permalink to this definition">¶</a></dt>
+<dd><p>The size of the character set for the phylogeny</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="splitp.old_tree.old_tree.nodes">
+<code class="sig-name descname">nodes</code><a class="headerlink" href="#splitp.old_tree.old_tree.nodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>A list of node objects representing the nodes in the tree</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="splitp.old_tree.old_tree.adjM">
+<code class="sig-name descname">adjM</code><a class="headerlink" href="#splitp.old_tree.old_tree.adjM" title="Permalink to this definition">¶</a></dt>
+<dd><p>An adjacency matrix describing the connections within the tree</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="splitp.old_tree.old_tree.initDist">
+<code class="sig-name descname">initDist</code><a class="headerlink" href="#splitp.old_tree.old_tree.initDist" title="Permalink to this definition">¶</a></dt>
+<dd><p>The initial distribution of states/characters at the root of the tree.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="splitp.old_tree.old_tree.SVDError">
+<code class="sig-name descname">SVDError</code><span class="sig-paren">(</span><em class="sig-param">M</em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.old_tree.old_tree.SVDError" title="Permalink to this definition">¶</a></dt>
+<dd><p>“Returns the SVD for a given matrix (All but two/four largest SVs)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="splitp.old_tree.old_tree.addNode">
+<code class="sig-name descname">addNode</code><span class="sig-paren">(</span><em class="sig-param">n</em>, <em class="sig-param">in_node=None</em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.old_tree.old_tree.addNode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a new node to the tree</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n</strong> – The node object to add into the tree.</p></li>
+<li><p><strong>in_node</strong> – The index of the parent node, default is None and is used for the root.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="splitp.old_tree.old_tree.drawFromMultinomial">
+<code class="sig-name descname">drawFromMultinomial</code><span class="sig-paren">(</span><em class="sig-param">LT</em>, <em class="sig-param">n</em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.old_tree.old_tree.drawFromMultinomial" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use a given table of probabilities from getLikelihoods() and draw from its distribution</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="splitp.old_tree.old_tree.flattening">
+<code class="sig-name descname">flattening</code><span class="sig-paren">(</span><em class="sig-param">split</em>, <em class="sig-param">table</em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.old_tree.old_tree.flattening" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build a flattening matrix from a split</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>split</strong> – A string representing the split to build the flattening from</p></li>
+<li><p><strong>table</strong> – A pandas data-frame table with site pattern <a href="#id3"><span class="problematic" id="id4">`</span></a>probabilities’</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A flattening matrix as a data-frame (to provide labels)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="splitp.old_tree.old_tree.getDescendants">
+<code class="sig-name descname">getDescendants</code><span class="sig-paren">(</span><em class="sig-param">n</em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.old_tree.old_tree.getDescendants" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of children/descendents of a given node</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="splitp.old_tree.old_tree.getLikelihoods">
+<code class="sig-name descname">getLikelihoods</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#splitp.old_tree.old_tree.getLikelihoods" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a full table of site-pattern probabilities (binary character set)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="splitp.old_tree.old_tree.getNumTaxa">
+<code class="sig-name descname">getNumTaxa</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#splitp.old_tree.old_tree.getNumTaxa" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of taxa/leaf-nodes in the tree</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="splitp.old_tree.old_tree.getParent">
+<code class="sig-name descname">getParent</code><span class="sig-paren">(</span><em class="sig-param">n</em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.old_tree.old_tree.getParent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the parent node for a given node</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="splitp.old_tree.old_tree.getParsimony">
+<code class="sig-name descname">getParsimony</code><span class="sig-paren">(</span><em class="sig-param">pattern</em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.old_tree.old_tree.getParsimony" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate a parsimony score for a site pattern or split</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>pattern</strong> – A string representing a site pattern or split</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A parsimony score for the given split or site pattern</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="splitp.old_tree.old_tree.getRoot">
+<code class="sig-name descname">getRoot</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#splitp.old_tree.old_tree.getRoot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the root node</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="splitp.old_tree.old_tree.isLeaf">
+<code class="sig-name descname">isLeaf</code><span class="sig-paren">(</span><em class="sig-param">n_index</em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.old_tree.old_tree.isLeaf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines whether a node is a leaf node from it’s index.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="splitp.old_tree.old_tree.isRoot">
+<code class="sig-name descname">isRoot</code><span class="sig-paren">(</span><em class="sig-param">n_index</em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.old_tree.old_tree.isRoot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines whether a node is a root node from it’s index.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="splitp.old_tree.old_tree.splitScore">
+<code class="sig-name descname">splitScore</code><span class="sig-paren">(</span><em class="sig-param">M</em>, <em class="sig-param">k=None</em>, <em class="sig-param">singularValues=False</em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.old_tree.old_tree.splitScore" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the split score for a given flattening matrix</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="splitp.old_tree.old_tree.subFlattening">
+<code class="sig-name descname">subFlattening</code><span class="sig-paren">(</span><em class="sig-param">Ft</em>, <em class="sig-param">specialState='T'</em>, <em class="sig-param">type=(1</em>, <em class="sig-param">1)</em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.old_tree.old_tree.subFlattening" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a subflattening from a transformed flattening data frame</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="splitp.old_tree.old_tree.toXML">
+<code class="sig-name descname">toXML</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#splitp.old_tree.old_tree.toXML" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a string-representation of the tree</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="splitp.old_tree.old_tree.transformedFlattening">
+<code class="sig-name descname">transformedFlattening</code><span class="sig-paren">(</span><em class="sig-param">F</em>, <em class="sig-param">S=None</em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.old_tree.old_tree.transformedFlattening" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a transformed flattening from a flattening data frame</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-splitp.parsers">
+<span id="splitp-parsers"></span><h2>SplitP parsers<a class="headerlink" href="#module-splitp.parsers" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="splitp.parsers.newick_to_json">
+<code class="sig-prename descclassname">splitp.parsers.</code><code class="sig-name descname">newick_to_json</code><span class="sig-paren">(</span><em class="sig-param">newick_string</em>, <em class="sig-param">namestring='id'</em>, <em class="sig-param">lengthstring='branch_length'</em>, <em class="sig-param">childrenstring='children'</em>, <em class="sig-param">generate_names=False</em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.parsers.newick_to_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses a newick string (example “((A,B),C)”) into JSON format accepted by NetworkX</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>newick_string</strong> – The newick string to convert to JSON. Names, branch lengths and named
+internal nodes accepted. If no names are given, an ID is generated for the name if generate_names=True.</p></li>
+<li><p><strong>namestring</strong> – The label for node name to use in the JSON (default “id”).</p></li>
+<li><p><strong>lengthstring</strong> – The label for branch length to use in the JSON (default “branch_length”).</p></li>
+<li><p><strong>childrenstring</strong> – The label for children arrays to use in the JSON (default “children”).</p></li>
+<li><p><strong>generate_names</strong> – Whether or not to generate names if none are given</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-splitp.tree_helper_functions">
+<span id="splitp-tree-helper-functions"></span><h2>SplitP tree_helper_functions<a class="headerlink" href="#module-splitp.tree_helper_functions" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="splitp.tree_helper_functions.frob_norm">
+<code class="sig-prename descclassname">splitp.tree_helper_functions.</code><code class="sig-name descname">frob_norm</code><span class="sig-paren">(</span><em class="sig-param">m</em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.tree_helper_functions.frob_norm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the Frobenius Norm for a given numpy array</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="splitp.tree_helper_functions.generate_all_splits">
+<code class="sig-prename descclassname">splitp.tree_helper_functions.</code><code class="sig-name descname">generate_all_splits</code><span class="sig-paren">(</span><em class="sig-param">num_taxa</em>, <em class="sig-param">trivial=True</em>, <em class="sig-param">onlyTrivial=False</em>, <em class="sig-param">onlyBalance=-1</em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.tree_helper_functions.generate_all_splits" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates all splits as string-representations</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_taxa</strong> – The number of taxa on the tree.</p></li>
+<li><p><strong>trivial</strong> – Whether or not to calculate trivial splits, default True.</p></li>
+<li><p><strong>onlyTrivial</strong> – Whether to ONLY create trivial splits, default False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A list of string-representations of splits (using ‘|’-notation)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="splitp.tree_helper_functions.get_balance">
+<code class="sig-prename descclassname">splitp.tree_helper_functions.</code><code class="sig-name descname">get_balance</code><span class="sig-paren">(</span><em class="sig-param">s</em>, <em class="sig-param">asTuple=False</em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.tree_helper_functions.get_balance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a string formatted ‘X|X’ which describes the balance of a given split string</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="#">SplitP</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="#">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Joshua Stevenson.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

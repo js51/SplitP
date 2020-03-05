@@ -1,4 +1,4 @@
-import SplitP as sp
+import splitp as sp
 import trees
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -21,25 +21,25 @@ theQuartets = [trees.trees['T4A'][0], trees.trees['T4B'][0], trees.trees['T4C'][
 for t, tree in enumerate(theQuartets):
 
     finalResults = {str(lam): [0 for sequenceLength in sequenceLengths] for lam in scalingFactors}
-    numSpecies = tree.getNumTaxa()
-    all_splits = sp.generateAllSplits(numSpecies, trivial=False)
-    patternProbs = tree.getLikelihoods()
+    numSpecies = tree.get_num_taxa()
+    all_splits = sp.generate_all_splits(numSpecies, trivial=False)
+    patternProbs = tree.get_pattern_probabilities()
     results = {str(lam): {split: [] for split in all_splits} for lam in scalingFactors}
 
     for i in range(numRuns):
         print("Run " + str(i))
-        DTable = tree.drawFromMultinomial(patternProbs, 1000)
+        DTable = tree.draw_from_multinomial(patternProbs, 1000)
         for split in all_splits:
             print(split)
             F = tree.flattening(split, DTable)
             for lam in scalingFactors:
                 if lam == None:
                     print('Flattening')
-                    results[str(lam)][split].append(tree.splitScore(F))
+                    results[str(lam)][split].append(tree.split_score(F))
                 else:
-                    print('Scaling by:', sp.scaledHMatrix(lam)[1])
-                    SF = tree.subFlatteningAlt(F, sp.scaledHMatrix(lam)[0])
-                    score = tree.splitScore(SF)
+                    print('Scaling by:', sp.scaled_h_matrix(lam)[1])
+                    SF = tree.subflattening_alt(F, sp.scaled_h_matrix(lam)[0])
+                    score = tree.split_score(SF)
                     results[str(lam)][split].append(score)
 
 

@@ -1,5 +1,5 @@
 import pandas as pd
-import SplitP as sp
+import splitp as sp
 import time
 import trees
 import itertools
@@ -20,15 +20,15 @@ theTrees = [trees.trees['T4A'][0], trees.trees['T4B'][0], trees.trees['T4C'][0],
 for t, tree in enumerate(theTrees):
     print("TREE", t)
     finalResults = {str(lam) : [0 for sequenceLength in sequenceLengths] for lam in scalingFactors}
-    numSpecies = tree.getNumTaxa()
-    all_splits = sp.generateAllSplits(numSpecies, trivial=False)
-    patternProbs = tree.getLikelihoods()
+    numSpecies = tree.get_num_taxa()
+    all_splits = sp.generate_all_splits(numSpecies, trivial=False)
+    patternProbs = tree.get_pattern_probabilities()
     for i, sequenceLength in enumerate(sequenceLengths):
         start = time.time()
         for run in range(numRuns):
             print("Run", run, "of", numRuns, end='')
             print(" (length: " + str(sequenceLength) + ")")
-            empericalProbs = tree.drawFromMultinomial(patternProbs, sequenceLength)
+            empericalProbs = tree.draw_from_multinomial(patternProbs, sequenceLength)
             flattenings = {}
             for lam in scalingFactors:
                 #print("\t" + str(lam), end='')
@@ -48,8 +48,8 @@ for t, tree in enumerate(theTrees):
                                 F = tree.flattening(split, empericalProbs)
                                 flattenings[split] = F
                             if lam != None:
-                                F = tree.subFlatteningAlt(F, sp.scaledHMatrix(lam)[0])
-                            results[(pair, split)] = tree.splitScore(F)
+                                F = tree.subflattening_alt(F, sp.scaled_h_matrix(lam)[0])
+                            results[(pair, split)] = tree.split_score(F)
                         bestSplit = min(results, key=results.get)
                         if bestSplit[1] not in true_splits:
                             done = True

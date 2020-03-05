@@ -1,7 +1,6 @@
 import pandas as pd
 import splitp as sp
 import time
-import trees
 import itertools
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -10,16 +9,20 @@ def sort(string):
     return ''.join(sorted(string))
 
 # Settings
-true_splits = trees.trees['T4A'][2]
-subflattenings = ["Flattening", "Subflattening", (1,2), (2,1)]
-sequenceLengths = [100*n for n in range(1, 11)]
-numRuns = 1000
+tree1 = sp.NXTree("((A:0.2,B:0.2):0.1,(C:0.2,D:0.2):0.1);") # All short
+tree2 = sp.NXTree("((A:0.2,B:1):0.1,(C:0.2,D:1):0.1);") # 'Top' short
+tree3 = sp.NXTree("((A:0.2,B:0.2):0.1,(C:1,D:1):0.1);") # 'Side' short
+tree4 = sp.NXTree("((A:1,B:1):0.1,(C:1,D:1):0.1);") # All long
+trees = [tree1, tree2, tree3, tree4]
+true_splits = {"01|23"}
 
+sequenceLengths = [100*n for n in range(1, 11)]
+numRuns = 10
+methods = ["Flattening", "Subflattening"]
 bigResults = []
-theTrees = [trees.trees['T4A'][0], trees.trees['T4B'][0], trees.trees['T4C'][0], trees.trees['T4D'][0]]
-for t, tree in enumerate(theTrees):
-    print("TREE", t)
-    finalResults = {str(subflat) : [0 for sequenceLength in sequenceLengths] for subflat in subflattenings}
+for t, tree in enumerate(trees):
+    print("TREE", t+1)
+    finalResults = {str(method) : [0 for sequenceLength in sequenceLengths] for method in methods}
     numSpecies = tree.get_num_taxa()
     all_splits = sp.generate_all_splits(numSpecies, trivial=False)
     patternProbs = tree.get_pattern_probabilities()
@@ -30,7 +33,7 @@ for t, tree in enumerate(theTrees):
             print(" (length: " + str(sequenceLength) + ")")
             empericalProbs = tree.draw_from_multinomial(patternProbs, sequenceLength)
             flattenings = {}
-            for subflat in subflattenings:
+            for method in methods:
                 taxa = [str(i) for i in range(numSpecies)]
                 chosenSplits = set()
                 done = False
@@ -46,10 +49,8 @@ for t, tree in enumerate(theTrees):
                             else:
                                 F = tree.flattening(split, empericalProbs)
                                 flattenings[split] = F
-                            if subflat != "Flattening":
-                                F = tree.transformed_flattening(F)
-                                if subflat != "Transformed":
-                                    F = tree.subflattening(F, type=subflat if subflat != "Subflattening" else (1, 1))
+                            if method == "Subflattening":
+                                F = tree.subflattening_alt(F)
                             results[(pair, split)] = tree.split_score(F)
                         bestSplit = min(results, key=results.get)
                         if bestSplit[1] not in true_splits:
@@ -59,18 +60,15 @@ for t, tree in enumerate(theTrees):
                         taxa.append("".join(bestSplit[0]))
                         chosenSplits.add(bestSplit[1])
                 if chosenSplits == true_splits:
-                    finalResults[str(subflat)][i] += 1
-                    #print("\t\t" + "Success")
-                #else:
-                    #print("\t\t" + "Failure")
+                    finalResults[str(method)][i] += 1
         end = time.time()
         print("Time taken:", end - start)
 
-    f = open("ErikksonAlgorithmResultsGSF.csv", "w")
+    f = open("ErikksonAlgorithmResults.csv", "w")
     f.write(pd.DataFrame(finalResults).to_csv(index=False))
     f.close()
 
-    data = pd.read_csv("ErikksonAlgorithmResultsGSF.csv")
+    data = pd.read_csv("ErikksonAlgorithmResults.csv")
     finalResults = {}
     for column in data:
         finalResults[column] = data[column].to_list()
@@ -95,11 +93,15 @@ plt.style.use('default')
 mpl.rcParams.update(nice_fonts)
 
 for t, finalResults in enumerate(bigResults):
-
     with sns.color_palette("colorblind"):
         for k in finalResults.keys():
             axes[t].plot(sequenceLengths, [n*100/numRuns for n in finalResults[k]], marker='o', markersize=3, linewidth=0.75, label=k)
-        axes[t].set_ylim(-0.5,105)
+        axes[t].set_ylim(-0.5, 105)
+
+from cycler import cycler
+monochrome = (cycler('color', ['k']) * cycler('marker', ['', '.']) *
+              cycler('linestyle', ['-', '--', ':', '=.']))
+plt.rc('axes', prop_cycle=monochrome)
 
 fig.add_subplot(111, frameon=False)
 plt.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
@@ -107,6 +109,6 @@ plt.xlabel('Sequence Length')
 plt.ylabel('\% Trees Correctly Reconstructed')
 handles, labels = axes[0].get_legend_handles_labels()
 fig.legend(handles, labels, loc='upper center', ncol=3, frameon=False)
-fig.savefig('_Quartets_Eriksson_Alg_GenSubflat_FULLAX.pdf')
+fig.savefig('_Quartets_Eriksson_Alg_Scaling_FULLAX.pdf')
 
 plt.show()

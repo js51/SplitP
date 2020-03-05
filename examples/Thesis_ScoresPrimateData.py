@@ -1,10 +1,10 @@
-from SplitP import *
+from splitp import *
 import matplotlib.pyplot as plt
 from more_itertools import sort_together
 
-DTable = hf.patternProbsFromAlignment("input/infile_primate.fa")[0]
-tree = tree(1,4,"Primate_Data_Empty_Tree")
-splits = hf.generateAllSplits(len(DTable[0][0]), trivial=False)
+DTable = hf.pattern_probs_from_alignment("input/infile_primate.fa")[0]
+tree = old_tree(1, 4, "Primate_Data_Empty_Tree")
+splits = hf.generate_all_splits(len(DTable[0][0]), trivial=False)
 
 splitScores1 = [splits, [], [], [], [], []]
 for sp in splits:
@@ -30,9 +30,9 @@ for sp in splits:
     print(sp)
     F = tree.flattening(sp, DTable)
     SF = tree.subFlatteningAlt(F)
-    SF_2 = tree.subFlatteningAlt(F, S=scaledHMatrix(0.5)[0])
-    SF_3 = tree.subFlatteningAlt(F, S=scaledHMatrix(3)[0])
-    SF_10 = tree.subFlatteningAlt(F, S=scaledHMatrix(15)[0])
+    SF_2 = tree.subFlatteningAlt(F, S=scaled_h_matrix(0.5)[0])
+    SF_3 = tree.subFlatteningAlt(F, S=scaled_h_matrix(3)[0])
+    SF_10 = tree.subFlatteningAlt(F, S=scaled_h_matrix(15)[0])
     splitScores2[1].append(tree.splitScore(F))
     splitScores2[2].append(tree.splitScore(SF))
     splitScores2[3].append(tree.splitScore(SF_2))

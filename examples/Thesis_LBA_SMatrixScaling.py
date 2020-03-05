@@ -1,6 +1,6 @@
 # imports
 import trees
-from SplitP import *
+from splitp import *
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -11,7 +11,7 @@ treeC = trees['T4C'][0]
 treeD = trees['T4D'][0]
 theTrees = [treeA, treeB, treeC, treeD]
 trueSplits = trees['T4A'][2]
-numSpecies = treeA.getNumTaxa()
+numSpecies = treeA.get_num_taxa()
 
 
 plt.figure()
@@ -24,24 +24,24 @@ for t, tree in enumerate(theTrees):
     matNames.append(0.01)
     matNames.sort()
     lambdas = [i for i in range(len(matNames))]
-    HMats = [hf.scaledHMatrix(i) for i in matNames]
+    HMats = [hf.scaled_h_matrix(i) for i in matNames]
 
-    all_splits = hf.generateAllSplits(numSpecies, trivial=False)
-    patternProbs = tree.getLikelihoods()
+    all_splits = hf.generate_all_splits(numSpecies, trivial=False)
+    patternProbs = tree.get_pattern_probabilities()
     numRuns = 1000  # number of lines to plot
 
     finalResults = { matName : [[],[]] for matName in matNames }
     # { Matrix : [[qualityMeasure1s], [qualityMeasure2s]] }
     for run in range(numRuns):
         print("Run " + str(run) + " of " + str(numRuns))
-        empericalProbs = tree.drawFromMultinomial(patternProbs, sequenceLength)
+        empericalProbs = tree.draw_from_multinomial(patternProbs, sequenceLength)
 
         scoreLists = {mat : [] for mat in matNames}
         for split in all_splits:
             F = tree.flattening(split, empericalProbs)
             for i, H in enumerate(HMats):
-                SF = tree.subFlatteningAlt(F, S=H[0])
-                score = tree.splitScore(SF)
+                SF = tree.subflattening_alt(F, S=H[0])
+                score = tree.split_score(SF)
                 scoreLists[matNames[i]].append(score)
 
         for matName, scoreList in scoreLists.items():

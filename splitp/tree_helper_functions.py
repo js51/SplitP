@@ -5,8 +5,7 @@ import itertools
 import collections
 from itertools import permutations
 
-
-def getBalance(s, asTuple=False):
+def get_balance(s, asTuple=False):
     """Returns a string formatted 'X|X' which describes the balance of a given split string"""
     s = s.split("|")
     if not asTuple:
@@ -14,8 +13,7 @@ def getBalance(s, asTuple=False):
     else:
         return (len(s[0]), len(s[1]))
 
-
-def fNorm(m):
+def frob_norm(m):
     """Calculates the Frobenius Norm for a given numpy array"""
     norm = 0
     for i in np.nditer(m):
@@ -23,13 +21,13 @@ def fNorm(m):
     norm = np.sqrt(norm)
     return norm
 
-def makeSubsMatrix(subs_prob, k):
+def make_substitution_matrix(subs_prob, k):
     matrix = []
     for i in range(k):
         matrix.append([1-subs_prob if j==i else subs_prob/(k-1) for j in range(k)])
     return matrix
 
-def generateAllSplits(num_taxa, trivial=True, onlyTrivial=False, onlyBalance=-1):
+def generate_all_splits(num_taxa, trivial=True, onlyTrivial=False, onlyBalance=-1):
     """Generates all splits as string-representations
 
     Args:
@@ -79,7 +77,7 @@ def generateAllSplits(num_taxa, trivial=True, onlyTrivial=False, onlyBalance=-1)
 ###
 # Functions for reading in a sequence alignment
 
-def readAlignmentFromFile(pathToFile, check=True):
+def read_alignment_from_file(pathToFile, check=True):
     file = open(pathToFile, 'r')
     alignment = collections.OrderedDict()  # Keeps insertion order
     currentSeq = ""
@@ -92,18 +90,18 @@ def readAlignmentFromFile(pathToFile, check=True):
             else:
                 alignment[currentSeq] = line.replace('\n', '')
     if check:
-        return alignment if __validAlignment(alignment) else None
+        return alignment if __valid_alignment(alignment) else None
     else:
         return alignment
 
 
-def __validAlignment(alignmentDict):
+def __valid_alignment(alignmentDict):
     ordered = isinstance(alignmentDict, collections.OrderedDict)  # Must be ordered to avoid incorrect patterns
     sameLength = len(set(len(value) for key, value in alignmentDict.items())) == 1  # Must be same length
     return sameLength and ordered
 
 
-def getPatternCounts(alignment, asNumpyArray=False):
+def get_pattern_counts(alignment, asNumpyArray=False):
     patterns = {}
     sequences = list(alignment.values())
     sequenceLength = len(sequences[0])
@@ -128,22 +126,22 @@ def getPatternCounts(alignment, asNumpyArray=False):
     return patterns, usableSequenceLength
 
 
-def patternCountsToProbs(patterns, seqLen):
+def pattern_counts_to_probs(patterns, seqLen):
     newCounts = [float(float(count) / seqLen) for count in patterns[:, 1]]
     patternList = patterns[:, 0]
     return np.array([patternList, newCounts]).transpose()
 
 
-def patternProbsFromAlignment(pathToFile, check=True):
-    alignment = readAlignmentFromFile(pathToFile, check)
-    counts, sequenceLength = getPatternCounts(alignment, True)
-    probs = patternCountsToProbs(counts, sequenceLength)
+def pattern_probs_from_alignment(pathToFile, check=True):
+    alignment = read_alignment_from_file(pathToFile, check)
+    counts, sequenceLength = get_pattern_counts(alignment, True)
+    probs = pattern_counts_to_probs(counts, sequenceLength)
     probs = pd.DataFrame(probs, index=probs[:, 0])
     probs[[1]] = probs[[1]].astype("float")
     return probs, len(alignment), sequenceLength
 
 
-def scoresToWeights(scores):
+def scores_to_weights(scores):
     scores = [s if s != 0 else 10 ** (-100) for s in scores]
     inverses = [1 / s for s in scores]
     weights = [i / sum(inverses) for i in inverses]
@@ -153,7 +151,7 @@ def scoresToWeights(scores):
 ####
 
 # Function for scaling the S part of the hard-coded H matrix
-def scaledHMatrix(_lambda):
+def scaled_h_matrix(_lambda):
     if _lambda == None:
         return None, None
     if _lambda == "identity":
