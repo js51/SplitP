@@ -3,9 +3,13 @@ import setuptools
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
+def readfile(filename):
+    with open(filename,  encoding='utf-8') as f:
+        return f.read()
+
 setuptools.setup(
     name="splitp",
-    version="0.1.0",
+    version=readfile("VERSION").strip(),
     author="Joshua Stevenson",
     author_email="joshua.stevenson@utas.edu.au",
     description="Phylogenetic tools and methods involving splits and matrix rank",
