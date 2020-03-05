@@ -1,5 +1,6 @@
 import numpy as np
 import copy as cp
+import networkx as nx
 from networkx.readwrite import json_graph
 import pandas as pd
 import itertools
@@ -65,6 +66,9 @@ class NXTree:
                 matrix[r][c] = (1 / 4) + (3 / 4) * exp((-4 * l) / 3) if r == c else (1 / 4) - (1 / 4) * exp(
                     (-4 * l) / 3)
         return np.array(matrix).T
+
+    def adjacency_matrix(self):
+        return np.array(nx.adjacency_matrix(self.nx_graph).todense())
 
     def add_node(self, n, branch_length=0, in_node=None):
         """Adds a new node to the tree
@@ -295,30 +299,6 @@ class NXTree:
 
         return F  # .astype(pd.SparseDtype("float64", 0))
 
-    def to_xml(self):
-        """ Returns a string-representation of the tree """
-        h = 0
-        tree_text = '<?xml version="1.0" encoding="UTF-8"?>\n<tree>\n'
-        r = self.get_root()
-        tree_text = tree_text + '<' + str(r) + '>\n'
-        for c in self.get_descendants(r):
-            tree_text = tree_text + self.__node_xml(self.nodes[c], h + 1)
-        tree_text = tree_text + '</' + str(r) + '>\n</tree>'
-        return tree_text
-
-    def __node_xml(self, n, h):
-        text = ''
-        tabs = ''.join('\t' for x in range(h))
-        children = self.get_descendants(n)
-        if not children:
-            text = text + tabs + '<' + str(n) + '/>\n'
-        else:
-            text = text + tabs + '<' + str(n) + '>\n'
-            for c in self.get_descendants(n):
-                text = text + self.__node_xml(self.nodes[c], h + 1)
-            text = text + tabs + '</' + str(n) + '>\n'
-        return text
-
     def __make_mat(self, F, S_hat, left=True):
         colLabels = list(F)
         rowLabels = F.index
@@ -458,78 +438,3 @@ class NXTree:
                 nodes[n]['pars'] = (nodes[n]['pars']).union(nodes[c]['pars'])
             return score + 1
         return score
-
-    def shared_edges_score(self, split, verbose=False):
-
-        split = split.split("|")
-        S1 = set([int(i) for i in split[0]])
-        S2 = set([int(i) for i in split[1]])
-
-        partition = [S1, S2]
-        matrices = []
-
-        identityMatToIgnore = []
-
-        for S in partition:
-            T = cp.deepcopy(self)
-
-            taxa = [n for n in T.nodes if T.is_leaf(n.index)]
-
-            for s in S:
-                for i in range(len(T.adjM[:, taxa[s].index])):
-                    T.adjM[:, taxa[s].index] = 0
-                if taxa[s] in T.nodes:
-                    T.nodes.remove(taxa[s])
-                    T.num_nodes -= 1
-
-            new_taxa = [n for n in T.nodes if T.is_leaf(n.index)]
-            new_taxa = [t for t in new_taxa if t not in taxa]
-
-            while new_taxa != []:
-                for t in new_taxa:
-                    for i in range(len(T.adjM[:, t.index])):
-                        T.adjM[:, t.index] = 0
-                    if t in T.nodes:
-                        T.nodes.remove(t)
-                        T.num_nodes -= 1
-
-                new_taxa = [n for n in T.nodes if T.is_leaf(n.index)]
-                new_taxa = [t for t in new_taxa if t not in taxa]
-
-            # After all new taxa are removed, we remove roots with only one descendants,
-            # And in the case where the root has multiple descendants, we take note of the ones
-            # which have the identity as their in-edge
-
-            rootMightNeedRemoving = True  # placeholder
-            while rootMightNeedRemoving:
-                root = T.get_root()
-                rootDes = T.get_descendants(root)
-                if len(rootDes) == 1:
-                    for i in range(len(T.adjM[:, root.index])):
-                        T.adjM[:, root.index] = 0
-                        T.adjM[root.index, :] = 0
-                    T.nodes = [n for n in T.nodes if n.index != root.index]
-                    T.num_nodes -= 1
-                else:
-                    rootMightNeedRemoving = False
-
-                root = T.get_root()
-                if len(T.get_descendants(root)) == 1:
-                    rootMightNeedRemoving = True
-
-            rootDes = T.get_descendants(T.get_root())
-            rootDesNodes = [n for n in T.nodes if (n.index in rootDes)]
-            for d in rootDesNodes:
-                if np.array_equal(d.inEdgeMat, np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]])):
-                    identityMatToIgnore.append(True)
-
-            A = cp.copy(T.adjM)
-            matrices.append(A)
-
-        diffMat = matrices[0] * matrices[1]
-
-        if len(identityMatToIgnore) == 2:
-            sharedEdges = np.sum(diffMat) - 1
-        else:
-            sharedEdges = np.sum(diffMat)
-        return sharedEdges
