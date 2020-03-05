@@ -3,12 +3,16 @@ import setuptools
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
+def readfile(filename):
+    with open(filename,  encoding='utf-8') as f:
+        return f.read()
+
 setuptools.setup(
-    name="SplitP",
-    version="0.0.4",
+    name="splitp",
+    version=readfile("VERSION").strip(),
     author="Joshua Stevenson",
     author_email="joshua.stevenson@utas.edu.au",
-    description="SplitP",
+    description="Phylogenetic tools and methods involving splits and matrix rank",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/js51/SplitP",
@@ -18,5 +22,5 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    python_requires='>=3.5',
+    python_requires='>=3.6',
 )
