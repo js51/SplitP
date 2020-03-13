@@ -118,11 +118,6 @@ def get_pattern_counts(alignment, asNumpyArray=False):
     if asNumpyArray:
         patterns = np.array([[key, val] for key, val in patterns.items()])
 
-        file = open("output/patternCounts", 'w')
-    for p in patterns:
-        file.write(str(p))
-    file.close()
-
     return patterns, usableSequenceLength
 
 

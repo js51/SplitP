@@ -27,6 +27,7 @@ class NXTree:
         self.initDist = [1/4,1/4,1/4,1/4]
         if self.num_bases == 4:
             self.state_space = ('A', 'C', 'G', 'T')
+            self.special_state = 'T'
         json_tree = parsers.newick_to_json(newickString, generate_names=True)
         self.nx_graph = json_graph.tree_graph(json_tree)
         self.subflatLRMats = {}
@@ -158,7 +159,6 @@ class NXTree:
             self.__likelihood(self.get_parent(n), lTable)
 
     def __likelihood_start(self, pattern):
-
         """Starts the likelihood algorithm.
 
         Starts the likelihood algorithm to determine the probability of seeing a given site pattern.
@@ -269,6 +269,85 @@ class NXTree:
                     results.append([patterns[i], data[i]])
             return pd.DataFrame(results)
 
+    def __index_of(self, string):
+        string = reversed(string)
+        index = 0
+        for o, s in enumerate(string):
+            index += (4**o)*self.state_space.index(s)
+        return index
+        
+    def __reconstruct_pattern(self, split, row_label, col_label):
+        n = len(split[0]) + len(split[1])
+        pattern = [None for _ in range(n)]
+        for splindex, loc in enumerate(split[0]):
+            pattern[int(loc, n)] = row_label[splindex]
+        for splindex, loc in enumerate(split[1]):
+            pattern[int(loc, n)] = col_label[splindex]
+        return "".join(p for p in pattern)
+    
+    def __subflattening_labels(self, length):
+        templates = []
+        n = length
+        for i in range(n):
+            templates.append("".join(self.special_state for _ in range(i)) + '*' + "".join(self.special_state for _ in range(n-i - 1)))
+        patterns = []
+        for template in templates:
+            for c in self.state_space:
+                if c != self.special_state:
+                    patterns.append(template.replace('*', c))
+        patterns.append("".join(self.special_state for _ in range(n)))
+        patterns = sorted(patterns, key=self.__index_of)
+        return patterns
+
+    def sparse_flattening(self, split, table, num_taxa=10):
+        import scipy
+        from scipy.sparse import coo_matrix
+        split = split.split('|')
+        rows = []
+        cols = []
+        data = []
+        for r in table.itertuples(index=True, name='Pandas'):
+            if r[2] != '0.0':
+                pattern = r[1]
+                row = self.__index_of(''.join([str(pattern[int(s, num_taxa)]) for s in split[0]]))
+                col = self.__index_of(''.join([str(pattern[int(s, num_taxa)]) for s in split[1]]))
+                rows.append(row)
+                cols.append(col)
+                data.append(r[2])
+        return coo_matrix((data, (rows, cols)), shape=(4**len(split[0]),4**len(split[1])))
+    
+    def sparse_subflattening(self, split, data_table):
+        import scipy
+        from scipy.sparse import coo_matrix
+        split = split.split('|')
+        num_taxa = len(split[0]) + len(split[1])
+        H = np.array([[1, -1], [1, 1]])
+        S = np.kron(H, H)
+        rows = []
+        cols = []
+        data = []
+        row_labels = self.__subflattening_labels(len(split[0]))
+        col_labels = self.__subflattening_labels(len(split[1]))
+        for row_label in row_labels:
+            for col_label in col_labels:
+                pattern = self.__reconstruct_pattern(split, row_label, col_label)
+                rows.append(row_labels.index(row_label))
+                cols.append(col_labels.index(col_label))
+                signed_sum = 0
+                for r in data_table.itertuples(index=True, name='Pandas'):
+                    table_pattern = r[1]
+                    value = r[2]
+                    product = 1
+                    for p, tp in zip(pattern, table_pattern):
+                        product *= S[self.state_space.index(p)][self.state_space.index(tp)]
+                    product *= value
+                    signed_sum += product
+                data.append(signed_sum)
+        print(rows, len(cols), len(data), (3*len(split[0])+1, 3*len(split[1])+1))
+        return coo_matrix((data, (rows, cols)), shape=(3*len(split[0])+1, 3*len(split[1])+1))
+        
+        
+        
     def flattening(self, split, table):
         """Build a flattening matrix from a split
 
