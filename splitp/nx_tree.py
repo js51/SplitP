@@ -343,10 +343,7 @@ class NXTree:
                     product *= value
                     signed_sum += product
                 data.append(signed_sum)
-        print(rows, len(cols), len(data), (3*len(split[0])+1, 3*len(split[1])+1))
         return coo_matrix((data, (rows, cols)), shape=(3*len(split[0])+1, 3*len(split[1])+1))
-        
-        
         
     def flattening(self, split, table):
         """Build a flattening matrix from a split
