@@ -16,7 +16,7 @@ def get_test_cases():
 def test_parsimony(get_test_cases):
     """ Testing that all trivial splits have parsimony of 1 """
     for case in get_test_cases:
-        trivial_splits = generate_all_splits(case['tree'].get_num_taxa(), True, True)
+        trivial_splits = list(all_splits(case['tree'].get_num_taxa(), True, True))
         scores = [case['tree'].parsimony_score(s) for s in trivial_splits]
         corr_triv_scores = all([s == 1 for s in scores])
         pars_tests = case['pars_tests']
@@ -26,10 +26,14 @@ def test_parsimony(get_test_cases):
 
 def test_subflats_equal(get_test_cases):
     for case in get_test_cases:
-        splits = generate_all_splits(case['tree'].get_num_taxa(), trivial=False)
+        splits = list(all_splits(case['tree'].get_num_taxa(), trivial=False))
         pattern_probs = case['tree'].get_pattern_probabilities()
         for sp in splits[::6]:
             flat = case['tree'].flattening(sp, pattern_probs)
             sf1 = case['tree'].subflattening(case['tree'].transformed_flattening(flat))
             sf2 = case['tree'].subflattening_alt(flat)
-            assert np.all(np.isclose(sf1, sf2))
+            sf3 = case['tree'].sparse_subflattening(sp, pattern_probs).toarray()
+            sf4 = case['tree'].signed_sum_subflattening(sp, pattern_probs)
+            assert np.all(np.isclose(sf4, sf1))
+            assert np.all(np.isclose(sf1, sf2)) 
+            assert np.all(np.isclose(sf2, sf3))

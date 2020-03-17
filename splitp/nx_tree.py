@@ -3,7 +3,9 @@ import copy as cp
 import networkx as nx
 from networkx.readwrite import json_graph
 import pandas as pd
+import scipy
 import itertools
+import time
 from splitp import tree_helper_functions as hf
 from splitp import parsers
 
@@ -70,7 +72,7 @@ class NXTree:
 
     def adjacency_matrix(self):
         return np.array(nx.adjacency_matrix(self.nx_graph).todense())
-
+    
     def add_node(self, n, branch_length=0, in_node=None):
         """Adds a new node to the tree
 
@@ -201,6 +203,8 @@ class NXTree:
 
     def svd_error(self, M):
         """"Returns the SVD for a given matrix (All but two/four largest SVs)"""
+        from warnings import warn
+        warn("svd_error is deprecated, use split_score() for a much faster result", DeprecationWarning)
         sv = list(np.linalg.svd(np.array(M).astype(np.float64), compute_uv=False))
         sv[0] = 0
         sv[1] = 0
@@ -210,24 +214,31 @@ class NXTree:
         return sum(sv)
 
     def all_singular_values(self, M):
+        from warnings import warn
+        warn("all_singular_values is deprecated, use split_score() for a much faster result", DeprecationWarning)
         return (list(np.linalg.svd(np.array(M).astype(np.float64), compute_uv=False)))
+    
+    def __dense_split_score(self, matrix, k=None, singularValues=False, force_frob_norm=False):
+        singular_values = list(scipy.linalg.svd(np.array(matrix), full_matrices=False, check_finite=False, compute_uv=False))
+        if force_frob_norm:
+            return (1-(sum(val**2 for val in singular_values[0:4]))/(splitp.frob_norm(matrix)**2))**(1/2)
+        else:
+            min_shape = min(matrix.shape)
+            return (1-(sum(val**2 for val in singular_values[0:4])/sum(val**2 for val in singular_values[0:min_shape])))**(1/2)
 
-    def split_score(self, M, k=None, singularValues=False):
-        """Returns the split score for a given flattening matrix"""
-        sVals = list(np.linalg.svd(np.array(M).astype(np.float64), compute_uv=False))
-        if singularValues: sing_vals = sVals.copy()
-        sumSq = 0
-        for i in range((self.num_bases if not k else k), min(M.shape)):
-            sumSq += (sVals[i]) ** 2
-        sumSq2 = sumSq
-        for i in range(1, (self.num_bases if not k else k)):
-            sumSq2 += (sVals[i]) ** 2
+    def __sparse_split_score(self, matrix, return_singular_values=False, data_table_for_frob_norm=None):
+        from scipy.sparse.linalg import svds, eigs, norm
+        largest_four_singular_values = svds(matrix, 4, return_singular_vectors=False)
+        squared_singular_values = [sigma**2 for sigma in largest_four_singular_values]
+        norm = hf.frob_norm(matrix, data_table=data_table_for_frob_norm)
+        return (1-(sum(squared_singular_values)/(norm**2)))**(1/2)
 
-        score = np.sqrt(sumSq) / hf.frob_norm(np.array(M).astype(np.float64))
-
-        if singularValues:
-            return score, sing_vals
-        return score
+    def split_score(self, matrix, return_singular_values=False, force_frob_norm_on_dense=False, data_table_for_frob_norm=None):
+        singular_values = None 
+        if hf.is_sparse(matrix):
+            return self.__sparse_split_score(matrix, return_singular_values, data_table_for_frob_norm)
+        else:
+            return self.__dense_split_score(matrix, return_singular_values, force_frob_norm_on_dense)
 
     def get_pattern_probabilities(self):
         """Returns a full table of site-pattern probabilities (binary character set)"""
@@ -299,24 +310,57 @@ class NXTree:
         patterns = sorted(patterns, key=self.__index_of)
         return patterns
 
-    def sparse_flattening(self, split, table, num_taxa=10):
+    def sparse_flattening(self, split, table, format='dok'):
         import scipy
-        from scipy.sparse import coo_matrix
         split = split.split('|')
-        rows = []
-        cols = []
-        data = []
-        for r in table.itertuples(index=True, name='Pandas'):
-            if r[2] != '0.0':
-                pattern = r[1]
+        num_taxa = sum(len(part) for part in split)
+        if format == 'coo':
+            from scipy.sparse import coo_matrix
+            rows = []
+            cols = []
+            data = []
+            for r in table.itertuples(index=False, name=None):
+                if r[1] != 0:
+                    pattern = r[0]
+                    row = self.__index_of(''.join([str(pattern[int(s, num_taxa)]) for s in split[0]]))
+                    col = self.__index_of(''.join([str(pattern[int(s, num_taxa)]) for s in split[1]]))
+                    rows.append(row)
+                    cols.append(col)
+                    data.append(r[1])
+            return coo_matrix((data, (rows, cols)), shape=(4**len(split[0]),4**len(split[1])))
+        elif format == 'dok':
+            from scipy.sparse import dok_matrix
+            flattening = dok_matrix((4**len(split[0]),4**len(split[1])))
+            for r in table.itertuples(index=False, name=None):
+                pattern = r[0]
                 row = self.__index_of(''.join([str(pattern[int(s, num_taxa)]) for s in split[0]]))
                 col = self.__index_of(''.join([str(pattern[int(s, num_taxa)]) for s in split[1]]))
-                rows.append(row)
-                cols.append(col)
-                data.append(r[2])
-        return coo_matrix((data, (rows, cols)), shape=(4**len(split[0]),4**len(split[1])))
-    
-    def sparse_subflattening(self, split, data_table):
+                flattening[row, col] = r[1]
+            return flattening
+
+    #def subflattening(self, split, data, build_from='flattening', return_sparse=False):
+     
+    def signed_sum_subflattening(self, split, data_table):
+        split = split.split('|')
+        num_taxa = sum(len(part) for part in split)
+        subflattening = [[0 for i in range(3*len(split[1])+1)] for j in range(3*len(split[0])+1)]
+        H = np.array([[1, -1], [1, 1]])
+        S = np.kron(H, H)
+        row_labels = self.__subflattening_labels(len(split[0]))
+        col_labels = self.__subflattening_labels(len(split[1]))
+        for row in range(len(row_labels)):
+            for col in range(len(col_labels)):
+                pattern = self.__reconstruct_pattern(split, row_labels[row], col_labels[col])
+                signed_sum = 0
+                for table_pattern, value in data_table.itertuples(index=False, name=None):
+                    product = 1*value
+                    for p, tp in zip(pattern, table_pattern):
+                        product *= S[self.state_space.index(p)][self.state_space.index(tp)]
+                    signed_sum += product
+                subflattening[row][col] = signed_sum
+        return np.array(subflattening)
+       
+    def sparse_subflattening(self, split, data_table, as_dense_array=False):
         import scipy
         from scipy.sparse import coo_matrix
         split = split.split('|')
@@ -334,7 +378,7 @@ class NXTree:
                 rows.append(row_labels.index(row_label))
                 cols.append(col_labels.index(col_label))
                 signed_sum = 0
-                for r in data_table.itertuples(index=True, name='Pandas'):
+                for r in data_table.itertuples(index=True, name=None):
                     table_pattern = r[1]
                     value = r[2]
                     product = 1
@@ -343,7 +387,11 @@ class NXTree:
                     product *= value
                     signed_sum += product
                 data.append(signed_sum)
-        return coo_matrix((data, (rows, cols)), shape=(3*len(split[0])+1, 3*len(split[1])+1))
+        subflattening = coo_matrix((data, (rows, cols)), shape=(3*len(split[0])+1, 3*len(split[1])+1))
+        if as_dense_array:
+            return subflattening.toarray()
+        else:
+            return subflattening.todok()
         
     def flattening(self, split, table):
         """Build a flattening matrix from a split
