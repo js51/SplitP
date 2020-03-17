@@ -8,6 +8,7 @@ import itertools
 import time
 from splitp import tree_helper_functions as hf
 from splitp import parsers
+from scipy.sparse.linalg import svds
 
 
 class NXTree:
@@ -221,20 +222,18 @@ class NXTree:
     def __dense_split_score(self, matrix, k=None, singularValues=False, force_frob_norm=False):
         singular_values = list(scipy.linalg.svd(np.array(matrix), full_matrices=False, check_finite=False, compute_uv=False))
         if force_frob_norm:
-            return (1-(sum(val**2 for val in singular_values[0:4]))/(splitp.frob_norm(matrix)**2))**(1/2)
+            return (1-(sum(val**2 for val in singular_values[0:4]))/(hf.frob_norm(matrix)**2))**(1/2)
         else:
             min_shape = min(matrix.shape)
             return (1-(sum(val**2 for val in singular_values[0:4])/sum(val**2 for val in singular_values[0:min_shape])))**(1/2)
 
     def __sparse_split_score(self, matrix, return_singular_values=False, data_table_for_frob_norm=None):
-        from scipy.sparse.linalg import svds, eigs, norm
         largest_four_singular_values = svds(matrix, 4, return_singular_vectors=False)
         squared_singular_values = [sigma**2 for sigma in largest_four_singular_values]
         norm = hf.frob_norm(matrix, data_table=data_table_for_frob_norm)
         return (1-(sum(squared_singular_values)/(norm**2)))**(1/2)
 
     def split_score(self, matrix, return_singular_values=False, force_frob_norm_on_dense=False, data_table_for_frob_norm=None):
-        singular_values = None 
         if hf.is_sparse(matrix):
             return self.__sparse_split_score(matrix, return_singular_values, data_table_for_frob_norm)
         else:
@@ -346,6 +345,7 @@ class NXTree:
         subflattening = [[0 for i in range(3*len(split[1])+1)] for j in range(3*len(split[0])+1)]
         H = np.array([[1, -1], [1, 1]])
         S = np.kron(H, H)
+        S = { (c1, c2) : S[self.state_space.index(c1)][self.state_space.index(c2)] for c1 in self.state_space for c2 in self.state_space}
         row_labels = self.__subflattening_labels(len(split[0]))
         col_labels = self.__subflattening_labels(len(split[1]))
         for row in range(len(row_labels)):
@@ -353,9 +353,9 @@ class NXTree:
                 pattern = self.__reconstruct_pattern(split, row_labels[row], col_labels[col])
                 signed_sum = 0
                 for table_pattern, value in data_table.itertuples(index=False, name=None):
-                    product = 1*value
-                    for p, tp in zip(pattern, table_pattern):
-                        product *= S[self.state_space.index(p)][self.state_space.index(tp)]
+                    product = value
+                    for t in zip(pattern, table_pattern):
+                        product *= S[t]
                     signed_sum += product
                 subflattening[row][col] = signed_sum
         return np.array(subflattening)
