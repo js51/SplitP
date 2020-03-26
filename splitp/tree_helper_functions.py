@@ -32,7 +32,7 @@ def make_substitution_matrix(subs_prob, k):
         matrix.append([1-subs_prob if j==i else subs_prob/(k-1) for j in range(k)])
     return matrix
 
-def all_splits(num_taxa, trivial=False, only_balance=None):
+def all_splits(num_taxa, trivial=False, only_balance=None, randomise=False):
     """Generates all splits as string-representations
 
     Args:
@@ -43,10 +43,16 @@ def all_splits(num_taxa, trivial=False, only_balance=None):
     Returns:
         A list of string-representations of splits (using '|'-notation)
     """
+    k = only_balance
     n = num_taxa
     taxa_string = "".join(np.base_repr(i, base=n) for i in range(n))
     r = 0 if trivial else 1
-    for i in range(r, 2**(n-1) - r):
+    loop_over = range(r, 2**(n-1) - r)
+    if randomise:
+        import random
+        loop_over = [i for i in loop_over]
+        random.shuffle(loop_over)
+    for i in loop_over:
         template = format(i, f'0{n}b')
         if not only_balance or sum(int(b) for b in template) in [only_balance, n-only_balance]:
             if r < sum(int(b) for b in template) < n-r:

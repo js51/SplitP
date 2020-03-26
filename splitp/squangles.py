@@ -59,7 +59,7 @@ class SquangleEvaluator:
 		for row in poly:
 			product = row[0]
 			for i in range(1,len(row)):
-				pattern = self.toPattern(int(row[i]) - 1)
+				pattern = self.to_pattern(int(row[i]) - 1)
 				if pattern in data:
 					product *= data[pattern]
 				else: # Zero, not copied over earlier
@@ -70,4 +70,4 @@ class SquangleEvaluator:
 	
 	# Unit Tests
 	def test_pattern_conversion(self):
-		return all(self.toInt(self.toPattern(i)) == i for i in range(256))
+		return all(self.toInt(self.to_pattern(i)) == i for i in range(256))
