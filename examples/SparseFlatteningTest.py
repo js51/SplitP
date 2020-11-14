@@ -1,28 +1,42 @@
 import splitp
 import pandas as pd
+import time
+import numpy as np
 
 tree = splitp.NXTree("(A,B);")
 DTable, _, _ = splitp.pattern_probs_from_alignment("./20_taxa_infile.fa")
+num_taxa = 20
+splits = splitp.all_splits(num_taxa, trivial=False)
+split = "0123|4E6789ABCD5FGHIJ"
 
-splits = ["01235|46789ABCDEFGHIJKLMNO"]
+# Construction
+start = time.time()
+coo_flattening = tree.sparse_flattening(split, DTable, format='coo')
+end = time.time()
+print("coo flattening constructed in", end-start)
 
-flattening = tree.sparse_flattening(splits[0], DTable, 25)
+start = time.time()
+dok_flattening = tree.sparse_flattening(split, DTable, format='dok')
+end = time.time()
+print("dok flattening constructed in", end-start)
 
-from scipy.sparse.linalg import svds, eigs
-from scipy.sparse import csc_matrix
+# Computing scores
+start = time.time()
+coo_score = tree.split_score(coo_flattening, data_table_for_frob_norm=DTable)
+end = time.time()
+print("coo score calculated in", end-start)
 
-print(svds(flattening,4,return_singular_vectors=False))
+start = time.time()
+dok_score = tree.split_score(dok_flattening, data_table_for_frob_norm=DTable)
+end = time.time()
+print("dok score calculated in", end-start)
 
-flattening = flattening.todok()
-subflattening = tree.sparse_subflattening(splits[0], DTable)
+#dictionary = { key : val for key, val in DTable.itertuples(index=False)}
+start = time.time()
+subflattening = tree.signed_sum_subflattening(split, DTable)
+subflattening_score = tree.split_score(subflattening)
+end = time.time()
+print("subflattening and score computed in", end-start)
 
-print(svds(subflattening,4,return_singular_vectors=False))
-
-# Mosquito
-tree = splitp.NXTree("(A,B);")
-DTable, _, _ = splitp.pattern_probs_from_alignment("./infile_mosquito.fa")
-splits = splitp.generate_all_splits(4, trivial=False)
-flattening = tree.flattening(splits[0], DTable)
-subflattening1 = tree.subflattening_alt(flattening)
-subflattening2 = tree.sparse_subflattening(splits[0], DTable)
-print(flattening, subflattening1, subflattening2)
+print(subflattening_score)
+print("Scores", coo_score, dok_score)
