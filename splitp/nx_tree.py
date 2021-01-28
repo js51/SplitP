@@ -3,9 +3,12 @@ import copy as cp
 import networkx as nx
 from networkx.readwrite import json_graph
 import pandas as pd
+import scipy
 import itertools
+import time
 from splitp import tree_helper_functions as hf
 from splitp import parsers
+from scipy.sparse.linalg import svds
 
 
 class NXTree:
@@ -27,6 +30,7 @@ class NXTree:
         self.initDist = [1/4,1/4,1/4,1/4]
         if self.num_bases == 4:
             self.state_space = ('A', 'C', 'G', 'T')
+            self.special_state = 'T'
         json_tree = parsers.newick_to_json(newickString, generate_names=True)
         self.nx_graph = json_graph.tree_graph(json_tree)
         self.subflatLRMats = {}
@@ -69,7 +73,7 @@ class NXTree:
 
     def adjacency_matrix(self):
         return np.array(nx.adjacency_matrix(self.nx_graph).todense())
-
+    
     def add_node(self, n, branch_length=0, in_node=None):
         """Adds a new node to the tree
 
@@ -158,7 +162,6 @@ class NXTree:
             self.__likelihood(self.get_parent(n), lTable)
 
     def __likelihood_start(self, pattern):
-
         """Starts the likelihood algorithm.
 
         Starts the likelihood algorithm to determine the probability of seeing a given site pattern.
@@ -201,6 +204,8 @@ class NXTree:
 
     def svd_error(self, M):
         """"Returns the SVD for a given matrix (All but two/four largest SVs)"""
+        from warnings import warn
+        warn("svd_error is deprecated, use split_score() for a much faster result", DeprecationWarning)
         sv = list(np.linalg.svd(np.array(M).astype(np.float64), compute_uv=False))
         sv[0] = 0
         sv[1] = 0
@@ -210,24 +215,29 @@ class NXTree:
         return sum(sv)
 
     def all_singular_values(self, M):
+        from warnings import warn
+        warn("all_singular_values is deprecated, use split_score() for a much faster result", DeprecationWarning)
         return (list(np.linalg.svd(np.array(M).astype(np.float64), compute_uv=False)))
+    
+    def __dense_split_score(self, matrix, k=None, singularValues=False, force_frob_norm=False):
+        singular_values = list(scipy.linalg.svd(np.array(matrix), full_matrices=False, check_finite=False, compute_uv=False))
+        if force_frob_norm:
+            return (1-(sum(val**2 for val in singular_values[0:4]))/(hf.frob_norm(matrix)**2))**(1/2)
+        else:
+            min_shape = min(matrix.shape)
+            return (1-(sum(val**2 for val in singular_values[0:4])/sum(val**2 for val in singular_values[0:min_shape])))**(1/2)
 
-    def split_score(self, M, k=None, singularValues=False):
-        """Returns the split score for a given flattening matrix"""
-        sVals = list(np.linalg.svd(np.array(M).astype(np.float64), compute_uv=False))
-        if singularValues: sing_vals = sVals.copy()
-        sumSq = 0
-        for i in range((self.num_bases if not k else k), min(M.shape)):
-            sumSq += (sVals[i]) ** 2
-        sumSq2 = sumSq
-        for i in range(1, (self.num_bases if not k else k)):
-            sumSq2 += (sVals[i]) ** 2
+    def __sparse_split_score(self, matrix, return_singular_values=False, data_table_for_frob_norm=None):
+        largest_four_singular_values = svds(matrix, 4, return_singular_vectors=False)
+        squared_singular_values = [sigma**2 for sigma in largest_four_singular_values]
+        norm = hf.frob_norm(matrix, data_table=data_table_for_frob_norm)
+        return (1-(sum(squared_singular_values)/(norm**2)))**(1/2)
 
-        score = np.sqrt(sumSq) / hf.frob_norm(np.array(M).astype(np.float64))
-
-        if singularValues:
-            return score, sing_vals
-        return score
+    def split_score(self, matrix, return_singular_values=False, force_frob_norm_on_dense=False, data_table_for_frob_norm=None):
+        if hf.is_sparse(matrix):
+            return self.__sparse_split_score(matrix, return_singular_values, data_table_for_frob_norm)
+        else:
+            return self.__dense_split_score(matrix, return_singular_values, force_frob_norm_on_dense)
 
     def get_pattern_probabilities(self):
         """Returns a full table of site-pattern probabilities (binary character set)"""
@@ -269,6 +279,120 @@ class NXTree:
                     results.append([patterns[i], data[i]])
             return pd.DataFrame(results)
 
+    def __index_of(self, string):
+        string = reversed(string)
+        index = 0
+        for o, s in enumerate(string):
+            index += (4**o)*self.state_space.index(s)
+        return index
+        
+    def __reconstruct_pattern(self, split, row_label, col_label):
+        n = len(split[0]) + len(split[1])
+        pattern = [None for _ in range(n)]
+        for splindex, loc in enumerate(split[0]):
+            pattern[int(loc, n)] = row_label[splindex]
+        for splindex, loc in enumerate(split[1]):
+            pattern[int(loc, n)] = col_label[splindex]
+        return "".join(p for p in pattern)
+    
+    def __subflattening_labels(self, length):
+        templates = []
+        n = length
+        for i in range(n):
+            templates.append("".join(self.special_state for _ in range(i)) + '*' + "".join(self.special_state for _ in range(n-i - 1)))
+        patterns = []
+        for template in templates:
+            for c in self.state_space:
+                if c != self.special_state:
+                    patterns.append(template.replace('*', c))
+        patterns.append("".join(self.special_state for _ in range(n)))
+        patterns = sorted(patterns, key=self.__index_of)
+        return patterns
+
+    def sparse_flattening(self, split, table, format='dok'):
+        import scipy
+        split = split.split('|')
+        num_taxa = sum(len(part) for part in split)
+        if format == 'coo':
+            from scipy.sparse import coo_matrix
+            rows = []
+            cols = []
+            data = []
+            for r in table.itertuples(index=False, name=None):
+                if r[1] != 0:
+                    pattern = r[0]
+                    row = self.__index_of(''.join([str(pattern[int(s, num_taxa)]) for s in split[0]]))
+                    col = self.__index_of(''.join([str(pattern[int(s, num_taxa)]) for s in split[1]]))
+                    rows.append(row)
+                    cols.append(col)
+                    data.append(r[1])
+            return coo_matrix((data, (rows, cols)), shape=(4**len(split[0]),4**len(split[1])))
+        elif format == 'dok':
+            from scipy.sparse import dok_matrix
+            flattening = dok_matrix((4**len(split[0]),4**len(split[1])))
+            for r in table.itertuples(index=False, name=None):
+                pattern = r[0]
+                row = self.__index_of(''.join([str(pattern[int(s, num_taxa)]) for s in split[0]]))
+                col = self.__index_of(''.join([str(pattern[int(s, num_taxa)]) for s in split[1]]))
+                flattening[row, col] = r[1]
+            return flattening
+
+    #def subflattening(self, split, data, build_from='flattening', return_sparse=False):
+     
+    def signed_sum_subflattening(self, split, data_table):
+        split = split.split('|')
+        num_taxa = sum(len(part) for part in split)
+        subflattening = [[0 for i in range(3*len(split[1])+1)] for j in range(3*len(split[0])+1)]
+        H = np.array([[1, -1], [1, 1]])
+        S = np.kron(H, H)
+        S = { (c1, c2) : S[self.state_space.index(c1)][self.state_space.index(c2)] for c1 in self.state_space for c2 in self.state_space}
+        row_labels = self.__subflattening_labels(len(split[0]))
+        col_labels = self.__subflattening_labels(len(split[1]))
+        for row in range(len(row_labels)):
+            for col in range(len(col_labels)):
+                pattern = self.__reconstruct_pattern(split, row_labels[row], col_labels[col])
+                signed_sum = 0
+                for table_pattern, value in data_table.itertuples(index=False, name=None):
+                    product = value
+                    for t in zip(pattern, table_pattern):
+                        product *= S[t]
+                    signed_sum += product
+                subflattening[row][col] = signed_sum
+        return np.array(subflattening)
+       
+    def sparse_subflattening(self, split, data_table, as_dense_array=False):
+        import scipy
+        from scipy.sparse import coo_matrix
+        split = split.split('|')
+        num_taxa = len(split[0]) + len(split[1])
+        H = np.array([[1, -1], [1, 1]])
+        S = np.kron(H, H)
+        rows = []
+        cols = []
+        data = []
+        row_labels = self.__subflattening_labels(len(split[0]))
+        col_labels = self.__subflattening_labels(len(split[1]))
+        for row_label in row_labels:
+            for col_label in col_labels:
+                pattern = self.__reconstruct_pattern(split, row_label, col_label)
+                rows.append(row_labels.index(row_label))
+                cols.append(col_labels.index(col_label))
+                signed_sum = 0
+                for r in data_table.itertuples(index=True, name=None):
+                    table_pattern = r[1]
+                    value = r[2]
+                    product = 1
+                    for p, tp in zip(pattern, table_pattern):
+                        product *= S[self.state_space.index(p)][self.state_space.index(tp)]
+                    product *= value
+                    signed_sum += product
+                data.append(signed_sum)
+        subflattening = coo_matrix((data, (rows, cols)), shape=(3*len(split[0])+1, 3*len(split[1])+1))
+        if as_dense_array:
+            return subflattening.toarray()
+        else:
+            return subflattening.todok()
+        
     def flattening(self, split, table):
         """Build a flattening matrix from a split
 
