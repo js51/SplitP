@@ -70,6 +70,10 @@ class NXTree:
                 matrix[r][c] = (1 / 4) + (3 / 4) * exp((-4 * l) / 3) if r == c else (1 / 4) - (1 / 4) * exp(
                     (-4 * l) / 3)
         return np.array(matrix).T
+    
+    def build_transition_matrix(model, branch_length):
+        """Return a transition matrix corresponding to a given branch length, given a markov model"""
+        pass
 
     def adjacency_matrix(self):
         return np.array(nx.adjacency_matrix(self.nx_graph).todense())
