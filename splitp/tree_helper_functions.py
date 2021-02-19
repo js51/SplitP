@@ -10,7 +10,7 @@ def balanced_newick_tree(num_taxa):
     from math import floor
     def _balanced_newick_subtree(nt, left=False):
         if nt == 2:
-            return "(_,_)";
+            return "(_,_)"
         elif nt==3:
             return "((_,_),_)" if left else "(_,(_,_))"
         else:
