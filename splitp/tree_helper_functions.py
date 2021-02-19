@@ -6,6 +6,23 @@ import collections
 from scipy.sparse import issparse
 from itertools import permutations
 
+def balanced_newick_tree(num_taxa):
+    from math import floor
+    def _balanced_newick_subtree(nt, left=False):
+        if nt == 2:
+            return "(_,_)";
+        elif nt==3:
+            return "((_,_),_)" if left else "(_,(_,_))"
+        else:
+            if nt%2==0:
+                return f"({_balanced_newick_subtree(nt/2, True)},{_balanced_newick_subtree(nt/2)})"
+            else: 
+                return f"({_balanced_newick_subtree(floor(nt/2) + int(left), True)},{_balanced_newick_subtree(floor(nt/2) + int(not left))})"
+    newick_string = f"({_balanced_newick_subtree(num_taxa/2, True)},{_balanced_newick_subtree(num_taxa/2)});"
+    for i in range(0, num_taxa):
+        newick_string = newick_string.replace('_', str(i), 1)
+    return newick_string
+
 def get_balance(s, asTuple=False):
     """Returns a string formatted 'X|X' which describes the balance of a given split string"""
     s = s.split("|")
