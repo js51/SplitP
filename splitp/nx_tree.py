@@ -71,9 +71,27 @@ class NXTree:
                     (-4 * l) / 3)
         return np.array(matrix).T
     
-    def build_transition_matrix(model, branch_length):
-        """Return a transition matrix corresponding to a given branch length, given a markov model"""
-        pass
+    def build_K2ST_matrix(self, transition, transversion):
+        if self.num_bases != 4:
+            from warnings import warn
+            warn(f"K2ST matrices are 4x4 but your model has {self.num_bases} states!" )
+        purines = ('A', 'G')
+        pyrimidines = ('C', 'T')
+        matrix = [[0 for i in range(self.num_bases)] for n in range(self.num_bases)]
+        for r, row in enumerate(matrix):
+            from_state = self.state_space[r]
+            for c, _ in enumerate(row):
+                to_state = self.state_space[c]
+                if from_state == to_state:
+                    # No change
+                    matrix[r][c] = 1-(transition+transversion)
+                elif from_state in purines and to_state in purines:
+                    matrix[r][c] = transition 
+                elif from_state in pyrimidines and to_state in pyrimidines:
+                    matrix[r][c] = transition
+                else:
+                    matrix[r][c] = transversion
+        return np.array(matrix).T
 
     def adjacency_matrix(self):
         return np.array(nx.adjacency_matrix(self.nx_graph).todense())

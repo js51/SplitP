@@ -7,6 +7,8 @@ from scipy.sparse import issparse
 from itertools import permutations
 
 def balanced_newick_tree(num_taxa):
+    if num_taxa%2 != 0:
+        raise ValueError("There is no balanced tree on {num_taxa} taxa. Please specify an even number.")
     from math import floor
     def _balanced_newick_subtree(nt, left=False):
         if nt == 2:
