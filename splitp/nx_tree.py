@@ -72,9 +72,11 @@ class NXTree:
         return np.array(matrix).T
     
     def build_K2ST_matrix(self, transition, transversion):
+        from warnings import warn
         if self.num_bases != 4:
-            from warnings import warn
             warn(f"K2ST matrices are 4x4 but your model has {self.num_bases} states!" )
+        if transversion > transition: 
+            warn(f"transitions are known to be more likely than transversions!")
         purines = ('A', 'G')
         pyrimidines = ('C', 'T')
         matrix = [[0 for i in range(self.num_bases)] for n in range(self.num_bases)]
@@ -84,7 +86,7 @@ class NXTree:
                 to_state = self.state_space[c]
                 if from_state == to_state:
                     # No change
-                    matrix[r][c] = 1-(transition+transversion)
+                    matrix[r][c] = 1-(transition+2*transversion)
                 elif from_state in purines and to_state in purines:
                     matrix[r][c] = transition 
                 elif from_state in pyrimidines and to_state in pyrimidines:
