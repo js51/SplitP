@@ -56,6 +56,20 @@ class NXTree:
     def __str__(self):
         return parsers.json_to_newick(json_graph.tree_data(self.nx_graph, self.get_root(return_index=False)))
 
+    def true_splits(self, include_trivial=False):
+        """Returns set of all true splits in the tree."""
+        true_splits = set()
+        for edge in self.nx_graph.edges:
+            halfsplit = min(edge, key=len) # i.e. '34'
+            if include_trivial or len(halfsplit) > 1:
+                split = sorted((
+                    ''.join(str(i) for i in range(self.get_num_taxa()) if str(i) not in halfsplit),
+                    halfsplit
+                ))
+                split = f'{split[0]}|{split[1]}'
+                true_splits.add(split)
+        return true_splits
+
     def reassign_all_transition_matrices(self, matrix):
         for n in self.nx_graph.nodes:
             self.nx_graph.nodes[n]['transition_matrix'] = matrix
