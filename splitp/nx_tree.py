@@ -7,6 +7,7 @@ import scipy
 import itertools
 from splitp import tree_helper_functions as hf
 from splitp import parsers
+from warnings import warn
 from scipy.sparse.linalg import svds
 
 
@@ -85,6 +86,7 @@ class NXTree:
     def reassign_all_transition_matrices(self, matrix):
         for n in self.nx_graph.nodes:
             self.nx_graph.nodes[n]['transition_matrix'] = matrix
+            warn("branch lengths have not been recalculated.")
             if 'branch_length' in self.nx_graph.nodes[n]: self.nx_graph.nodes[n]['branch_length'].pop() # TODO: recompute branch lengths instead
 
     def build_JC_matrix(self, l):
@@ -97,7 +99,6 @@ class NXTree:
         return np.array(matrix).T
     
     def build_K2ST_matrix(self, transition, transversion):
-        from warnings import warn
         if self.num_bases != 4:
             warn(f"K2ST matrices are 4x4 but your model has {self.num_bases} states!" )
         if transversion > transition: 
@@ -130,7 +131,6 @@ class NXTree:
             n: The node object to add into the tree.
             in_node: The name of the parent node, default is None and is used for the root.
         """
-        from warnings import warn
         warn("addNode is deprecated, trees should be instantiated from newick strings and never changed.", DeprecationWarning)
         self.nx_graph.add_node(n,
                                branch_length=branch_length,
@@ -253,7 +253,6 @@ class NXTree:
 
     def svd_error(self, M):
         """"Returns the SVD for a given matrix (All but two/four largest SVs)"""
-        from warnings import warn
         warn("svd_error is deprecated, use split_score() for a much faster result", DeprecationWarning)
         sv = list(np.linalg.svd(np.array(M).astype(np.float64), compute_uv=False))
         sv[0] = 0
@@ -264,7 +263,6 @@ class NXTree:
         return sum(sv)
 
     def all_singular_values(self, M):
-        from warnings import warn
         warn("all_singular_values is deprecated, use split_score() for a much faster result", DeprecationWarning)
         return (list(np.linalg.svd(np.array(M).astype(np.float64), compute_uv=False)))
     
