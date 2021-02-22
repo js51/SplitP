@@ -1,9 +1,26 @@
 import numpy as np
-import copy as cp
 import pandas as pd
-import itertools
 import collections
-from itertools import permutations
+from scipy.sparse import issparse
+
+def balanced_newick_tree(num_taxa):
+    if num_taxa%2 != 0:
+        raise ValueError("There is no balanced tree on {num_taxa} taxa. Please specify an even number.")
+    from math import floor
+    def _balanced_newick_subtree(nt, left=False):
+        if nt == 2:
+            return "(_,_)"
+        elif nt==3:
+            return "((_,_),_)" if left else "(_,(_,_))"
+        else:
+            if nt%2==0:
+                return f"({_balanced_newick_subtree(nt/2, True)},{_balanced_newick_subtree(nt/2)})"
+            else: 
+                return f"({_balanced_newick_subtree(floor(nt/2) + int(left), True)},{_balanced_newick_subtree(floor(nt/2) + int(not left))})"
+    newick_string = f"({_balanced_newick_subtree(num_taxa/2, True)},{_balanced_newick_subtree(num_taxa/2)});"
+    for i in range(0, num_taxa):
+        newick_string = newick_string.replace('_', str(i), 1)
+    return newick_string
 
 def get_balance(s, asTuple=False):
     """Returns a string formatted 'X|X' which describes the balance of a given split string"""
@@ -13,67 +30,58 @@ def get_balance(s, asTuple=False):
     else:
         return (len(s[0]), len(s[1]))
 
-def frob_norm(m):
-    """Calculates the Frobenius Norm for a given numpy array"""
-    norm = 0
-    for i in np.nditer(m):
-        norm += i ** 2
-    norm = np.sqrt(norm)
-    return norm
+def is_sparse(matrix):
+    return issparse(matrix)
 
+def frob_norm(matrix, data_table=None):
+    """Calculates the Frobenius Norm for a given matrix"""
+    if data_table is not None:
+        return sum(val**2 for _, val in data_table.itertuples(index=False))**(1/2)
+    if is_sparse(matrix):
+        return sum(matrix[i,j]**2 for i, j in zip(*matrix.nonzero()))**(1/2)
+    else:
+        return np.sqrt(sum(val**2 for val in np.nditer(matrix)))
+        
 def make_substitution_matrix(subs_prob, k):
     matrix = []
     for i in range(k):
         matrix.append([1-subs_prob if j==i else subs_prob/(k-1) for j in range(k)])
     return matrix
 
-def generate_all_splits(num_taxa, trivial=True, onlyTrivial=False, onlyBalance=-1):
+def all_splits(num_taxa, trivial=False, only_balance=None, randomise=False):
     """Generates all splits as string-representations
 
     Args:
         num_taxa: The number of taxa on the tree.
         trivial: Whether or not to calculate trivial splits, default True.
-        onlyTrivial: Whether to ONLY create trivial splits, default False.
+        only_trivial: Whether to ONLY create trivial splits, default False.
 
     Returns:
         A list of string-representations of splits (using '|'-notation)
     """
-    s = [str(i) for i in range(num_taxa)]
-    s.append('|')
-    perms = [''.join(p) for p in permutations(s)]
-    perms = set(perms)
-    aList = []
-    complete_set = set()
-    for p in perms:
-        halves = p.split('|')
-        limit = 0
-        if not trivial: limit = 1
-        if onlyBalance == -1:
-            criterion = (len(halves[0]) > limit) and (len(halves[1]) > limit)
-        else:
-            criterion = (len(halves[0]) == onlyBalance) or (len(halves[1]) == onlyBalance)
-        if criterion:
-            a = ''.join(sorted(halves[0]))
-            b = ''.join(sorted(halves[1]))
-            if a not in aList and b not in aList:
-                if '0' in a:
-                    complete_set.add(a + '|' + b)
-                else:
-                    complete_set.add(b + '|' + a)
-                aList.append(a)
-                aList.append(b)
-
-    if onlyTrivial:
-        new_set = complete_set.copy()
-        for s in complete_set:
-            halves = s.split('|')
-            if len(halves[0]) != 1 and len(halves[1]) != 1:
-                new_set.remove(s)
-        return list(new_set)
-
-    return sorted(list(complete_set))
-
-
+    k = only_balance
+    n = num_taxa
+    taxa_string = "".join(np.base_repr(i, base=n) for i in range(n))
+    r = 0 if trivial else 1
+    loop_over = range(r, 2**(n-1) - r)
+    if randomise:
+        import random
+        loop_over = [i for i in loop_over]
+        random.shuffle(loop_over)
+    for i in loop_over:
+        template = format(i, f'0{n}b')
+        if not only_balance or sum(int(b) for b in template) in [only_balance, n-only_balance]:
+            if r < sum(int(b) for b in template) < n-r:
+                left  = ""
+                right = ""
+                for t, b in zip(taxa_string, template):
+                    if b == '0':
+                        left += t
+                    else:
+                        right += t
+                if '0' in right:
+                    left, right = right, left
+                yield f'{left}|{right}'
 ###
 # Functions for reading in a sequence alignment
 
@@ -117,11 +125,6 @@ def get_pattern_counts(alignment, asNumpyArray=False):
 
     if asNumpyArray:
         patterns = np.array([[key, val] for key, val in patterns.items()])
-
-        file = open("output/patternCounts", 'w')
-    for p in patterns:
-        file.write(str(p))
-    file.close()
 
     return patterns, usableSequenceLength
 
