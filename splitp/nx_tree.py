@@ -58,7 +58,8 @@ class NXTree:
 
     def true_splits(self, include_trivial=False):
         """Returns set of all true splits in the tree."""
-        true_splits = set()
+        all_taxa_string = ''.join(str(i) for i in range(self.get_num_taxa()))
+        did_yield_root = False
         for edge in self.nx_graph.edges:
             halfsplit = min(edge, key=len) # i.e. '34'
             if include_trivial or len(halfsplit) > 1:
@@ -67,8 +68,19 @@ class NXTree:
                     halfsplit
                 ))
                 split = f'{split[0]}|{split[1]}'
-                true_splits.add(split)
-        return true_splits
+                if all_taxa_string in edge:
+                    if not did_yield_root:
+                        did_yield_root = True
+                        yield split
+                else:
+                    yield split
+
+    def false_splits(self, only_balance=None, randomise=False):
+        """Returns set of all false splits in the tree."""
+        true_splits = self.true_splits(include_trivial=False)
+        for split in hf.all_splits(self.get_num_taxa(), trivial=False, only_balance=only_balance, randomise=randomise):
+            if split not in true_splits:
+                yield split
 
     def reassign_all_transition_matrices(self, matrix):
         for n in self.nx_graph.nodes:
