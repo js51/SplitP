@@ -1,10 +1,7 @@
 import numpy as np
-import copy as cp
 import pandas as pd
-import itertools
 import collections
 from scipy.sparse import issparse
-from itertools import permutations
 
 def balanced_newick_tree(num_taxa):
     if num_taxa%2 != 0:

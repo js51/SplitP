@@ -5,7 +5,6 @@ from networkx.readwrite import json_graph
 import pandas as pd
 import scipy
 import itertools
-import time
 from splitp import tree_helper_functions as hf
 from splitp import parsers
 from scipy.sparse.linalg import svds
