@@ -54,18 +54,12 @@ Reconstruct trees using split based methods including flattenings:
 ```python
 F1 = tree.flattening('01|23', pattern_frequencies)
 F2 = tree.flattening('02|13', pattern_frequencies)
-print(tree.split_score(F1) < tree.split_score(F2))
-```
-```
->   True
+print(tree.split_score(F1) < tree.split_score(F2))    # True
 ```
 Or subflattenings:
 ```python
 SF = tree.signed_sum_subflattening('01|23', pattern_probs)
-print(tree.split_score(SF))
-```
-```
->   0.0
+print(tree.split_score(SF))   # 0.0
 ```
 For more functionality please see the documentation at [splitp.joshuastevenson.me](http://splitp.joshuastevenson.me/splitp.html).
 
