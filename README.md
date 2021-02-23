@@ -29,7 +29,7 @@ JC_subs_matrix = tree.build_JC_matrix(branch_length:=0.05)
 tree.reassign_all_transition_matrices(JC_subs_matrix)
 pattern_probs = tree.get_pattern_probabilities()
 ```
-```
+```css
 >             0         1
       0    AAAA  0.185844
       1    AAAC  0.003262
@@ -41,7 +41,7 @@ Simulate sequence alignments from pattern distributions
 ```python
 pattern_frequencies = tree.draw_from_multinomial(pattern_probs, 100)
 ```
-```
+```css
 >         0    1
     0  AAAA  0.22
     1  AAAC  0.01
