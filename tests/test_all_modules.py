@@ -25,6 +25,12 @@ def test_cases():
             'number_of_taxa' : 4,
             'true_splits'    : ['02|13'], 
             'model'          : ('JC', 0.05), 
+        },
+        { 
+            'newick_string'  : "balanced",
+            'number_of_taxa' : 4,
+            'true_splits'    : ['01|23'], 
+            'model'          : ('JC', 0.05), 
         }
     ]
     return cases
@@ -33,7 +39,10 @@ def test_cases():
 def test_trees(test_cases):
     """ Test a bunch of things about these trees """
     for case in test_cases:
-        tree = NXTree(case['newick_string'])
+        if case['newick_string'] == 'balanced':
+            tree = NXTree(balanced_newick_tree(case['number_of_taxa']))
+        else:
+            tree = NXTree(case['newick_string'])
         true_splits = list(tree.true_splits())
         assert true_splits == case['true_splits']
         false_splits = list(tree.false_splits())
