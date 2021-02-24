@@ -1,7 +1,7 @@
 <img src="https://user-images.githubusercontent.com/27327007/74098210-a760a700-4b69-11ea-8623-28708864d8c7.png" alt="SplitP" width="200"/>
 
 [![](https://img.shields.io/pypi/v/SplitP.svg)](https://pypi.org/project/SplitP/)  ![](https://github.com/js51/SplitP/workflows/build/badge.svg)
-[![Coverage Status](https://coveralls.io/repos/github/js51/SplitP/badge.svg?branch=master&service=github)](https://coveralls.io/github/js51/SplitP?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/js51/SplitP/badge.svg?branch=main&service=github)](https://coveralls.io/github/js51/SplitP?branch=main)
 
 Python package which implements split- and rank-based tools for inferring phylogenies, such as _flattenings_ and _subflattenings_.
 
