@@ -60,21 +60,13 @@ class NXTree:
     def true_splits(self, include_trivial=False):
         """Returns set of all true splits in the tree."""
         all_taxa_string = ''.join(str(i) for i in range(self.get_num_taxa()))
-        did_yield_root = False
-        for edge in self.nx_graph.edges:
-            halfsplit = min(edge, key=len) # i.e. '34'
-            if include_trivial or len(halfsplit) > 1:
-                split = sorted((
-                    ''.join(str(i) for i in range(self.get_num_taxa()) if str(i) not in halfsplit),
-                    halfsplit
-                ))
-                split = f'{split[0]}|{split[1]}'
-                if all_taxa_string in edge:
-                    if not did_yield_root:
-                        did_yield_root = True
-                        yield split
-                else:
-                    yield split
+        splits = set()
+        for node in list(self.nodes()):
+            split = sorted((node, ''.join(i for i in all_taxa_string if i not in node)))
+            if include_trivial or (len(split[0])>1 and len(split[1])>1):
+                splits.add(f'{split[0]}|{split[1]}')
+        for split in splits:
+            yield split
 
     def false_splits(self, only_balance=None, randomise=False):
         """Returns set of all false splits in the tree."""
