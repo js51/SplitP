@@ -150,6 +150,7 @@ def scores_to_weights(scores):
     weights = [i / sum(inverses) for i in inverses]
     return weights
 
+
 def split_equivalence_classes(splits, group):
     """Breaks up list of splits into equivalence classes under the canonical action of the specified group."""
     def __action(perm, split):
@@ -170,6 +171,14 @@ def split_equivalence_classes(splits, group):
             orbits.add(__orbit(split, group))
         return sorted(list(set(orbit) for orbit in orbits), key=len)
     return __orbits(splits, group)
+
+def check_splits_representatives(split_reps, orbits):
+    represented_orbits = set()
+    for orbit in orbits:
+        for split in split_reps:
+            if split in orbit:
+                represented_orbits.add(frozenset(orbit))
+    return len(represented_orbits) == len(orbits)
 
 # Function for scaling the S part of the hard-coded H matrix
 def scaled_h_matrix(_lambda):
