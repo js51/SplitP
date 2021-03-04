@@ -331,10 +331,11 @@ class NXTree:
             if pattern not in counts:
                 counts[pattern] = float(1)
             else:
-                counts[pattern] += 1
+                counts[pattern] += 1'
+        probs = {}
         for k in sorted(counts.keys(), key=lambda p: [self.state_space.index(c) for c in p]):
-            counts[k] = counts[k]/float(sequence_length)
-        return pd.DataFrame(counts.items())
+            probs[k] = counts[k]/float(sequence_length)
+        return pd.DataFrame(probs.items())
 
     def draw_from_multinomial(self, LT, n):
         """Use a given table of probabilities from getLikelihoods() and draw from its distribution"""
