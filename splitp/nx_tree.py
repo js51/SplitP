@@ -44,8 +44,11 @@ class NXTree:
         else:
             print("Branch lengths missing: none were assigned")
 
+        leaves = [n for n in self.nx_graph.nodes if self.is_leaf(n)]
         if not taxa_ordering:
-            taxa_ordering = [n for n in self.nx_graph.nodes if self.is_leaf(n)]
+            taxa_ordering = leaves
+        elif taxa_ordering == 'sorted':
+            taxa_ordering = sorted(leaves)
         self.taxa = taxa_ordering
         for i, taxon_name in enumerate(self.taxa):
             self.nx_graph.nodes[taxon_name]['t_index'] = i
@@ -298,8 +301,26 @@ class NXTree:
                     for i in range(len(combinations))
                 ]
             )
-
         return emptyArray
+
+    def evolve_pattern(self):
+        from random import choices
+        from networkx.algorithms.traversal.depth_first_search import dfs_tree
+        def __evolve_on_subtree(state, subtree):
+            root_node = [n for n,d in self.nx_graph.in_degree() if d==0][0]
+            children = list(self.nx_graph.successors(root_node))
+            # TODO: finish this
+            subtrees = [dfs_tree(self, child) for child in children]
+            probs = list(self.nx_graph.nodes[root_node]['transition_matrix'][:,self.state_space.index(state)])
+            new_state = choices(self.state_space, probs)[0]
+            return ''.join(__evolve_on_subtree(subtree, new_state) for subtree in subtrees)
+        root_state = choices(self.state_space, self.initDist)[0]
+        root_node = [n for n,d in self.nx_graph.in_degree() if d==0][0]
+        children = list(self.nx_graph.successors(root_node))
+        subtrees = [dfs_tree(self, child) for child in children]
+        return ''.join(__evolve_on_subtree(subtree, root_state) for subtree in subtrees)
+        
+
 
     def draw_from_multinomial(self, LT, n):
         """Use a given table of probabilities from getLikelihoods() and draw from its distribution"""
