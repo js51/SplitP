@@ -324,6 +324,18 @@ class NXTree:
         result = { pair[0] : pair[2] for pair in result_string.split(',') }
         return ''.join(result[k] for k in sorted(result.keys(), key=self.taxa.index))
 
+    def generate_alignment(self, sequence_length):
+        counts = {}
+        for i in range(sequence_length):
+            pattern = self.evolve_pattern()
+            if pattern not in counts:
+                counts[pattern] = float(1)
+            else:
+                counts[pattern] += 1
+        for k in counts.keys():
+            counts[k] = counts[k]/float(sequence_length)
+        return pd.DataFrame(counts.items())
+
     def draw_from_multinomial(self, LT, n):
         """Use a given table of probabilities from getLikelihoods() and draw from its distribution"""
         probs = list(LT.iloc[:, 1])
