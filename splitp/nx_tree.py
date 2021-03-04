@@ -331,7 +331,7 @@ class NXTree:
             if pattern not in counts:
                 counts[pattern] = float(1)
             else:
-                counts[pattern] += 1'
+                counts[pattern] += 1
         probs = {}
         for k in sorted(counts.keys(), key=lambda p: [self.state_space.index(c) for c in p]):
             probs[k] = counts[k]/float(sequence_length)
