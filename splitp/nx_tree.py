@@ -324,7 +324,7 @@ class NXTree:
         result = { pair[0] : pair[2] for pair in result_string.split(',') }
         return ''.join(result[k] for k in sorted(result.keys(), key=self.taxa.index))
 
-    def generate_alignment(sequence_length):
+    def generate_alignment(self, sequence_length):
         counts = {}
         for i in range(sequence_length):
             pattern = self.evolve_pattern()
