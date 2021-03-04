@@ -306,21 +306,23 @@ class NXTree:
     def evolve_pattern(self):
         from random import choices
         from networkx.algorithms.traversal.depth_first_search import dfs_tree
-        def __evolve_on_subtree(state, subtree):
-            root_node = [n for n,d in self.nx_graph.in_degree() if d==0][0]
-            children = list(self.nx_graph.successors(root_node))
-            # TODO: finish this
-            subtrees = [dfs_tree(self, child) for child in children]
+        def __evolve_on_subtree(subtree, state):
+            root_node = [n for n,d in subtree.in_degree() if d==0][0]
+            children = list(subtree.successors(root_node))
             probs = list(self.nx_graph.nodes[root_node]['transition_matrix'][:,self.state_space.index(state)])
             new_state = choices(self.state_space, probs)[0]
-            return ''.join(__evolve_on_subtree(subtree, new_state) for subtree in subtrees)
+            if len(children) == 0:
+                return f'{str(root_node)}:{new_state}'
+            else:
+                subtrees = [dfs_tree(self.nx_graph, child) for child in children]
+                return ','.join(__evolve_on_subtree(subtree, new_state) for subtree in subtrees)
         root_state = choices(self.state_space, self.initDist)[0]
         root_node = [n for n,d in self.nx_graph.in_degree() if d==0][0]
         children = list(self.nx_graph.successors(root_node))
-        subtrees = [dfs_tree(self, child) for child in children]
-        return ''.join(__evolve_on_subtree(subtree, root_state) for subtree in subtrees)
-        
-
+        subtrees = [dfs_tree(self.nx_graph, child) for child in children]
+        result_string = ','.join(__evolve_on_subtree(subtree, root_state) for subtree in subtrees)
+        result = { pair[0] : pair[2] for pair in result_string.split(',') }
+        return ''.join(result[k] for k in sorted(result.keys(), key=self.taxa.index))
 
     def draw_from_multinomial(self, LT, n):
         """Use a given table of probabilities from getLikelihoods() and draw from its distribution"""
