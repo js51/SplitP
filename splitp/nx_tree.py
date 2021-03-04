@@ -328,7 +328,7 @@ class NXTree:
         counts = {}
         for i in range(sequence_length):
             pattern = self.evolve_pattern()
-            if evolve_pattern not in counts:
+            if pattern not in counts:
                 counts[pattern] = float(1)
             else:
                 counts[pattern] += 1
