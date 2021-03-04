@@ -62,7 +62,7 @@ class NXTree:
 
     def true_splits(self, include_trivial=False):
         """Returns set of all true splits in the tree."""
-        all_taxa_string = ''.join(str(i) for i in range(self.get_num_taxa()))
+        all_taxa_string = ''.join(str(i) for i in self.taxa)
         splits = set()
         for node in list(self.nodes()):
             split = sorted((node, ''.join(i for i in all_taxa_string if i not in node)))
@@ -332,9 +332,10 @@ class NXTree:
                 counts[pattern] = float(1)
             else:
                 counts[pattern] += 1
-        for k in counts.keys():
-            counts[k] = counts[k]/float(sequence_length)
-        return pd.DataFrame(counts.items())
+        probs = {}
+        for k in sorted(counts.keys(), key=lambda p: [self.state_space.index(c) for c in p]):
+            probs[k] = counts[k]/float(sequence_length)
+        return pd.DataFrame(probs.items())
 
     def draw_from_multinomial(self, LT, n):
         """Use a given table of probabilities from getLikelihoods() and draw from its distribution"""
