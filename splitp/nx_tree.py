@@ -332,7 +332,7 @@ class NXTree:
                 counts[pattern] = float(1)
             else:
                 counts[pattern] += 1
-        for k in sorted(listcounts.keys()):
+        for k in sorted(counts.keys()):
             counts[k] = counts[k]/float(sequence_length)
         return pd.DataFrame(counts.items())
 
