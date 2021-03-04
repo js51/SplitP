@@ -62,7 +62,7 @@ class NXTree:
 
     def true_splits(self, include_trivial=False):
         """Returns set of all true splits in the tree."""
-        all_taxa_string = ''.join(str(i) for i in range(self.get_num_taxa()))
+        all_taxa_string = ''.join(str(i) for i in self.taxa)
         splits = set()
         for node in list(self.nodes()):
             split = sorted((node, ''.join(i for i in all_taxa_string if i not in node)))
