@@ -334,7 +334,7 @@ class NXTree:
                 counts[pattern] += 1
         for k in counts.keys():
             counts[k] = counts[k]/float(sequence_length)
-        return pd.DataFrame(counts)
+        return pd.DataFrame(counts.items())
 
     def draw_from_multinomial(self, LT, n):
         """Use a given table of probabilities from getLikelihoods() and draw from its distribution"""
