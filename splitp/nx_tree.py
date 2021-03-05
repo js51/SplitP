@@ -60,9 +60,9 @@ class NXTree:
     def __str__(self):
         return parsers.json_to_newick(json_graph.tree_data(self.nx_graph, self.get_root(return_index=False)))
 
-    def all_splits(self, num_taxa, trivial=False, only_balance=None, randomise=False):
+    def all_splits(self, trivial=False, only_balance=None, randomise=False):
         k = only_balance
-        n = num_taxa
+        n = self.get_num_taxa()
         taxa_string = "".join(self.taxa)
         r = 0 if trivial else 1
         loop_over = range(r, 2**(n-1) - r)
