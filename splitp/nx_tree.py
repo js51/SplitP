@@ -60,6 +60,31 @@ class NXTree:
     def __str__(self):
         return parsers.json_to_newick(json_graph.tree_data(self.nx_graph, self.get_root(return_index=False)))
 
+    def all_splits(self, trivial=False, only_balance=None, randomise=False):
+        k = only_balance
+        n = self.get_num_taxa()
+        taxa_string = "".join(self.taxa)
+        r = 0 if trivial else 1
+        loop_over = range(r, 2**(n-1) - r)
+        if randomise:
+            import random
+            loop_over = [i for i in loop_over]
+            random.shuffle(loop_over)
+        for i in loop_over:
+            template = format(i, f'0{n}b')
+            if not only_balance or sum(int(b) for b in template) in [only_balance, n-only_balance]:
+                if r < sum(int(b) for b in template) < n-r:
+                    left  = ""
+                    right = ""
+                    for t, b in zip(taxa_string, template):
+                        if b == '0':
+                            left += t
+                        else:
+                            right += t
+                    if self.taxa[0] in right:
+                        left, right = right, left
+                    yield f'{left}|{right}'
+
     def true_splits(self, include_trivial=False):
         """Returns set of all true splits in the tree."""
         all_taxa_string = ''.join(str(i) for i in self.taxa)
