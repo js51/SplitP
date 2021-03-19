@@ -107,7 +107,8 @@ class NXTree:
         for n in self.nx_graph.nodes:
             self.nx_graph.nodes[n]['transition_matrix'] = matrix
             warn("branch lengths have not been recalculated.")
-            if 'branch_length' in self.nx_graph.nodes[n]: self.nx_graph.nodes[n]['branch_length'].pop() # TODO: recompute branch lengths instead
+            if 'branch_length' in self.nx_graph.nodes[n]: 
+                self.nx_graph.nodes[n].pop('branch_length') # TODO: recompute branch lengths instead
 
     def build_JC_matrix(self, l):
         from math import exp
