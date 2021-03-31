@@ -30,6 +30,7 @@ class NXTree:
         self.initDist = [1/4,1/4,1/4,1/4]
         if self.num_bases == 4:
             self.state_space = ('A', 'C', 'G', 'T')
+            self.state_space_dict = {char : self.state_space.index(char) for char in self.state_space}
             self.special_state = 'T'
         json_tree = parsers.newick_to_json(newickString, generate_names=True)
         self.nx_graph = json_graph.tree_graph(json_tree)
@@ -384,7 +385,7 @@ class NXTree:
         string = reversed(string)
         index = 0
         for o, s in enumerate(string):
-            index += (4**o)*self.state_space.index(s)
+            index += (4**o)*self.state_space_dict[s]
         return index
         
     def __reconstruct_pattern(self, split, row_label, col_label):
@@ -397,17 +398,18 @@ class NXTree:
         return "".join(p for p in pattern)
     
     def __subflattening_labels(self, length):
-        templates = []
         n = length
-        for i in range(n):
-            templates.append("".join(self.special_state for _ in range(i)) + '*' + "".join(self.special_state for _ in range(n-i - 1)))
+        templates = [
+            "".join(self.special_state for _ in range(i)) + '*' + "".join(self.special_state for _ in range(n-i - 1))
+            for i in range(n)
+        ]
         patterns = []
         for template in templates:
             for c in self.state_space:
                 if c != self.special_state:
                     patterns.append(template.replace('*', c))
         patterns.append("".join(self.special_state for _ in range(n)))
-        patterns = sorted(patterns, key=self.__index_of)
+        patterns.sort(key=self.__index_of)
         return patterns
 
     def sparse_flattening(self, split, table, format='dok'):
@@ -441,6 +443,9 @@ class NXTree:
     #def subflattening(self, split, data, build_from='flattening', return_sparse=False):
      
     def signed_sum_subflattening(self, split, data_table):
+        data_dict = {}
+        for table_pattern, value in data_table.itertuples(index=False, name=None):
+            data_dict[table_pattern] = value
         split = split.split('|')
         num_taxa = sum(len(part) for part in split)
         subflattening = [[0 for i in range(3*len(split[1])+1)] for j in range(3*len(split[0])+1)]
@@ -449,11 +454,13 @@ class NXTree:
         S = { (c1, c2) : S[self.state_space.index(c1)][self.state_space.index(c2)] for c1 in self.state_space for c2 in self.state_space}
         row_labels = self.__subflattening_labels(len(split[0]))
         col_labels = self.__subflattening_labels(len(split[1]))
+        rec_pat = self.__reconstruct_pattern
+        items = data_dict.items
         for row in range(len(row_labels)):
             for col in range(len(col_labels)):
-                pattern = self.__reconstruct_pattern(split, row_labels[row], col_labels[col])
+                pattern = rec_pat(split, row_labels[row], col_labels[col])
                 signed_sum = 0
-                for table_pattern, value in data_table.itertuples(index=False, name=None):
+                for table_pattern, value in items():
                     product = value
                     for t in zip(pattern, table_pattern):
                         product *= S[t]
