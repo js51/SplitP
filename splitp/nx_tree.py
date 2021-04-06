@@ -30,6 +30,7 @@ class NXTree:
         self.initDist = [1/4,1/4,1/4,1/4]
         if self.num_bases == 4:
             self.state_space = ('A', 'C', 'G', 'T')
+            self.state_space_dict = {char : self.state_space.index(char) for char in self.state_space}
             self.special_state = 'T'
         json_tree = parsers.newick_to_json(newickString, generate_names=True)
         self.nx_graph = json_graph.tree_graph(json_tree)
@@ -44,8 +45,11 @@ class NXTree:
         else:
             print("Branch lengths missing: none were assigned")
 
+        leaves = [n for n in self.nx_graph.nodes if self.is_leaf(n)]
         if not taxa_ordering:
-            taxa_ordering = [n for n in self.nx_graph.nodes if self.is_leaf(n)]
+            taxa_ordering = leaves
+        elif taxa_ordering == 'sorted':
+            taxa_ordering = sorted(leaves)
         self.taxa = taxa_ordering
         for i, taxon_name in enumerate(self.taxa):
             self.nx_graph.nodes[taxon_name]['t_index'] = i
@@ -57,9 +61,34 @@ class NXTree:
     def __str__(self):
         return parsers.json_to_newick(json_graph.tree_data(self.nx_graph, self.get_root(return_index=False)))
 
+    def all_splits(self, trivial=False, only_balance=None, randomise=False):
+        k = only_balance
+        n = self.get_num_taxa()
+        taxa_string = "".join(self.taxa)
+        r = 0 if trivial else 1
+        loop_over = range(r, 2**(n-1) - r)
+        if randomise:
+            import random
+            loop_over = [i for i in loop_over]
+            random.shuffle(loop_over)
+        for i in loop_over:
+            template = format(i, f'0{n}b')
+            if not only_balance or sum(int(b) for b in template) in [only_balance, n-only_balance]:
+                if r < sum(int(b) for b in template) < n-r:
+                    left  = ""
+                    right = ""
+                    for t, b in zip(taxa_string, template):
+                        if b == '0':
+                            left += t
+                        else:
+                            right += t
+                    if self.taxa[0] in right:
+                        left, right = right, left
+                    yield f'{left}|{right}'
+
     def true_splits(self, include_trivial=False):
         """Returns set of all true splits in the tree."""
-        all_taxa_string = ''.join(str(i) for i in range(self.get_num_taxa()))
+        all_taxa_string = ''.join(str(i) for i in self.taxa)
         splits = set()
         for node in list(self.nodes()):
             split = sorted((node, ''.join(i for i in all_taxa_string if i not in node)))
@@ -79,7 +108,8 @@ class NXTree:
         for n in self.nx_graph.nodes:
             self.nx_graph.nodes[n]['transition_matrix'] = matrix
             warn("branch lengths have not been recalculated.")
-            if 'branch_length' in self.nx_graph.nodes[n]: self.nx_graph.nodes[n]['branch_length'].pop() # TODO: recompute branch lengths instead
+            if 'branch_length' in self.nx_graph.nodes[n]: 
+                self.nx_graph.nodes[n].pop('branch_length') # TODO: recompute branch lengths instead
 
     def build_JC_matrix(self, l):
         from math import exp
@@ -298,8 +328,41 @@ class NXTree:
                     for i in range(len(combinations))
                 ]
             )
-
         return emptyArray
+
+    def evolve_pattern(self):
+        from random import choices
+        from networkx.algorithms.traversal.depth_first_search import dfs_tree
+        def __evolve_on_subtree(subtree, state):
+            root_node = [n for n,d in subtree.in_degree() if d==0][0]
+            children = list(subtree.successors(root_node))
+            probs = list(self.nx_graph.nodes[root_node]['transition_matrix'][:,self.state_space.index(state)])
+            new_state = choices(self.state_space, probs)[0]
+            if len(children) == 0:
+                return f'{str(root_node)}:{new_state}'
+            else:
+                subtrees = [dfs_tree(self.nx_graph, child) for child in children]
+                return ','.join(__evolve_on_subtree(subtree, new_state) for subtree in subtrees)
+        root_state = choices(self.state_space, self.initDist)[0]
+        root_node = [n for n,d in self.nx_graph.in_degree() if d==0][0]
+        children = list(self.nx_graph.successors(root_node))
+        subtrees = [dfs_tree(self.nx_graph, child) for child in children]
+        result_string = ','.join(__evolve_on_subtree(subtree, root_state) for subtree in subtrees)
+        result = { pair[0] : pair[2] for pair in result_string.split(',') }
+        return ''.join(result[k] for k in sorted(result.keys(), key=self.taxa.index))
+
+    def generate_alignment(self, sequence_length):
+        counts = {}
+        for i in range(sequence_length):
+            pattern = self.evolve_pattern()
+            if pattern not in counts:
+                counts[pattern] = float(1)
+            else:
+                counts[pattern] += 1
+        probs = {}
+        for k in sorted(counts.keys(), key=lambda p: [self.state_space.index(c) for c in p]):
+            probs[k] = counts[k]/float(sequence_length)
+        return pd.DataFrame(probs.items())
 
     def draw_from_multinomial(self, LT, n):
         """Use a given table of probabilities from getLikelihoods() and draw from its distribution"""
@@ -322,7 +385,7 @@ class NXTree:
         string = reversed(string)
         index = 0
         for o, s in enumerate(string):
-            index += (4**o)*self.state_space.index(s)
+            index += (4**o)*self.state_space_dict[s]
         return index
         
     def __reconstruct_pattern(self, split, row_label, col_label):
@@ -335,17 +398,18 @@ class NXTree:
         return "".join(p for p in pattern)
     
     def __subflattening_labels(self, length):
-        templates = []
         n = length
-        for i in range(n):
-            templates.append("".join(self.special_state for _ in range(i)) + '*' + "".join(self.special_state for _ in range(n-i - 1)))
+        templates = [
+            "".join(self.special_state for _ in range(i)) + '*' + "".join(self.special_state for _ in range(n-i - 1))
+            for i in range(n)
+        ]
         patterns = []
         for template in templates:
             for c in self.state_space:
                 if c != self.special_state:
                     patterns.append(template.replace('*', c))
         patterns.append("".join(self.special_state for _ in range(n)))
-        patterns = sorted(patterns, key=self.__index_of)
+        patterns.sort(key=self.__index_of)
         return patterns
 
     def sparse_flattening(self, split, table, format='dok'):
@@ -379,6 +443,9 @@ class NXTree:
     #def subflattening(self, split, data, build_from='flattening', return_sparse=False):
      
     def signed_sum_subflattening(self, split, data_table):
+        data_dict = {}
+        for table_pattern, value in data_table.itertuples(index=False, name=None):
+            data_dict[table_pattern] = value
         split = split.split('|')
         num_taxa = sum(len(part) for part in split)
         subflattening = [[0 for i in range(3*len(split[1])+1)] for j in range(3*len(split[0])+1)]
@@ -387,11 +454,13 @@ class NXTree:
         S = { (c1, c2) : S[self.state_space.index(c1)][self.state_space.index(c2)] for c1 in self.state_space for c2 in self.state_space}
         row_labels = self.__subflattening_labels(len(split[0]))
         col_labels = self.__subflattening_labels(len(split[1]))
+        rec_pat = self.__reconstruct_pattern
+        items = data_dict.items
         for row in range(len(row_labels)):
             for col in range(len(col_labels)):
-                pattern = self.__reconstruct_pattern(split, row_labels[row], col_labels[col])
+                pattern = rec_pat(split, row_labels[row], col_labels[col])
                 signed_sum = 0
-                for table_pattern, value in data_table.itertuples(index=False, name=None):
+                for table_pattern, value in items():
                     product = value
                     for t in zip(pattern, table_pattern):
                         product *= S[t]
