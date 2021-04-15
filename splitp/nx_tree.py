@@ -143,13 +143,13 @@ class NXTree:
                     matrix[r][c] = transversion
         return np.array(matrix).T
 
-    def __JC_rate_matrix(mutation_rate=None):
+    def JC_rate_matrix(mutation_rate=None):
         return [[-3*a, a, a, a],
                 [a, -3*a, a, a],
                 [a, a, -3*a, a],
                 [a, a, a, -3*a]]
 
-    def __K2ST_rate_matrix(rate_transition=None, rate_transversion=None, ratio=None):
+    def K2ST_rate_matrix(rate_transition=None, rate_transversion=None, ratio=None):
         if (a:=rate_transition) and (b:=rate_transversion):
             return [[-(a+2*b), a, b, b],
                     [a, -(a+2*b), b, b],
@@ -162,8 +162,8 @@ class NXTree:
                     [1, 1, k, -(k+2)]]
 
     def rate_matrix(self, model):
-        if   model is Model.JC:   return self.__JC_rate_matrix
-        elif model is Model.K2ST: return self.__K2ST_rate_matrix
+        if   model is Model.JC:   return self.JC_rate_matrix
+        elif model is Model.K2ST: return self.K2ST_rate_matrix
 
 
     def adjacency_matrix(self):
