@@ -181,6 +181,12 @@ class NXTree:
         if   model is Model.JC:   return _JC_rate_matrix
         elif model is Model.K2ST: return _K2ST_rate_matrix
 
+    def scale_TR_rate_matrix(self, Q, return_scale_factor=False):
+        scale_factor = 1/(-sum(self.initDist[i]*Q[i][i] for i in range(4)))
+        if return_scale_factor:
+            return scale_factor
+        else:
+            return scale_factor*np.array(Q)
 
     def adjacency_matrix(self):
         return np.array(nx.adjacency_matrix(self.nx_graph).todense())
