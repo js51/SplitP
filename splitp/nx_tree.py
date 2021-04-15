@@ -1,15 +1,27 @@
-import numpy as np
 import copy as cp
+import itertools
+from warnings import warn
+from math import exp
+# Numpy
+import numpy as np
+# Pandas
+import pandas as pd
+# NetworkX
 import networkx as nx
 from networkx.readwrite import json_graph
-import pandas as pd
+from networkx.algorithms.traversal.depth_first_search import dfs_tree
+# Scipy
 import scipy
-import itertools
+from scipy.sparse import coo_matrix
+from scipy.sparse import dok_matrix
+from scipy.sparse.linalg import svds
+# Random
+import random
+from random import choices
+# SplitP
 from splitp import tree_helper_functions as hf
 from splitp import parsers
 from splitp.models import Model
-from warnings import warn
-from scipy.sparse.linalg import svds
 
 class NXTree:
     """A rooted phylogenetic tree.
@@ -68,7 +80,6 @@ class NXTree:
         r = 0 if trivial else 1
         loop_over = range(r, 2**(n-1) - r)
         if randomise:
-            import random
             loop_over = [i for i in loop_over]
             random.shuffle(loop_over)
         for i in loop_over:
@@ -112,7 +123,6 @@ class NXTree:
                 self.nx_graph.nodes[n].pop('branch_length') # TODO: recompute branch lengths instead
 
     def build_JC_matrix(self, l):
-        from math import exp
         matrix = [[0 for i in range(self.num_bases)] for n in range(self.num_bases)]
         for r, row in enumerate(matrix):
             for c, _ in enumerate(row):
@@ -377,8 +387,6 @@ class NXTree:
         return emptyArray
 
     def evolve_pattern(self):
-        from random import choices
-        from networkx.algorithms.traversal.depth_first_search import dfs_tree
         def __evolve_on_subtree(subtree, state):
             root_node = [n for n,d in subtree.in_degree() if d==0][0]
             children = list(subtree.successors(root_node))
@@ -459,11 +467,9 @@ class NXTree:
         return patterns
 
     def sparse_flattening(self, split, table, format='dok'):
-        import scipy
         split = split.split('|')
         num_taxa = sum(len(part) for part in split)
         if format == 'coo':
-            from scipy.sparse import coo_matrix
             rows = []
             cols = []
             data = []
@@ -477,7 +483,6 @@ class NXTree:
                     data.append(r[1])
             return coo_matrix((data, (rows, cols)), shape=(4**len(split[0]),4**len(split[1])))
         elif format == 'dok':
-            from scipy.sparse import dok_matrix
             flattening = dok_matrix((4**len(split[0]),4**len(split[1])))
             for r in table.itertuples(index=False, name=None):
                 pattern = r[0]
@@ -515,8 +520,6 @@ class NXTree:
         return np.array(subflattening)
        
     def sparse_subflattening(self, split, data_table, as_dense_array=False):
-        import scipy
-        from scipy.sparse import coo_matrix
         split = split.split('|')
         num_taxa = len(split[0]) + len(split[1])
         H = np.array([[1, -1], [1, 1]])
