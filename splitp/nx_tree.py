@@ -7,9 +7,9 @@ import scipy
 import itertools
 from splitp import tree_helper_functions as hf
 from splitp import parsers
+from splitp import models
 from warnings import warn
 from scipy.sparse.linalg import svds
-
 
 class NXTree:
     """A rooted phylogenetic tree.
@@ -142,6 +142,29 @@ class NXTree:
                 else:
                     matrix[r][c] = transversion
         return np.array(matrix).T
+
+    def __JC_rate_matrix(mutation_rate=None):
+        return [[-3*a, a, a, a],
+                [a, -3*a, a, a],
+                [a, a, -3*a, a],
+                [a, a, a, -3*a]]
+
+    def __K2ST_rate_matrix(rate_transition=None, rate_transversion=None, ratio=None):
+        if (a:=rate_transition) and (b:=rate_transversion):
+            return [[-(a+2*b), a, b, b],
+                    [a, -(a+2*b), b, b],
+                    [b, b, -(a+2*b), a],
+                    [b, b, a, -(a+2*b)]]
+        elif k:=ratio:
+            return [[-(k+2), k, 1, 1],
+                    [k, -(k+2), 1, 1],
+                    [1, 1, -(k+2), k],
+                    [1, 1, k, -(k+2)]]
+
+    def rate_matrix(self, model):
+        if   model is Model.JC:   return __JC_rate_matrix
+        elif model is Model.K2ST: return __K2ST_rate_matrix
+
 
     def adjacency_matrix(self):
         return np.array(nx.adjacency_matrix(self.nx_graph).todense())
