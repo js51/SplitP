@@ -143,27 +143,25 @@ class NXTree:
                     matrix[r][c] = transversion
         return np.array(matrix).T
 
-    def JC_rate_matrix(self, mutation_rate=None):
-        return [[-3*a, a, a, a],
-                [a, -3*a, a, a],
-                [a, a, -3*a, a],
-                [a, a, a, -3*a]]
-
-    def K2ST_rate_matrix(self, rate_transition=None, rate_transversion=None, ratio=None):
-        if (a:=rate_transition) and (b:=rate_transversion):
-            return [[-(a+2*b), a, b, b],
-                    [a, -(a+2*b), b, b],
-                    [b, b, -(a+2*b), a],
-                    [b, b, a, -(a+2*b)]]
-        elif k:=ratio:
-            return [[-(k+2), k, 1, 1],
-                    [k, -(k+2), 1, 1],
-                    [1, 1, -(k+2), k],
-                    [1, 1, k, -(k+2)]]
-
     def rate_matrix(self, model):
-        if   model is Model.JC:   return self.JC_rate_matrix
-        elif model is Model.K2ST: return self.K2ST_rate_matrix
+        def _JC_rate_matrix(mutation_rate=None):
+            return [[-3*a, a, a, a],
+                    [a, -3*a, a, a],
+                    [a, a, -3*a, a],
+                    [a, a, a, -3*a]]
+        def _K2ST_rate_matrix(rate_transition=None, rate_transversion=None, ratio=None):
+            if (a:=rate_transition) and (b:=rate_transversion):
+                return [[-(a+2*b), a, b, b],
+                        [a, -(a+2*b), b, b],
+                        [b, b, -(a+2*b), a],
+                        [b, b, a, -(a+2*b)]]
+            elif k:=ratio:
+                return [[-(k+2), k, 1, 1],
+                        [k, -(k+2), 1, 1],
+                        [1, 1, -(k+2), k],
+                        [1, 1, k, -(k+2)]]
+        if   model is Model.JC:   return _JC_rate_matrix
+        elif model is Model.K2ST: return _K2ST_rate_matrix
 
 
     def adjacency_matrix(self):
