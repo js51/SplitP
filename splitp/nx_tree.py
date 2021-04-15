@@ -145,10 +145,11 @@ class NXTree:
 
     def rate_matrix(self, model):
         def _JC_rate_matrix(mutation_rate=None):
-            return [[-3*a, a, a, a],
-                    [a, -3*a, a, a],
-                    [a, a, -3*a, a],
-                    [a, a, a, -3*a]]
+            if a:=mutation_rate:
+                return [[-3*a, a, a, a],
+                        [a, -3*a, a, a],
+                        [a, a, -3*a, a],
+                        [a, a, a, -3*a]]
         def _K2ST_rate_matrix(rate_transition=None, rate_transversion=None, ratio=None):
             if (a:=rate_transition) and (b:=rate_transversion):
                 return [[-(a+2*b), a, b, b],
