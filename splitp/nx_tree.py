@@ -7,7 +7,7 @@ import scipy
 import itertools
 from splitp import tree_helper_functions as hf
 from splitp import parsers
-from splitp import models
+from splitp.models import Model
 from warnings import warn
 from scipy.sparse.linalg import svds
 
