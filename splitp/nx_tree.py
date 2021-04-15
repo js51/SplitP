@@ -7,9 +7,9 @@ import scipy
 import itertools
 from splitp import tree_helper_functions as hf
 from splitp import parsers
+from splitp.models import Model
 from warnings import warn
 from scipy.sparse.linalg import svds
-
 
 class NXTree:
     """A rooted phylogenetic tree.
@@ -142,6 +142,51 @@ class NXTree:
                 else:
                     matrix[r][c] = transversion
         return np.array(matrix).T
+
+    def rate_matrix(self, model):
+        def _JC_rate_matrix(mutation_rate=None):
+            if a:=mutation_rate:
+                return [[-3*a, a, a, a],
+                        [a, -3*a, a, a],
+                        [a, a, -3*a, a],
+                        [a, a, a, -3*a]]
+        def _K2ST_rate_matrix(rate_transition=None, rate_transversion=None, ratio=None):
+            if self.num_bases != 4:
+                warn(f"K2ST matrices are 4x4 but your model has {self.num_bases} states!" )
+            purines = ('A', 'G')
+            pyrimidines = ('C', 'T')
+            matrix = [[0 for i in range(self.num_bases)] for n in range(self.num_bases)]
+            if rate_transition and rate_transversion:
+                transition = rate_transition
+                transversion = rate_transversion
+                if transversion > transition: 
+                    warn(f"transitions are known to be more likely than transversions!")
+            elif ratio:
+                transition = ratio
+                transversion = 1
+            for r, row in enumerate(matrix):
+                from_state = self.state_space[r]
+                for c, _ in enumerate(row):
+                    to_state = self.state_space[c]
+                    if from_state == to_state:
+                        # No change
+                        matrix[r][c] = -(transition+2*transversion)
+                    elif from_state in purines and to_state in purines:
+                        matrix[r][c] = transition 
+                    elif from_state in pyrimidines and to_state in pyrimidines:
+                        matrix[r][c] = transition
+                    else:
+                        matrix[r][c] = transversion
+            return np.array(matrix).T
+        if   model is Model.JC:   return _JC_rate_matrix
+        elif model is Model.K2ST: return _K2ST_rate_matrix
+
+    def scale_TR_rate_matrix(self, Q, return_scale_factor=False):
+        scale_factor = 1/(-sum(self.initDist[i]*Q[i][i] for i in range(4)))
+        if return_scale_factor:
+            return scale_factor
+        else:
+            return scale_factor*np.array(Q)
 
     def adjacency_matrix(self):
         return np.array(nx.adjacency_matrix(self.nx_graph).todense())
