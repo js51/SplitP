@@ -161,7 +161,7 @@ class NXTree:
                 transversion = rate_transversion
                 if transversion > transition: 
                     warn(f"transitions are known to be more likely than transversions!")
-            elif k:=ratio:
+            elif ratio:
                 transition = ratio
                 transversion = 1
             for r, row in enumerate(matrix):
