@@ -153,14 +153,14 @@ class NXTree:
         def _K2ST_rate_matrix(rate_transition=None, rate_transversion=None, ratio=None):
             if self.num_bases != 4:
                 warn(f"K2ST matrices are 4x4 but your model has {self.num_bases} states!" )
-            if transversion > transition: 
-                warn(f"transitions are known to be more likely than transversions!")
             purines = ('A', 'G')
             pyrimidines = ('C', 'T')
             matrix = [[0 for i in range(self.num_bases)] for n in range(self.num_bases)]
             if rate_transition and rate_transversion:
                 transition = rate_transition
                 transversion = rate_transversion
+                if transversion > transition: 
+                    warn(f"transitions are known to be more likely than transversions!")
             elif k:=ratio:
                 transition = ratio
                 transversion = 1
