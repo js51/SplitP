@@ -162,8 +162,8 @@ class NXTree:
                     [1, 1, k, -(k+2)]]
 
     def rate_matrix(self, model):
-        if   model is Model.JC:   return __JC_rate_matrix
-        elif model is Model.K2ST: return __K2ST_rate_matrix
+        if   model is Model.JC:   return self.__JC_rate_matrix
+        elif model is Model.K2ST: return self.__K2ST_rate_matrix
 
 
     def adjacency_matrix(self):
