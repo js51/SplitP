@@ -21,7 +21,7 @@ from random import choices
 # SplitP
 from splitp import tree_helper_functions as hf
 from splitp import parsers
-from splitp.models import Model
+from splitp.enums import Model
 
 class NXTree:
     """A rooted phylogenetic tree.
@@ -693,7 +693,7 @@ class NXTree:
                 i += 1
             pattern = "".join(str(i) for i in pattern2)
 
-        taxa = [n for n in nodes if self.is_leaf(n)]
+        taxa = self.taxa
         for i, t in enumerate(taxa):
             nodes[t]['pars'] = set(pattern[i])
         score = 0
