@@ -9,7 +9,8 @@ import pandas as pd
 # NetworkX
 import networkx as nx
 from networkx.readwrite import json_graph
-from networkx.algorithms.traversal.depth_first_search import dfs_tree
+from networkx.algorithms.traversal.depth_first_search import dfs_tree, dfs_postorder_nodes
+from networkx.algorithms.traversal.breadth_first_search import bfs_successors
 # Scipy
 import scipy
 from scipy.sparse import coo_matrix
@@ -668,11 +669,45 @@ class NXTree:
                 row = []
                 for c in list(Ft):
                     # Could be optimised
-                    if len("".join([x for x in r if x != specialState])) <= type[0] and len(
+                    if len("".join([x for Ox in r if x != specialState])) <= type[0] and len(
                             "".join([x for x in c if x != specialState])) <= type[1]:
                         row.append(Ft.loc[r, c])
                 if row: matrix.append(row)
         return np.asarray(matrix)
+
+    def hartigan_algorithm(self, pattern):
+        score = 0
+        graph = self.nx_graph.copy()
+        nodes = graph.nodes
+        taxa = [t for t in self.taxa]
+        for i, t in enumerate(taxa):
+            nodes[t]['S1'] = set(pattern[i])
+        postorder_nodes = list(dfs_postorder_nodes(graph, source=self.get_root(return_index=False)))
+        for n in postorder_nodes:
+            if not self.is_leaf(n):
+                children = self.get_descendants(n)
+                k={}
+                for state in self.state_space:
+                    k[state] = len(set(child for child in children if state in nodes[child]['S1']))
+                K = max(k.values())
+                nodes[n]['S1'] = {state for state in self.state_space if k[state] == K}
+                nodes[n]['S2'] = {state for state in self.state_space if k[state] == K-1}
+        # Now compute the score
+        top_to_bottom_nodes = [x[0] for x in bfs_successors(graph, source=self.get_root(return_index=False))] + taxa
+        print(top_to_bottom_nodes)
+        for n in top_to_bottom_nodes:
+            print(n)
+            if n == self.get_root(return_index=False):
+                nodes[n]['hart_state'] = list(nodes[n]['S1'])[0]
+            else:
+                parent = nodes[list(graph.predecessors(n))[0]]
+                if parent['hart_state'] not in nodes[n]['S1']:
+                    nodes[n]['hart_state'] = list(nodes[n]['S1'])[0]
+                    score += 1
+                else:
+                    nodes[n]['hart_state'] = parent['hart_state']
+        return score
+
 
     def parsimony_score(self, pattern):
         """Calculate a parsimony score for a site pattern or split
@@ -693,7 +728,7 @@ class NXTree:
                 i += 1
             pattern = "".join(str(i) for i in pattern2)
 
-        taxa = self.taxa
+        taxa = [t for t in self.taxa]
         for i, t in enumerate(taxa):
             nodes[t]['pars'] = set(pattern[i])
         score = 0
