@@ -669,7 +669,7 @@ class NXTree:
                 row = []
                 for c in list(Ft):
                     # Could be optimised
-                    if len("".join([x for Ox in r if x != specialState])) <= type[0] and len(
+                    if len("".join([x for x in r if x != specialState])) <= type[0] and len(
                             "".join([x for x in c if x != specialState])) <= type[1]:
                         row.append(Ft.loc[r, c])
                 if row: matrix.append(row)
