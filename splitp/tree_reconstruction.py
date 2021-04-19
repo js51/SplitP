@@ -18,12 +18,14 @@ def split_tree_parsimony(alignment):
     for table_pattern, value in alignment.itertuples(index=False, name=None):
         alignment_dict[table_pattern] = value
     num_taxa = len(list(alignment_dict.keys())[0]) # Length of first pattern
-    all_splits = hf.all_splits(num_taxa)
+    all_splits = list(hf.all_splits(num_taxa))
+    scores = {split : 0 for split in all_splits}
     for split in all_splits:
         newick_string = []
         for part in split.split('|'):
             newick_string.append(f'({",".join(c for c in part)})')
         newick_string = f"({newick_string[0]},{newick_string[1]});"
         split_tree = sp.NXTree(newick_string, taxa_ordering='sorted')
-        for pattern in alignment_dict.keys():
-            print(newick_string, pattern, split_tree.hartigan_algorithm(pattern))
+        for pattern, value in alignment_dict.items():
+            scores[split] += value * split_tree.hartigan_algorithm(pattern)
+    return scores
