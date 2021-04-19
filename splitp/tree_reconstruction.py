@@ -41,10 +41,10 @@ def normalised_euclidean_distance(alignment):
     all_splits = list(hf.all_splits(num_taxa))
     scores = {split : 0 for split in all_splits}
     for split in all_splits:
-        split = split.split('|')
+        split_list = split.split('|')
         for pattern, value in alignment_dict.items():
-            part_a = "".join(pattern[int(s)] for s in split[0])
-            part_b = "".join(pattern[int(s)] for s in split[1])
+            part_a = "".join(pattern[int(s)] for s in split_list[0])
+            part_b = "".join(pattern[int(s)] for s in split_list[1])
             vec_a = np.array([ part_a.count(state) for state in states ])
             vec_b = np.array([ part_b.count(state) for state in states ])
             vec_a = vec_a / np.linalg.norm(vec_a)
