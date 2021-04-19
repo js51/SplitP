@@ -27,5 +27,5 @@ def split_tree_parsimony(alignment):
         newick_string = f"({newick_string[0]},{newick_string[1]});"
         split_tree = sp.NXTree(newick_string, taxa_ordering='sorted')
         for pattern, value in alignment_dict.items():
-            scores[split] += value * split_tree.hartigan_algorithm(pattern)
+            scores[split] += value * (split_tree.hartigan_algorithm(pattern)/(num_taxa-1))
     return scores
