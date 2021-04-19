@@ -31,7 +31,7 @@ def split_tree_parsimony(alignment):
             scores[split] += value * (split_tree.hartigan_algorithm(pattern)/(num_taxa-1))
     return scores
 
-def normalised_euclidean_distance(alignment):
+def euclidean_split_distance(alignment):
     print("assuming sorted taxa")
     states = ('A', 'G', 'C', 'T')
     alignment_dict = {}
