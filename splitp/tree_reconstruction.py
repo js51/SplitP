@@ -45,8 +45,8 @@ def normalised_euclidean_distance(alignment):
         for pattern, value in alignment_dict.items():
             part_a = "".join(pattern[int(s)] for s in split[0])
             part_b = "".join(pattern[int(s)] for s in split[1])
-            vec_a = np.array(( part_a.count(state) for state in states ))
-            vec_b = np.array(( part_b.count(state) for state in states ))
+            vec_a = np.array([ part_a.count(state) for state in states ])
+            vec_b = np.array([ part_b.count(state) for state in states ])
             vec_a = vec_a / np.linalg.norm(vec_a)
             vec_b = vec_b / np.linalg.norm(vec_b)
             scores[split] += value * (2-np.linalg.norm(vec_a - vec_b))
