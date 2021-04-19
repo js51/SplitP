@@ -49,5 +49,5 @@ def normalised_euclidean_distance(alignment):
             vec_b = np.array([ part_b.count(state) for state in states ])
             vec_a = vec_a / np.linalg.norm(vec_a)
             vec_b = vec_b / np.linalg.norm(vec_b)
-            scores[split] += value * (2-np.linalg.norm(vec_a - vec_b))
+            scores[split] += value * (2-np.linalg.norm(vec_a - vec_b))/2
     return scores
