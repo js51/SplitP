@@ -694,9 +694,7 @@ class NXTree:
                 nodes[n]['S2'] = {state for state in self.state_space if k[state] == K-1}
         # Now compute the score
         top_to_bottom_nodes = [x[0] for x in bfs_successors(graph, source=self.get_root(return_index=False))] + taxa
-        print(top_to_bottom_nodes)
         for n in top_to_bottom_nodes:
-            print(n)
             if n == self.get_root(return_index=False):
                 nodes[n]['hart_state'] = list(nodes[n]['S1'])[0]
             else:
