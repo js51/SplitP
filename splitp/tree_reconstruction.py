@@ -14,12 +14,15 @@ def erickson_SVD():
 def all_split_scores():
     pass
 
-def split_tree_parsimony(alignment):
-    alignment_dict = {}
-    for table_pattern, value in alignment.itertuples(index=False, name=None):
-        alignment_dict[table_pattern] = value
+def split_tree_parsimony(alignment, splits=None):
+    if type(alignment) is dict:
+        alignment_dict = alignment
+    else:
+        alignment_dict = {}
+        for table_pattern, value in alignment.itertuples(index=False, name=None):
+            alignment_dict[table_pattern] = value
     num_taxa = len(list(alignment_dict.keys())[0]) # Length of first pattern
-    all_splits = list(hf.all_splits(num_taxa))
+    all_splits = list(hf.all_splits(num_taxa)) if splits==None else splits
     scores = {split : 0 for split in all_splits}
     for split in all_splits:
         newick_string = []
