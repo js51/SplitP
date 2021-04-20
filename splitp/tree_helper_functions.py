@@ -172,6 +172,19 @@ def split_equivalence_classes(splits, group):
         return sorted(list(set(orbit) for orbit in orbits), key=len)
     return __orbits(splits, group)
 
+def normalised(scores):
+    scores = scores.copy()
+    if type(scores) is dict:
+        minimum = min(scores.values())
+        maximum = max(scores.values())
+        for key, value in scores:
+            scores[key] = (value - minimum)/(maximum - minimum)
+    elif type(scores) is list:
+        minimum = min(scores)
+        maximum = max(scores)
+        scores = [(score-minimum)/(maximum-minimum) for score in scores]
+    return scores
+
 def check_splits_representatives(split_reps, orbits):
     represented_orbits = set()
     for orbit in orbits:
