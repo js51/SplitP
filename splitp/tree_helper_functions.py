@@ -19,7 +19,7 @@ def balanced_newick_tree(num_taxa):
                 return f"({_balanced_newick_subtree(floor(nt/2) + int(left), True)},{_balanced_newick_subtree(floor(nt/2) + int(not left))})"
     newick_string = f"({_balanced_newick_subtree(num_taxa/2, True)},{_balanced_newick_subtree(num_taxa/2)});"
     for i in range(0, num_taxa):
-        newick_string = newick_string.replace('_', str(i), 1)
+        newick_string = newick_string.replace('_', str(numpy.base_repr(i, base=i+1)), 1)
     return newick_string
 
 def get_balance(s, asTuple=False):
