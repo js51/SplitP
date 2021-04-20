@@ -177,7 +177,7 @@ def normalised(scores):
     if type(scores) is dict:
         minimum = min(scores.values())
         maximum = max(scores.values())
-        for key, value in scores.values():
+        for key, value in scores.items():
             scores[key] = (value - minimum)/(maximum - minimum)
     elif type(scores) is list:
         minimum = min(scores)
