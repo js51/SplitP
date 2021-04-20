@@ -34,20 +34,20 @@ def split_tree_parsimony(alignment, splits=None):
             scores[split] += value * (split_tree.hartigan_algorithm(pattern)/(num_taxa-1))
     return scores
 
-def euclidean_split_distance(alignment):
+def euclidean_split_distance(alignment, splits):
     print("assuming sorted taxa")
     states = ('A', 'G', 'C', 'T')
     alignment_dict = {}
     for table_pattern, value in alignment.itertuples(index=False, name=None):
         alignment_dict[table_pattern] = value
     num_taxa = len(list(alignment_dict.keys())[0]) # Length of first pattern
-    all_splits = list(hf.all_splits(num_taxa))
+    all_splits = list(hf.all_splits(num_taxa)) if splits==None else splits
     scores = {split : 0 for split in all_splits}
     for split in all_splits:
         split_list = split.split('|')
         for pattern, value in alignment_dict.items():
-            part_a = "".join(pattern[int(s)] for s in split_list[0])
-            part_b = "".join(pattern[int(s)] for s in split_list[1])
+            part_a = "".join(pattern[int(s, base=num_taxa+1)] for s in split_list[0])
+            part_b = "".join(pattern[int(s, base=num_taxa+1)] for s in split_list[1])
             vec_a = np.array([ part_a.count(state) for state in states ])
             vec_b = np.array([ part_b.count(state) for state in states ])
             vec_a = vec_a / np.linalg.norm(vec_a)
