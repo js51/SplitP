@@ -19,7 +19,7 @@ def balanced_newick_tree(num_taxa):
                 return f"({_balanced_newick_subtree(floor(nt/2) + int(left), True)},{_balanced_newick_subtree(floor(nt/2) + int(not left))})"
     newick_string = f"({_balanced_newick_subtree(num_taxa/2, True)},{_balanced_newick_subtree(num_taxa/2)});"
     for i in range(0, num_taxa):
-        newick_string = newick_string.replace('_', str(i), 1)
+        newick_string = newick_string.replace('_', str(np.base_repr(i, base=i+3)), 1)
     return newick_string
 
 def get_balance(s, asTuple=False):
@@ -171,6 +171,19 @@ def split_equivalence_classes(splits, group):
             orbits.add(__orbit(split, group))
         return sorted(list(set(orbit) for orbit in orbits), key=len)
     return __orbits(splits, group)
+
+def normalised(scores):
+    scores = scores.copy()
+    if type(scores) is dict:
+        minimum = min(scores.values())
+        maximum = max(scores.values())
+        for key, value in scores.items():
+            scores[key] = (value - minimum)/(maximum - minimum)
+    elif type(scores) is list:
+        minimum = min(scores)
+        maximum = max(scores)
+        scores = [(score-minimum)/(maximum-minimum) for score in scores]
+    return scores
 
 def check_splits_representatives(split_reps, orbits):
     represented_orbits = set()

@@ -1,15 +1,28 @@
-import numpy as np
 import copy as cp
+import itertools
+from warnings import warn
+from math import exp
+# Numpy
+import numpy as np
+# Pandas
+import pandas as pd
+# NetworkX
 import networkx as nx
 from networkx.readwrite import json_graph
-import pandas as pd
+from networkx.algorithms.traversal.depth_first_search import dfs_tree, dfs_postorder_nodes
+from networkx.algorithms.traversal.breadth_first_search import bfs_successors
+# Scipy
 import scipy
-import itertools
+from scipy.sparse import coo_matrix
+from scipy.sparse import dok_matrix
+from scipy.sparse.linalg import svds
+# Random
+import random
+from random import choices
+# SplitP
 from splitp import tree_helper_functions as hf
 from splitp import parsers
-from warnings import warn
-from scipy.sparse.linalg import svds
-
+from splitp.enums import Model
 
 class NXTree:
     """A rooted phylogenetic tree.
@@ -68,7 +81,6 @@ class NXTree:
         r = 0 if trivial else 1
         loop_over = range(r, 2**(n-1) - r)
         if randomise:
-            import random
             loop_over = [i for i in loop_over]
             random.shuffle(loop_over)
         for i in loop_over:
@@ -97,7 +109,10 @@ class NXTree:
         for split in splits:
             yield split
 
+    ## BROKEN because this function doesn't realise that all_splits is a generator (I think!)
+    # TODO: add a warning or someting until it's fixed
     def false_splits(self, only_balance=None, randomise=False):
+        warn("This function is completely broken! Sorry!")
         """Returns set of all false splits in the tree."""
         true_splits = self.true_splits(include_trivial=False)
         for split in hf.all_splits(self.get_num_taxa(), trivial=False, only_balance=only_balance, randomise=randomise):
@@ -112,7 +127,6 @@ class NXTree:
                 self.nx_graph.nodes[n].pop('branch_length') # TODO: recompute branch lengths instead
 
     def build_JC_matrix(self, l):
-        from math import exp
         matrix = [[0 for i in range(self.num_bases)] for n in range(self.num_bases)]
         for r, row in enumerate(matrix):
             for c, _ in enumerate(row):
@@ -142,6 +156,52 @@ class NXTree:
                 else:
                     matrix[r][c] = transversion
         return np.array(matrix).T
+
+    def rate_matrix(self, model):
+        def _JC_rate_matrix(mutation_rate=None):
+            if mutation_rate:
+                a = mutation_rate
+                return [[-3*a, a, a, a],
+                        [a, -3*a, a, a],
+                        [a, a, -3*a, a],
+                        [a, a, a, -3*a]]
+        def _K2ST_rate_matrix(rate_transition=None, rate_transversion=None, ratio=None):
+            if self.num_bases != 4:
+                warn(f"K2ST matrices are 4x4 but your model has {self.num_bases} states!" )
+            purines = ('A', 'G')
+            pyrimidines = ('C', 'T')
+            matrix = [[0 for i in range(self.num_bases)] for n in range(self.num_bases)]
+            if rate_transition and rate_transversion:
+                transition = rate_transition
+                transversion = rate_transversion
+                if transversion > transition: 
+                    warn(f"transitions are known to be more likely than transversions!")
+            elif ratio:
+                transition = ratio
+                transversion = 1
+            for r, row in enumerate(matrix):
+                from_state = self.state_space[r]
+                for c, _ in enumerate(row):
+                    to_state = self.state_space[c]
+                    if from_state == to_state:
+                        # No change
+                        matrix[r][c] = -(transition+2*transversion)
+                    elif from_state in purines and to_state in purines:
+                        matrix[r][c] = transition 
+                    elif from_state in pyrimidines and to_state in pyrimidines:
+                        matrix[r][c] = transition
+                    else:
+                        matrix[r][c] = transversion
+            return np.array(matrix).T
+        if   model is Model.JC:   return _JC_rate_matrix
+        elif model is Model.K2ST: return _K2ST_rate_matrix
+
+    def scale_TR_rate_matrix(self, Q, return_scale_factor=False):
+        scale_factor = 1/(-sum(self.initDist[i]*Q[i][i] for i in range(4)))
+        if return_scale_factor:
+            return scale_factor
+        else:
+            return scale_factor*np.array(Q)
 
     def adjacency_matrix(self):
         return np.array(nx.adjacency_matrix(self.nx_graph).todense())
@@ -331,8 +391,6 @@ class NXTree:
         return emptyArray
 
     def evolve_pattern(self):
-        from random import choices
-        from networkx.algorithms.traversal.depth_first_search import dfs_tree
         def __evolve_on_subtree(subtree, state):
             root_node = [n for n,d in subtree.in_degree() if d==0][0]
             children = list(subtree.successors(root_node))
@@ -413,11 +471,9 @@ class NXTree:
         return patterns
 
     def sparse_flattening(self, split, table, format='dok'):
-        import scipy
         split = split.split('|')
         num_taxa = sum(len(part) for part in split)
         if format == 'coo':
-            from scipy.sparse import coo_matrix
             rows = []
             cols = []
             data = []
@@ -431,7 +487,6 @@ class NXTree:
                     data.append(r[1])
             return coo_matrix((data, (rows, cols)), shape=(4**len(split[0]),4**len(split[1])))
         elif format == 'dok':
-            from scipy.sparse import dok_matrix
             flattening = dok_matrix((4**len(split[0]),4**len(split[1])))
             for r in table.itertuples(index=False, name=None):
                 pattern = r[0]
@@ -469,8 +524,6 @@ class NXTree:
         return np.array(subflattening)
        
     def sparse_subflattening(self, split, data_table, as_dense_array=False):
-        import scipy
-        from scipy.sparse import coo_matrix
         split = split.split('|')
         num_taxa = len(split[0]) + len(split[1])
         H = np.array([[1, -1], [1, 1]])
@@ -625,6 +678,38 @@ class NXTree:
                 if row: matrix.append(row)
         return np.asarray(matrix)
 
+    def hartigan_algorithm(self, pattern):
+        score = 0
+        graph = self.nx_graph.copy()
+        nodes = graph.nodes
+        taxa = [t for t in self.taxa]
+        for i, t in enumerate(taxa):
+            nodes[t]['S1'] = set(pattern[i])
+        postorder_nodes = list(dfs_postorder_nodes(graph, source=self.get_root(return_index=False)))
+        for n in postorder_nodes:
+            if not self.is_leaf(n):
+                children = self.get_descendants(n)
+                k={}
+                for state in self.state_space:
+                    k[state] = len(set(child for child in children if state in nodes[child]['S1']))
+                K = max(k.values())
+                nodes[n]['S1'] = {state for state in self.state_space if k[state] == K}
+                nodes[n]['S2'] = {state for state in self.state_space if k[state] == K-1}
+        # Now compute the score
+        top_to_bottom_nodes = [x[0] for x in bfs_successors(graph, source=self.get_root(return_index=False))] + taxa
+        for n in top_to_bottom_nodes:
+            if n == self.get_root(return_index=False):
+                nodes[n]['hart_state'] = list(nodes[n]['S1'])[0]
+            else:
+                parent = nodes[list(graph.predecessors(n))[0]]
+                if parent['hart_state'] not in nodes[n]['S1']:
+                    nodes[n]['hart_state'] = list(nodes[n]['S1'])[0]
+                    score += 1
+                else:
+                    nodes[n]['hart_state'] = parent['hart_state']
+        return score
+
+
     def parsimony_score(self, pattern):
         """Calculate a parsimony score for a site pattern or split
 
@@ -644,7 +729,7 @@ class NXTree:
                 i += 1
             pattern = "".join(str(i) for i in pattern2)
 
-        taxa = [n for n in nodes if self.is_leaf(n)]
+        taxa = [t for t in self.taxa]
         for i, t in enumerate(taxa):
             nodes[t]['pars'] = set(pattern[i])
         score = 0
