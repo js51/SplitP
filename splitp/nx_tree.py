@@ -109,7 +109,10 @@ class NXTree:
         for split in splits:
             yield split
 
+    ## BROKEN because this function doesn't realise that all_splits is a generator (I think!)
+    # TODO: add a warning or someting until it's fixed
     def false_splits(self, only_balance=None, randomise=False):
+        warn("This function is completely broken! Sorry!")
         """Returns set of all false splits in the tree."""
         true_splits = self.true_splits(include_trivial=False)
         for split in hf.all_splits(self.get_num_taxa(), trivial=False, only_balance=only_balance, randomise=randomise):

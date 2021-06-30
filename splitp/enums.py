@@ -11,3 +11,4 @@ class Method(Enum):
         return name
     flattenings      = auto()
     subflattenings   = auto()
+    distance         = auto()
