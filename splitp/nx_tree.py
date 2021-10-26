@@ -456,6 +456,7 @@ class NXTree:
         return "".join(p for p in pattern)
     
     def __subflattening_labels(self, length):
+        #TODO: make into a generator and don't iterate twice for templates list
         n = length
         templates = [
             "".join(self.special_state for _ in range(i)) + '*' + "".join(self.special_state for _ in range(n-i - 1))
@@ -468,6 +469,24 @@ class NXTree:
                     patterns.append(template.replace('*', c))
         patterns.append("".join(self.special_state for _ in range(n)))
         patterns.sort(key=self.__index_of)
+        return patterns
+
+    def __subflattening_labels_generator(self, length):
+        #TODO: make into a generator and don't iterate twice for templates list
+        n = length
+        templates = (
+            "".join(self.special_state for _ in range(i)) 
+            + '*' 
+            + "".join(self.special_state for _ in range(n-i - 1))
+            for i in range(n)
+        )
+        patterns = []
+        for template in templates:
+            for c in self.state_space:
+                if c != self.special_state:
+                    patterns.append(template.replace('*', c))
+        patterns.append("".join(self.special_state for _ in range(n)))
+        patterns.sort(key=self.__index_of) # Do we need to sort? If not, this can be a proper generator
         return patterns
 
     def sparse_flattening(self, split, table, format='dok'):
@@ -511,6 +530,7 @@ class NXTree:
         col_labels = self.__subflattening_labels(len(split[1]))
         rec_pat = self.__reconstruct_pattern
         items = data_dict.items
+        # SOME OF THIS CAN BE RE-USED!!!!
         for row in range(len(row_labels)):
             for col in range(len(col_labels)):
                 pattern = rec_pat(split, row_labels[row], col_labels[col])
@@ -522,7 +542,38 @@ class NXTree:
                     signed_sum += product
                 subflattening[row][col] = signed_sum
         return np.array(subflattening)
-       
+
+    def fast_signed_sum_subflattening(self, split, data_dict, bundle=None):
+        # A faster version of signed sum subflattening. Requires a data dictionary and can be supplied with a bundle of 
+        # re-usable information to reduce the number of calls to the multiplications function.
+        data_dict = {}
+        split = split.split('|')
+        num_taxa = sum(len(part) for part in split)
+        subflattening = [[0 for i in range(3*len(split[1])+1)] for j in range(3*len(split[0])+1)]
+        H = np.array([[1, -1], [1, 1]])
+        S = np.kron(H, H)
+        S = { (c1, c2) : S[self.state_space.index(c1)][self.state_space.index(c2)] for c1 in self.state_space for c2 in self.state_space}
+        row_labels = self.__subflattening_labels_generator(len(split[0]))
+        col_labels = self.__subflattening_labels_generator(len(split[1]))
+        rec_pat = self.__reconstruct_pattern
+        items = data_dict.item
+        # SOME OF THIS CAN BE RE-USED!!!!
+        for r, row in enumerate(row_labels):
+            for c, col in enumerate(col_labels):
+                pattern = rec_pat(split, row, col)
+                signed_sum = 0
+                for table_pattern, value in items():
+                    try:
+                        product = bundle[pattern][table_pattern]
+                    except KeyError:
+                        product = 1
+                        for t in zip(pattern, table_pattern):
+                            product *= S[t]
+                        bundle[pattern][table_pattern] = product
+                    signed_sum += product*value
+                subflattening[r][c] = signed_sum
+        return np.array(subflattening)
+
     def sparse_subflattening(self, split, data_table, as_dense_array=False):
         split = split.split('|')
         num_taxa = len(split[0]) + len(split[1])
@@ -531,11 +582,11 @@ class NXTree:
         rows = []
         cols = []
         data = []
-        row_labels = self.__subflattening_labels(len(split[0]))
+        row_labels = self.__subflattening_labels(len(split[0])) #then these can go
         col_labels = self.__subflattening_labels(len(split[1]))
-        for row_label in row_labels:
-            for col_label in col_labels:
-                pattern = self.__reconstruct_pattern(split, row_label, col_label)
+        for row_label in row_labels: # loop over generators instead of lists :)
+            for col_label in col_labels: 
+                pattern = self.__reconstruct_pattern(split, row_label, col_label) 
                 rows.append(row_labels.index(row_label))
                 cols.append(col_labels.index(col_label))
                 signed_sum = 0
