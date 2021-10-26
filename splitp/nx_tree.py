@@ -566,10 +566,8 @@ class NXTree:
                     except KeyError:
                         product = 1
                         for t in zip(pattern, table_pattern):
-                            try:
-                                product *= S[t]
-                            except KeyError:
-                                pass
+                            if not (t[0]=='T' or t[1]=='A' or t in {('C','C'), ('G','G'), ('A','T')}):
+                                product *= -1
                         bundle[(pattern, table_pattern)] = product
                     signed_sum += product*value
                 subflattening[r][c] = signed_sum
