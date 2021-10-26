@@ -2,6 +2,7 @@ import copy as cp
 import itertools
 from warnings import warn
 from math import exp
+from networkx import exception
 # Numpy
 import numpy as np
 # Pandas
@@ -448,12 +449,12 @@ class NXTree:
         
     def __reconstruct_pattern(self, split, row_label, col_label):
         n = len(split[0]) + len(split[1])
-        pattern = [None for _ in range(n)]
+        pattern = {}
         for splindex, loc in enumerate(split[0]):
             pattern[int(loc, n)] = row_label[splindex]
         for splindex, loc in enumerate(split[1]):
             pattern[int(loc, n)] = col_label[splindex]
-        return "".join(p for p in pattern)
+        return "".join(pattern[i] for i in range(n))
     
     def __subflattening_labels(self, length):
         #TODO: make into a generator and don't iterate twice for templates list
@@ -472,22 +473,17 @@ class NXTree:
         return patterns
 
     def __subflattening_labels_generator(self, length):
-        #TODO: make into a generator and don't iterate twice for templates list
         n = length
+        other_states = self.state_space[0:-1]
         templates = (
-            "".join(self.special_state for _ in range(i)) 
-            + '*' 
-            + "".join(self.special_state for _ in range(n-i - 1))
+            ("".join(self.special_state for _ in range(i)), "".join(self.special_state for _ in range(n-i - 1)))
             for i in range(n)
         )
         patterns = []
         for template in templates:
-            for c in self.state_space:
-                if c != self.special_state:
-                    patterns.append(template.replace('*', c))
-        patterns.append("".join(self.special_state for _ in range(n)))
-        patterns.sort(key=self.__index_of) # Do we need to sort? If not, this can be a proper generator
-        return patterns
+            for c in other_states:
+                yield f'{template[0]}{c}{template[1]}'
+        yield "".join(self.special_state for _ in range(n))
 
     def sparse_flattening(self, split, table, format='dok'):
         split = split.split('|')
@@ -543,33 +539,38 @@ class NXTree:
                 subflattening[row][col] = signed_sum
         return np.array(subflattening)
 
-    def fast_signed_sum_subflattening(self, split, data_dict, bundle=None):
+    def fast_signed_sum_subflattening(self, split, data_dict, S=None, bundle=None, labels=None):
         # A faster version of signed sum subflattening. Requires a data dictionary and can be supplied with a bundle of 
         # re-usable information to reduce the number of calls to the multiplications function.
-        data_dict = {}
         split = split.split('|')
         num_taxa = sum(len(part) for part in split)
-        subflattening = [[0 for i in range(3*len(split[1])+1)] for j in range(3*len(split[0])+1)]
-        H = np.array([[1, -1], [1, 1]])
-        S = np.kron(H, H)
-        S = { (c1, c2) : S[self.state_space.index(c1)][self.state_space.index(c2)] for c1 in self.state_space for c2 in self.state_space}
-        row_labels = self.__subflattening_labels_generator(len(split[0]))
-        col_labels = self.__subflattening_labels_generator(len(split[1]))
-        rec_pat = self.__reconstruct_pattern
-        items = data_dict.item
-        # SOME OF THIS CAN BE RE-USED!!!!
+        subflattening = [[0 for _ in range(3*len(split[1])+1)] for _ in range(3*len(split[0])+1)]
+        sp1, sp2 = len(split[0]), len(split[1])
+        try:
+            row_labels = labels[sp1]
+        except KeyError:
+            row_labels = list(self.__subflattening_labels_generator(sp1))
+            labels[sp1] = row_labels
+        try:
+            col_labels = labels[sp2]
+        except KeyError:
+            col_labels = list(self.__subflattening_labels_generator(sp2))
+            labels[sp2] = col_labels
         for r, row in enumerate(row_labels):
             for c, col in enumerate(col_labels):
-                pattern = rec_pat(split, row, col)
+                pattern = self.__reconstruct_pattern(split, row, col)
                 signed_sum = 0
-                for table_pattern, value in items():
+                for table_pattern, value in data_dict.items():
                     try:
-                        product = bundle[pattern][table_pattern]
+                        product = bundle[(pattern, table_pattern)]
                     except KeyError:
                         product = 1
                         for t in zip(pattern, table_pattern):
-                            product *= S[t]
-                        bundle[pattern][table_pattern] = product
+                            try:
+                                product *= S[t]
+                            except KeyError:
+                                pass
+                        bundle[(pattern, table_pattern)] = product
                     signed_sum += product*value
                 subflattening[r][c] = signed_sum
         return np.array(subflattening)
