@@ -539,13 +539,14 @@ class NXTree:
                 subflattening[row][col] = signed_sum
         return np.array(subflattening)
 
-    def fast_signed_sum_subflattening(self, split, data_dict, S=None, bundle=None, labels=None):
-        # A faster version of signed sum subflattening. Requires a data dictionary and can be supplied with a bundle of 
-        # re-usable information to reduce the number of calls to the multiplications function.
+    def fast_signed_sum_subflattening(self, split, data_dict, bundle=None, labels=None):
+        """
+        A faster version of signed sum subflattening. Requires a data dictionary and can be supplied with a bundle of 
+        re-usable information to reduce the number of calls to the multiplications function.
+        """
         split = split.split('|')
-        num_taxa = sum(len(part) for part in split)
-        subflattening = [[0 for _ in range(3*len(split[1])+1)] for _ in range(3*len(split[0])+1)]
         sp1, sp2 = len(split[0]), len(split[1])
+        subflattening = [[0 for _ in range(3*sp2+1)] for _ in range(3*sp1+1)]
         try:
             row_labels = labels[sp1]
         except KeyError:
@@ -556,6 +557,7 @@ class NXTree:
         except KeyError:
             col_labels = list(self.__subflattening_labels_generator(sp2))
             labels[sp2] = col_labels
+        banned = {('C','C'), ('G','G'), ('A','T')}.union({(x, 'A') for x in self.state_space}).union({('T', x) for x in self.state_space})
         for r, row in enumerate(row_labels):
             for c, col in enumerate(col_labels):
                 pattern = self.__reconstruct_pattern(split, row, col)
@@ -566,7 +568,7 @@ class NXTree:
                     except KeyError:
                         product = 1
                         for t in zip(pattern, table_pattern):
-                            if not (t[0]=='T' or t[1]=='A' or t in {('C','C'), ('G','G'), ('A','T')}):
+                            if t not in banned:
                                 product *= -1
                         bundle[(pattern, table_pattern)] = product
                     signed_sum += product*value
