@@ -557,7 +557,7 @@ class NXTree:
         except KeyError:
             col_labels = list(self.__subflattening_labels_generator(sp2))
             labels[sp2] = col_labels
-        banned = {('C','C'), ('G','G'), ('A','T')}.union({(x, 'A') for x in self.state_space}).union({('T', x) for x in self.state_space})
+        banned = {('C','C'), ('G','G'), ('A','T')} | {(x, 'A') for x in self.state_space} | {('T', x) for x in self.state_space}
         for r, row in enumerate(row_labels):
             for c, col in enumerate(col_labels):
                 pattern = self.__reconstruct_pattern(split, row, col)
