@@ -2,6 +2,7 @@ import copy as cp
 import itertools
 from warnings import warn
 from math import exp
+from networkx import exception
 # Numpy
 import numpy as np
 # Pandas
@@ -448,14 +449,15 @@ class NXTree:
         
     def __reconstruct_pattern(self, split, row_label, col_label):
         n = len(split[0]) + len(split[1])
-        pattern = [None for _ in range(n)]
+        pattern = {}
         for splindex, loc in enumerate(split[0]):
             pattern[int(loc, n)] = row_label[splindex]
         for splindex, loc in enumerate(split[1]):
             pattern[int(loc, n)] = col_label[splindex]
-        return "".join(p for p in pattern)
+        return "".join(pattern[i] for i in range(n))
     
     def __subflattening_labels(self, length):
+        #TODO: make into a generator and don't iterate twice for templates list
         n = length
         templates = [
             "".join(self.special_state for _ in range(i)) + '*' + "".join(self.special_state for _ in range(n-i - 1))
@@ -469,6 +471,19 @@ class NXTree:
         patterns.append("".join(self.special_state for _ in range(n)))
         patterns.sort(key=self.__index_of)
         return patterns
+
+    def __subflattening_labels_generator(self, length):
+        n = length
+        other_states = self.state_space[0:-1]
+        templates = (
+            ("".join(self.special_state for _ in range(i)), "".join(self.special_state for _ in range(n-i - 1)))
+            for i in range(n)
+        )
+        patterns = []
+        for template in templates:
+            for c in other_states:
+                yield f'{template[0]}{c}{template[1]}'
+        yield "".join(self.special_state for _ in range(n))
 
     def sparse_flattening(self, split, table, format='dok'):
         split = split.split('|')
@@ -511,6 +526,7 @@ class NXTree:
         col_labels = self.__subflattening_labels(len(split[1]))
         rec_pat = self.__reconstruct_pattern
         items = data_dict.items
+        # SOME OF THIS CAN BE RE-USED!!!!
         for row in range(len(row_labels)):
             for col in range(len(col_labels)):
                 pattern = rec_pat(split, row_labels[row], col_labels[col])
@@ -522,7 +538,43 @@ class NXTree:
                     signed_sum += product
                 subflattening[row][col] = signed_sum
         return np.array(subflattening)
-       
+
+    def fast_signed_sum_subflattening(self, split, data_dict, bundle=None, labels=None):
+        """
+        A faster version of signed sum subflattening. Requires a data dictionary and can be supplied with a bundle of 
+        re-usable information to reduce the number of calls to the multiplications function.
+        """
+        split = split.split('|')
+        sp1, sp2 = len(split[0]), len(split[1])
+        subflattening = [[0 for _ in range(3*sp2+1)] for _ in range(3*sp1+1)]
+        try:
+            row_labels = labels[sp1]
+        except KeyError:
+            row_labels = list(self.__subflattening_labels_generator(sp1))
+            labels[sp1] = row_labels
+        try:
+            col_labels = labels[sp2]
+        except KeyError:
+            col_labels = list(self.__subflattening_labels_generator(sp2))
+            labels[sp2] = col_labels
+        banned = {('C','C'), ('G','G'), ('A','T')} | {(x, 'A') for x in self.state_space} | {('T', x) for x in self.state_space}
+        for r, row in enumerate(row_labels):
+            for c, col in enumerate(col_labels):
+                pattern = self.__reconstruct_pattern(split, row, col)
+                signed_sum = 0
+                for table_pattern, value in data_dict.items():
+                    try:
+                        product = bundle[(pattern, table_pattern)]
+                    except KeyError:
+                        product = 1
+                        for t in zip(pattern, table_pattern):
+                            if t not in banned:
+                                product *= -1
+                        bundle[(pattern, table_pattern)] = product
+                    signed_sum += product*value
+                subflattening[r][c] = signed_sum
+        return np.array(subflattening)
+
     def sparse_subflattening(self, split, data_table, as_dense_array=False):
         split = split.split('|')
         num_taxa = len(split[0]) + len(split[1])
@@ -531,11 +583,11 @@ class NXTree:
         rows = []
         cols = []
         data = []
-        row_labels = self.__subflattening_labels(len(split[0]))
+        row_labels = self.__subflattening_labels(len(split[0])) #then these can go
         col_labels = self.__subflattening_labels(len(split[1]))
-        for row_label in row_labels:
-            for col_label in col_labels:
-                pattern = self.__reconstruct_pattern(split, row_label, col_label)
+        for row_label in row_labels: # loop over generators instead of lists :)
+            for col_label in col_labels: 
+                pattern = self.__reconstruct_pattern(split, row_label, col_label) 
                 rows.append(row_labels.index(row_label))
                 cols.append(col_labels.index(col_label))
                 signed_sum = 0
