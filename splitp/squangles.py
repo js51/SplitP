@@ -9,7 +9,8 @@ class SquangleEvaluator:
 		self.toPatternDict = {}
 
 	def transformed_prob_dist(self, prob_dist):
-		banned = {('C','C'), ('G','G'), ('A','T')} | {(x, 'A') for x in self.state_space} | {('T', x) for x in self.state_space}
+		state_space = ('A', 'C', 'G', 'T')
+		banned = {('C','C'), ('G','G'), ('A','T')} | {(x, 'A') for x in state_space} | {('T', x) for x in state_space}
 		q_dist = {}
 		for pattern in prob_dist.keys():
 			signed_sum = 0
