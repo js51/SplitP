@@ -1,3 +1,5 @@
+import itertools
+
 class SquangleEvaluator:
 	
 	def __init__(self):
@@ -12,7 +14,8 @@ class SquangleEvaluator:
 		state_space = ('A', 'C', 'G', 'T')
 		banned = {('C','C'), ('G','G'), ('A','T')} | {(x, 'A') for x in state_space} | {('T', x) for x in state_space}
 		q_dist = {}
-		for pattern in prob_dist.keys():
+		for pat in itertools.product(state_space, repeat=4): # quartets
+			pattern = ''.join(pat)
 			signed_sum = 0
 			for table_pattern, value in prob_dist.items():
 				product = 1
