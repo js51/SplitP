@@ -7,7 +7,21 @@ class SquangleEvaluator:
 		self.toIntIndex = {'A':0, 'C':1, 'G':2, 'T':3}
 		self.toIntDict = {}
 		self.toPatternDict = {}
-	
+
+	def transformed_prob_dist(self, prob_dist):
+		banned = {('C','C'), ('G','G'), ('A','T')} | {(x, 'A') for x in self.state_space} | {('T', x) for x in self.state_space}
+		q_dist = {}
+		for pattern in prob_dist.keys():
+			signed_sum = 0
+			for table_pattern, value in prob_dist.items():
+				product = 1
+				for t in zip(pattern, table_pattern):
+					if t not in banned:
+						product *= -1
+				signed_sum += product*value
+			q_dist[pattern] = signed_sum
+		return q_dist
+
 	def get_polynomials(self):
 		polynomials = []
 		import os
