@@ -510,6 +510,34 @@ class NXTree:
                 flattening[row, col] = r[1]
             return flattening
 
+    def fast_sparse_flattening(self, split, table, format='dok'):
+        """A faster version of signed sum subflattening. Requires a data dictionary and can be supplied with a bundle of 
+        re-usable information to reduce the number of calls to the multiplications function.
+        """
+        split = split.split('|')
+        num_taxa = sum(len(part) for part in split)
+        if format == 'coo':
+            rows = []
+            cols = []
+            data = []
+            for r in table.itertuples(index=False, name=None):
+                if r[1] != 0:
+                    pattern = r[0]
+                    row = self.__index_of(''.join([str(pattern[int(s, num_taxa)]) for s in split[0]]))
+                    col = self.__index_of(''.join([str(pattern[int(s, num_taxa)]) for s in split[1]]))
+                    rows.append(row)
+                    cols.append(col)
+                    data.append(r[1])
+            return coo_matrix((data, (rows, cols)), shape=(4**len(split[0]),4**len(split[1])))
+        elif format == 'dok':
+            flattening = dok_matrix((4**len(split[0]),4**len(split[1])))
+            for r in table.itertuples(index=False, name=None):
+                pattern = r[0]
+                row = self.__index_of(''.join([str(pattern[int(s, num_taxa)]) for s in split[0]]))
+                col = self.__index_of(''.join([str(pattern[int(s, num_taxa)]) for s in split[1]]))
+                flattening[row, col] = r[1]
+            return flattening
+
     #def subflattening(self, split, data, build_from='flattening', return_sparse=False):
      
     def signed_sum_subflattening(self, split, data_table):
