@@ -1,3 +1,5 @@
+import itertools
+
 class SquangleEvaluator:
 	
 	def __init__(self):
@@ -7,7 +9,23 @@ class SquangleEvaluator:
 		self.toIntIndex = {'A':0, 'C':1, 'G':2, 'T':3}
 		self.toIntDict = {}
 		self.toPatternDict = {}
-	
+
+	def transformed_prob_dist(self, prob_dist):
+		state_space = ('A', 'C', 'G', 'T')
+		banned = {('C','C'), ('G','G'), ('A','T')} | {(x, 'A') for x in state_space} | {('T', x) for x in state_space}
+		q_dist = {}
+		for pat in itertools.product(state_space, repeat=4): # quartets
+			pattern = ''.join(pat)
+			signed_sum = 0
+			for table_pattern, value in prob_dist.items():
+				product = 1
+				for t in zip(pattern, table_pattern):
+					if t not in banned:
+						product *= -1
+				signed_sum += product*value
+			q_dist[pattern] = signed_sum
+		return q_dist
+
 	def get_polynomials(self):
 		polynomials = []
 		import os
