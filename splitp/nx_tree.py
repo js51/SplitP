@@ -1,8 +1,10 @@
 import copy as cp
 import itertools
+from selectors import EpollSelector
 from warnings import warn
-from math import exp
+from math import exp, floor
 from networkx import exception
+from itertools import combinations
 # Numpy
 import numpy as np
 # Pandas
@@ -19,7 +21,7 @@ from scipy.sparse import dok_matrix
 from scipy.sparse.linalg import svds
 # Random
 import random
-from random import choices
+from random import choices, sample
 # SplitP
 from splitp import tree_helper_functions as hf
 from splitp import parsers
@@ -75,6 +77,31 @@ class NXTree:
     def __str__(self):
         return parsers.json_to_newick(json_graph.tree_data(self.nx_graph, self.get_root(return_index=False)))
 
+    def fast_all_splits(self, trivial=False, size=None, randomise=False):
+        taxa = self.taxa
+        if size is not None:
+            sizes_to_do = [size]
+        else:
+            sizes_to_do = list(range(1 if trivial else 2, floor(self.get_num_taxa()/2)))
+        for bal in sizes_to_do:
+            even_split = (bal == self.get_num_taxa()/2)
+            if not even_split:
+                combos = combinations(taxa, size)
+            else: # We don't want to double up by selecting 012 and then 345
+                combos = combinations(taxa[1:], size-1) # Don't select 0
+            if randomise: 
+                combos = list(combos)
+                random.shuffle(combos)
+            for left_taxa in combos:
+                if even_split:
+                    left_taxa = (taxa[0],) + left_taxa
+                right_taxa = sorted(tuple(set(taxa) - set(left_taxa)), key=taxa.index)
+                left_taxa = sorted(left_taxa, key=taxa.index)
+                left, right = "".join(left_taxa), "".join(right_taxa) # Convert to strings
+                if self.taxa[0] in right: # Convention to have taxa[0] on left side of split
+                    left, right = right, left
+                yield f"{left}|{right}"
+
     def all_splits(self, trivial=False, only_balance=None, randomise=False):
         k = only_balance
         n = self.get_num_taxa()
@@ -86,7 +113,7 @@ class NXTree:
             random.shuffle(loop_over)
         for i in loop_over:
             template = format(i, f'0{n}b')
-            if not only_balance or sum(int(b) for b in template) in [only_balance, n-only_balance]:
+            if (not only_balance) or (sum(int(b) for b in template) in [only_balance, n-only_balance]):
                 if r < sum(int(b) for b in template) < n-r:
                     left  = ""
                     right = ""
