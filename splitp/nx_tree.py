@@ -489,9 +489,9 @@ class NXTree:
         n = len(split[0]) + len(split[1])
         pattern = {}
         for splindex, loc in enumerate(split[0]):
-            pattern[int(loc, n)] = row_label[splindex]
+            pattern[int(loc, n) if len(loc) == 1 else int(loc[1:])] = row_label[splindex]
         for splindex, loc in enumerate(split[1]):
-            pattern[int(loc, n)] = col_label[splindex]
+            pattern[int(loc, n) if len(loc) == 1 else int(loc[1:])] = col_label[splindex]
         return "".join(pattern[i] for i in range(n))
     
     def __subflattening_labels(self, length):
@@ -582,7 +582,8 @@ class NXTree:
         data_dict = {}
         for table_pattern, value in data_table.itertuples(index=False, name=None):
             data_dict[table_pattern] = value
-        split = split.split('|')
+        if isinstance(split, str): 
+            split = split.split('|')
         num_taxa = sum(len(part) for part in split)
         subflattening = [[0 for i in range(3*len(split[1])+1)] for j in range(3*len(split[0])+1)]
         H = np.array([[1, -1], [1, 1]])
@@ -590,12 +591,11 @@ class NXTree:
         S = { (c1, c2) : S[self.state_space.index(c1)][self.state_space.index(c2)] for c1 in self.state_space for c2 in self.state_space}
         row_labels = self.__subflattening_labels(len(split[0]))
         col_labels = self.__subflattening_labels(len(split[1]))
-        rec_pat = self.__reconstruct_pattern
         items = data_dict.items
         # SOME OF THIS CAN BE RE-USED!!!!
         for row in range(len(row_labels)):
             for col in range(len(col_labels)):
-                pattern = rec_pat(split, row_labels[row], col_labels[col])
+                pattern = self.__reconstruct_pattern(split, row_labels[row], col_labels[col])
                 signed_sum = 0
                 for table_pattern, value in items():
                     product = value
