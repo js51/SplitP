@@ -444,7 +444,8 @@ class NXTree:
         children = list(self.nx_graph.successors(root_node))
         subtrees = [dfs_tree(self.nx_graph, child) for child in children]
         result_string = ','.join(__evolve_on_subtree(subtree, root_state) for subtree in subtrees)
-        result = { pair[0] : pair[2] for pair in result_string.split(',') }
+        print(result_string)
+        result = { pair.split(":")[0] : pair.split(":")[1] for pair in result_string.split(',') }
         return ''.join(result[k] for k in sorted(result.keys(), key=self.taxa.index))
 
     def generate_alignment(self, sequence_length):
