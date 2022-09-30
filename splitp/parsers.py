@@ -43,11 +43,14 @@ def newick_to_json(newick_string, namestring = "id", lengthstring = "branch_leng
 				children_string = children_string[1:-1]
 		children_string = __split_into_children(children_string)
 		child_nodes_JSON = []
+		generated_name_parts = []
 		for child_string in children_string:
 			child_JSON = newick_to_json(child_string, namestring, lengthstring, childrenstring, generate_names)
 			if (not name) and generate_names:
-				node[namestring] += child_JSON[namestring]
+				generated_name_parts.append(child_JSON[namestring])
 			child_nodes_JSON.append(child_JSON)
+		if generate_names:
+			node[namestring] = "|".join(generated_name_parts)
 		node[childrenstring] = child_nodes_JSON
 	return node
 

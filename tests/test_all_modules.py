@@ -43,9 +43,9 @@ def test_trees(test_cases):
             tree = NXTree(balanced_newick_tree(case['number_of_taxa']))
         else:
             tree = NXTree(case['newick_string'])
-        true_splits = list(tree.true_splits())
+        true_splits = [tree.format_split(x) for x in tree.true_splits()]
         assert true_splits == case['true_splits']
-        false_splits = list(tree.false_splits())
+        false_splits = [tree.format_split(x) for x in tree.false_splits()]
         assert tree.get_num_taxa() == case['number_of_taxa']
-        splits = list(all_splits(tree.get_num_taxa()))
+        splits = [tree.format_split(x) for x in tree.all_splits()]
         assert set(false_splits + true_splits) == set(splits)

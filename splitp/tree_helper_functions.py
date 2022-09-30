@@ -1,12 +1,12 @@
 import numpy as np
 import pandas as pd
 import collections
+from math import floor
 from scipy.sparse import issparse
 
 def balanced_newick_tree(num_taxa):
-    if num_taxa%2 != 0:
-        raise ValueError("There is no balanced tree on {num_taxa} taxa. Please specify an even number.")
-    from math import floor
+    if num_taxa%2 != 0: raise ValueError("There is no balanced tree on {num_taxa} taxa. Please specify an even number.")
+    if num_taxa == 2: return "(0,1);"
     def _balanced_newick_subtree(nt, left=False):
         if nt == 2:
             return "(_,_)"
@@ -19,7 +19,8 @@ def balanced_newick_tree(num_taxa):
                 return f"({_balanced_newick_subtree(floor(nt/2) + int(left), True)},{_balanced_newick_subtree(floor(nt/2) + int(not left))})"
     newick_string = f"({_balanced_newick_subtree(num_taxa/2, True)},{_balanced_newick_subtree(num_taxa/2)});"
     for i in range(0, num_taxa):
-        newick_string = newick_string.replace('_', str(np.base_repr(i, base=i+3)), 1)
+        leaf_name = str(np.base_repr(i, base=max(i+1,2))) if num_taxa <= 36 else f't{str(i)}'
+        newick_string = newick_string.replace('_', leaf_name, 1)
     return newick_string
 
 def get_balance(s, asTuple=False):
@@ -59,6 +60,8 @@ def all_splits(num_taxa, trivial=False, only_balance=None, randomise=False):
     Returns:
         A list of string-representations of splits (using '|'-notation)
     """
+    if num_taxa > 35:
+        raise ValueError("Cannot generate all splits for more than 35 taxa. Please create an NXTree and use the NXTree all_splits function instead.")
     k = only_balance
     n = num_taxa
     taxa_string = "".join(np.base_repr(i, base=n) for i in range(n))

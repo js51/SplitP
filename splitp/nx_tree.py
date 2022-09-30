@@ -1,6 +1,5 @@
 import copy as cp
 import itertools
-from selectors import EpollSelector
 from warnings import warn
 from math import exp, floor
 from networkx import exception
@@ -77,18 +76,20 @@ class NXTree:
     def __str__(self):
         return parsers.json_to_newick(json_graph.tree_data(self.nx_graph, self.get_root(return_index=False)))
 
-    def fast_all_splits(self, trivial=False, size=None, randomise=False):
+    def all_splits(self, trivial=False, size=None, randomise=False, string_format=True):
         taxa = self.taxa
+        if string_format and len(taxa) > 35:
+            raise ValueError("Cannot generate splits for more than 35 taxa in string format. Use string_format=False.")
         if size is not None:
             sizes_to_do = [size]
         else:
-            sizes_to_do = list(range(1 if trivial else 2, floor(self.get_num_taxa()/2)))
+            sizes_to_do = list(range(1 if trivial else 2, floor(self.get_num_taxa()/2)+1))
         for bal in sizes_to_do:
             even_split = (bal == self.get_num_taxa()/2)
             if not even_split:
-                combos = combinations(taxa, size)
+                combos = combinations(taxa, bal)
             else: # We don't want to double up by selecting 012 and then 345
-                combos = combinations(taxa[1:], size-1) # Don't select 0
+                combos = combinations(taxa[1:], bal-1) # Don't select 0
             if randomise: 
                 combos = list(combos)
                 random.shuffle(combos)
@@ -97,12 +98,19 @@ class NXTree:
                     left_taxa = (taxa[0],) + left_taxa
                 right_taxa = sorted(tuple(set(taxa) - set(left_taxa)), key=taxa.index)
                 left_taxa = sorted(left_taxa, key=taxa.index)
-                left, right = "".join(left_taxa), "".join(right_taxa) # Convert to strings
+                left, right = tuple(left_taxa), tuple(right_taxa) # Convert to strings
                 if self.taxa[0] in right: # Convention to have taxa[0] on left side of split
                     left, right = right, left
-                yield f"{left}|{right}"
+                yield f'{"".join(left)}|{"".join(right)}' if string_format else (left, right)
+    fast_all_splits = all_splits
 
-    def all_splits(self, trivial=False, only_balance=None, randomise=False):
+    def format_split(self, split):
+        if len(split[0]) + len(split[1]) > 35:
+            raise ValueError("Cannot produce string format for split with more than 35 taxa.")
+        if all(len(taxon) == 1 for taxon in self.taxa):
+            return f'{"".join(split[0])}|{"".join(split[1])}'
+
+    def slow_all_splits(self, trivial=False, only_balance=None, randomise=False):
         k = only_balance
         n = self.get_num_taxa()
         taxa_string = "".join(self.taxa)
@@ -128,22 +136,24 @@ class NXTree:
 
     def true_splits(self, include_trivial=False):
         """Returns set of all true splits in the tree."""
-        all_taxa_string = ''.join(str(i) for i in self.taxa)
+        all_taxa = [x for x in self.taxa]
         splits = set()
         for node in list(self.nodes()):
-            split = sorted((node, ''.join(i for i in all_taxa_string if i not in node)))
+            split = (
+                tuple(sorted(node.split("|"), key=all_taxa.index)), 
+                tuple(i for i in all_taxa if i not in node)
+            )
+            if all_taxa[0] not in split[0]:
+                split = (split[1], split[0])
             if include_trivial or (len(split[0])>1 and len(split[1])>1):
-                splits.add(f'{split[0]}|{split[1]}')
+                splits.add(split)
         for split in splits:
             yield split
 
-    ## BROKEN because this function doesn't realise that all_splits is a generator (I think!)
-    # TODO: add a warning or someting until it's fixed
-    def false_splits(self, only_balance=None, randomise=False):
-        warn("This function is completely broken! Sorry!")
+    def false_splits(self):
         """Returns set of all false splits in the tree."""
-        true_splits = self.true_splits(include_trivial=False)
-        for split in hf.all_splits(self.get_num_taxa(), trivial=False, only_balance=only_balance, randomise=randomise):
+        true_splits = list(self.true_splits())
+        for split in self.all_splits():
             if split not in true_splits:
                 yield split
 
@@ -155,7 +165,7 @@ class NXTree:
                 self.nx_graph.nodes[n].pop('branch_length') # TODO: recompute branch lengths instead
 
     def build_JC_matrix(self, l):
-        matrix = [[0 for i in range(self.num_bases)] for n in range(self.num_bases)]
+        matrix = [[0 for _ in range(self.num_bases)] for n in range(self.num_bases)]
         for r, row in enumerate(matrix):
             for c, _ in enumerate(row):
                 matrix[r][c] = (1 / 4) + (3 / 4) * exp((-4 * l) / 3) if r == c else (1 / 4) - (1 / 4) * exp(
