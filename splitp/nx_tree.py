@@ -52,22 +52,23 @@ class NXTree:
         self.subflatLRMats = {}
         # Check if branch lengths have been assigned for every edge:
         if all(('branch_length' in self.nx_graph.nodes[n]) or self.is_root(n) for n in self.nx_graph.nodes):
-            print("Branch lengths assigned")
             for n in self.nx_graph.nodes:
                 if not self.is_root(n):
                     b = self.nx_graph.nodes[n]['branch_length']
                     self.nx_graph.nodes[n]['transition_matrix'] = self.build_JC_matrix(b)
         else:
-            print("Branch lengths missing: none were assigned")
+            warn("Branch lengths missing: none were assigned")
 
         leaves = [n for n in self.nx_graph.nodes if self.is_leaf(n)]
         if not taxa_ordering:
             taxa_ordering = leaves
         elif taxa_ordering == 'sorted':
-            taxa_ordering = sorted(leaves)
+            taxa_ordering = sorted(leaves) if all(len(t) == 1 for t in leaves) else sorted(leaves, key=lambda x: int(x[1:]))
         self.taxa = taxa_ordering
+        self.taxa_indexer = {}
         for i, taxon_name in enumerate(self.taxa):
             self.nx_graph.nodes[taxon_name]['t_index'] = i
+            self.taxa_indexer[taxon_name] = i
 
         for i, n in enumerate(self.nx_graph.nodes):
             self.nx_graph.nodes[n]['index'] = i
@@ -153,7 +154,7 @@ class NXTree:
     def false_splits(self):
         """Returns set of all false splits in the tree."""
         true_splits = list(self.true_splits())
-        for split in self.all_splits():
+        for split in self.all_splits(string_format=False):
             if split not in true_splits:
                 yield split
 
@@ -444,7 +445,6 @@ class NXTree:
         children = list(self.nx_graph.successors(root_node))
         subtrees = [dfs_tree(self.nx_graph, child) for child in children]
         result_string = ','.join(__evolve_on_subtree(subtree, root_state) for subtree in subtrees)
-        print(result_string)
         result = { pair.split(":")[0] : pair.split(":")[1] for pair in result_string.split(',') }
         return ''.join(result[k] for k in sorted(result.keys(), key=self.taxa.index))
 
@@ -524,7 +524,8 @@ class NXTree:
         yield "".join(self.special_state for _ in range(n))
 
     def sparse_flattening(self, split, table, format='dok'):
-        split = split.split('|')
+        if isinstance(split, str): 
+            split = split.split('|')
         num_taxa = sum(len(part) for part in split)
         if format == 'coo':
             rows = []
@@ -533,8 +534,8 @@ class NXTree:
             for r in table.itertuples(index=False, name=None):
                 if r[1] != 0:
                     pattern = r[0]
-                    row = self.__index_of(''.join([str(pattern[int(s, num_taxa)]) for s in split[0]]))
-                    col = self.__index_of(''.join([str(pattern[int(s, num_taxa)]) for s in split[1]]))
+                    row = self.__index_of(''.join([str(pattern[self.taxa_indexer[s]]) for s in split[0]]))
+                    col = self.__index_of(''.join([str(pattern[self.taxa_indexer[s]]) for s in split[1]]))
                     rows.append(row)
                     cols.append(col)
                     data.append(r[1])
@@ -543,8 +544,8 @@ class NXTree:
             flattening = dok_matrix((4**len(split[0]),4**len(split[1])))
             for r in table.itertuples(index=False, name=None):
                 pattern = r[0]
-                row = self.__index_of(''.join([str(pattern[int(s, num_taxa)]) for s in split[0]]))
-                col = self.__index_of(''.join([str(pattern[int(s, num_taxa)]) for s in split[1]]))
+                row = self.__index_of(''.join([str(pattern[self.taxa_indexer[s]]) for s in split[0]]))
+                col = self.__index_of(''.join([str(pattern[self.taxa_indexer[s]]) for s in split[1]]))
                 flattening[row, col] = r[1]
             return flattening
 
@@ -552,7 +553,8 @@ class NXTree:
         """A faster version of signed sum subflattening. Requires a data dictionary and can be supplied with a bundle of 
         re-usable information to reduce the number of calls to the multiplications function.
         """
-        split = split.split('|')
+        if isinstance(split, str): 
+            split = split.split('|')
         num_taxa = sum(len(part) for part in split)
         if format == 'coo':
             rows = []
