@@ -1,6 +1,5 @@
 import copy as cp
 import itertools
-from selectors import EpollSelector
 from warnings import warn
 from math import exp, floor
 from networkx import exception
@@ -53,22 +52,23 @@ class NXTree:
         self.subflatLRMats = {}
         # Check if branch lengths have been assigned for every edge:
         if all(('branch_length' in self.nx_graph.nodes[n]) or self.is_root(n) for n in self.nx_graph.nodes):
-            print("Branch lengths assigned")
             for n in self.nx_graph.nodes:
                 if not self.is_root(n):
                     b = self.nx_graph.nodes[n]['branch_length']
                     self.nx_graph.nodes[n]['transition_matrix'] = self.build_JC_matrix(b)
         else:
-            print("Branch lengths missing: none were assigned")
+            warn("Branch lengths missing: none were assigned")
 
         leaves = [n for n in self.nx_graph.nodes if self.is_leaf(n)]
         if not taxa_ordering:
             taxa_ordering = leaves
         elif taxa_ordering == 'sorted':
-            taxa_ordering = sorted(leaves)
+            taxa_ordering = sorted(leaves) if all(len(t) == 1 for t in leaves) else sorted(leaves, key=lambda x: int(x[1:]))
         self.taxa = taxa_ordering
+        self.taxa_indexer = {}
         for i, taxon_name in enumerate(self.taxa):
             self.nx_graph.nodes[taxon_name]['t_index'] = i
+            self.taxa_indexer[taxon_name] = i
 
         for i, n in enumerate(self.nx_graph.nodes):
             self.nx_graph.nodes[n]['index'] = i
@@ -77,18 +77,20 @@ class NXTree:
     def __str__(self):
         return parsers.json_to_newick(json_graph.tree_data(self.nx_graph, self.get_root(return_index=False)))
 
-    def fast_all_splits(self, trivial=False, size=None, randomise=False):
+    def all_splits(self, trivial=False, size=None, randomise=False, string_format=True):
         taxa = self.taxa
+        if string_format and len(taxa) > 35:
+            raise ValueError("Cannot generate splits for more than 35 taxa in string format. Use string_format=False.")
         if size is not None:
             sizes_to_do = [size]
         else:
-            sizes_to_do = list(range(1 if trivial else 2, floor(self.get_num_taxa()/2)))
+            sizes_to_do = list(range(1 if trivial else 2, floor(self.get_num_taxa()/2)+1))
         for bal in sizes_to_do:
             even_split = (bal == self.get_num_taxa()/2)
             if not even_split:
-                combos = combinations(taxa, size)
+                combos = combinations(taxa, bal)
             else: # We don't want to double up by selecting 012 and then 345
-                combos = combinations(taxa[1:], size-1) # Don't select 0
+                combos = combinations(taxa[1:], bal-1) # Don't select 0
             if randomise: 
                 combos = list(combos)
                 random.shuffle(combos)
@@ -97,12 +99,20 @@ class NXTree:
                     left_taxa = (taxa[0],) + left_taxa
                 right_taxa = sorted(tuple(set(taxa) - set(left_taxa)), key=taxa.index)
                 left_taxa = sorted(left_taxa, key=taxa.index)
-                left, right = "".join(left_taxa), "".join(right_taxa) # Convert to strings
+                left, right = tuple(left_taxa), tuple(right_taxa) # Convert to strings
                 if self.taxa[0] in right: # Convention to have taxa[0] on left side of split
                     left, right = right, left
-                yield f"{left}|{right}"
+                yield f'{"".join(left)}|{"".join(right)}' if string_format else (left, right)
+    fast_all_splits = all_splits
 
-    def all_splits(self, trivial=False, only_balance=None, randomise=False):
+    def format_split(self, split):
+        if isinstance(split, str): return split # If already a string, just send it back
+        if len(split[0]) + len(split[1]) > 35:
+            raise ValueError("Cannot produce string format for split with more than 35 taxa.")
+        if all(len(taxon) == 1 for taxon in self.taxa):
+            return f'{"".join(split[0])}|{"".join(split[1])}'
+
+    def slow_all_splits(self, trivial=False, only_balance=None, randomise=False):
         k = only_balance
         n = self.get_num_taxa()
         taxa_string = "".join(self.taxa)
@@ -128,22 +138,24 @@ class NXTree:
 
     def true_splits(self, include_trivial=False):
         """Returns set of all true splits in the tree."""
-        all_taxa_string = ''.join(str(i) for i in self.taxa)
+        all_taxa = [x for x in self.taxa]
         splits = set()
         for node in list(self.nodes()):
-            split = sorted((node, ''.join(i for i in all_taxa_string if i not in node)))
+            split = (
+                tuple(sorted(node.split("|"), key=all_taxa.index)), 
+                tuple(sorted((i for i in all_taxa if i not in node), key=all_taxa.index))
+            )
+            if all_taxa[0] not in split[0]:
+                split = (split[1], split[0])
             if include_trivial or (len(split[0])>1 and len(split[1])>1):
-                splits.add(f'{split[0]}|{split[1]}')
+                splits.add(split)
         for split in splits:
             yield split
 
-    ## BROKEN because this function doesn't realise that all_splits is a generator (I think!)
-    # TODO: add a warning or someting until it's fixed
-    def false_splits(self, only_balance=None, randomise=False):
-        warn("This function is completely broken! Sorry!")
+    def false_splits(self):
         """Returns set of all false splits in the tree."""
-        true_splits = self.true_splits(include_trivial=False)
-        for split in hf.all_splits(self.get_num_taxa(), trivial=False, only_balance=only_balance, randomise=randomise):
+        true_splits = list(self.true_splits())
+        for split in self.all_splits(string_format=False):
             if split not in true_splits:
                 yield split
 
@@ -155,7 +167,7 @@ class NXTree:
                 self.nx_graph.nodes[n].pop('branch_length') # TODO: recompute branch lengths instead
 
     def build_JC_matrix(self, l):
-        matrix = [[0 for i in range(self.num_bases)] for n in range(self.num_bases)]
+        matrix = [[0 for _ in range(self.num_bases)] for n in range(self.num_bases)]
         for r, row in enumerate(matrix):
             for c, _ in enumerate(row):
                 matrix[r][c] = (1 / 4) + (3 / 4) * exp((-4 * l) / 3) if r == c else (1 / 4) - (1 / 4) * exp(
@@ -236,7 +248,7 @@ class NXTree:
     
     def add_node(self, n, branch_length=0, in_node=None):
         """Adds a new node to the tree
-
+ 
         Args:
             n: The node object to add into the tree.
             in_node: The name of the parent node, default is None and is used for the root.
@@ -434,7 +446,7 @@ class NXTree:
         children = list(self.nx_graph.successors(root_node))
         subtrees = [dfs_tree(self.nx_graph, child) for child in children]
         result_string = ','.join(__evolve_on_subtree(subtree, root_state) for subtree in subtrees)
-        result = { pair[0] : pair[2] for pair in result_string.split(',') }
+        result = { pair.split(":")[0] : pair.split(":")[1] for pair in result_string.split(',') }
         return ''.join(result[k] for k in sorted(result.keys(), key=self.taxa.index))
 
     def generate_alignment(self, sequence_length):
@@ -478,9 +490,9 @@ class NXTree:
         n = len(split[0]) + len(split[1])
         pattern = {}
         for splindex, loc in enumerate(split[0]):
-            pattern[int(loc, n)] = row_label[splindex]
+            pattern[int(loc, n) if len(loc) == 1 else int(loc[1:])] = row_label[splindex]
         for splindex, loc in enumerate(split[1]):
-            pattern[int(loc, n)] = col_label[splindex]
+            pattern[int(loc, n) if len(loc) == 1 else int(loc[1:])] = col_label[splindex]
         return "".join(pattern[i] for i in range(n))
     
     def __subflattening_labels(self, length):
@@ -513,7 +525,8 @@ class NXTree:
         yield "".join(self.special_state for _ in range(n))
 
     def sparse_flattening(self, split, table, format='dok'):
-        split = split.split('|')
+        if isinstance(split, str): 
+            split = split.split('|')
         num_taxa = sum(len(part) for part in split)
         if format == 'coo':
             rows = []
@@ -522,8 +535,8 @@ class NXTree:
             for r in table.itertuples(index=False, name=None):
                 if r[1] != 0:
                     pattern = r[0]
-                    row = self.__index_of(''.join([str(pattern[int(s, num_taxa)]) for s in split[0]]))
-                    col = self.__index_of(''.join([str(pattern[int(s, num_taxa)]) for s in split[1]]))
+                    row = self.__index_of(''.join([str(pattern[self.taxa_indexer[s]]) for s in split[0]]))
+                    col = self.__index_of(''.join([str(pattern[self.taxa_indexer[s]]) for s in split[1]]))
                     rows.append(row)
                     cols.append(col)
                     data.append(r[1])
@@ -532,8 +545,8 @@ class NXTree:
             flattening = dok_matrix((4**len(split[0]),4**len(split[1])))
             for r in table.itertuples(index=False, name=None):
                 pattern = r[0]
-                row = self.__index_of(''.join([str(pattern[int(s, num_taxa)]) for s in split[0]]))
-                col = self.__index_of(''.join([str(pattern[int(s, num_taxa)]) for s in split[1]]))
+                row = self.__index_of(''.join([str(pattern[self.taxa_indexer[s]]) for s in split[0]]))
+                col = self.__index_of(''.join([str(pattern[self.taxa_indexer[s]]) for s in split[1]]))
                 flattening[row, col] = r[1]
             return flattening
 
@@ -541,7 +554,8 @@ class NXTree:
         """A faster version of signed sum subflattening. Requires a data dictionary and can be supplied with a bundle of 
         re-usable information to reduce the number of calls to the multiplications function.
         """
-        split = split.split('|')
+        if isinstance(split, str): 
+            split = split.split('|')
         num_taxa = sum(len(part) for part in split)
         if format == 'coo':
             rows = []
@@ -571,7 +585,8 @@ class NXTree:
         data_dict = {}
         for table_pattern, value in data_table.itertuples(index=False, name=None):
             data_dict[table_pattern] = value
-        split = split.split('|')
+        if isinstance(split, str): 
+            split = split.split('|')
         num_taxa = sum(len(part) for part in split)
         subflattening = [[0 for i in range(3*len(split[1])+1)] for j in range(3*len(split[0])+1)]
         H = np.array([[1, -1], [1, 1]])
@@ -579,12 +594,11 @@ class NXTree:
         S = { (c1, c2) : S[self.state_space.index(c1)][self.state_space.index(c2)] for c1 in self.state_space for c2 in self.state_space}
         row_labels = self.__subflattening_labels(len(split[0]))
         col_labels = self.__subflattening_labels(len(split[1]))
-        rec_pat = self.__reconstruct_pattern
         items = data_dict.items
         # SOME OF THIS CAN BE RE-USED!!!!
         for row in range(len(row_labels)):
             for col in range(len(col_labels)):
-                pattern = rec_pat(split, row_labels[row], col_labels[col])
+                pattern = self.__reconstruct_pattern(split, row_labels[row], col_labels[col])
                 signed_sum = 0
                 for table_pattern, value in items():
                     product = value
