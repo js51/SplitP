@@ -106,6 +106,7 @@ class NXTree:
     fast_all_splits = all_splits
 
     def format_split(self, split):
+        if isinstance(split, str): return split # If already a string, just send it back
         if len(split[0]) + len(split[1]) > 35:
             raise ValueError("Cannot produce string format for split with more than 35 taxa.")
         if all(len(taxon) == 1 for taxon in self.taxa):
@@ -142,7 +143,7 @@ class NXTree:
         for node in list(self.nodes()):
             split = (
                 tuple(sorted(node.split("|"), key=all_taxa.index)), 
-                tuple(i for i in all_taxa if i not in node)
+                tuple(sorted((i for i in all_taxa if i not in node), key=all_taxa.index))
             )
             if all_taxa[0] not in split[0]:
                 split = (split[1], split[0])
@@ -247,7 +248,7 @@ class NXTree:
     
     def add_node(self, n, branch_length=0, in_node=None):
         """Adds a new node to the tree
-
+ 
         Args:
             n: The node object to add into the tree.
             in_node: The name of the parent node, default is None and is used for the root.
