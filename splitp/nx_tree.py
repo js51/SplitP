@@ -161,10 +161,14 @@ class NXTree:
 
     def reassign_all_transition_matrices(self, matrix):
         for n in self.nx_graph.nodes:
-            self.nx_graph.nodes[n]['transition_matrix'] = matrix
-            warn("branch lengths have not been recalculated.")
-            if 'branch_length' in self.nx_graph.nodes[n]: 
-                self.nx_graph.nodes[n].pop('branch_length') # TODO: recompute branch lengths instead
+            reassign_transition_matrix(n, matrix)
+
+    def reassign_transition_matrix(self, node, matrix):
+        n = node
+        self.nx_graph.nodes[n]['transition_matrix'] = matrix
+        warn("branch lengths have not been recalculated.")
+        if 'branch_length' in self.nx_graph.nodes[n]: 
+            self.nx_graph.nodes[n].pop('branch_length') # TODO: recompute branch lengths instead
 
     def build_JC_matrix(self, l):
         matrix = [[0 for _ in range(self.num_bases)] for n in range(self.num_bases)]
