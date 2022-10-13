@@ -161,7 +161,7 @@ class NXTree:
 
     def reassign_all_transition_matrices(self, matrix):
         for n in self.nx_graph.nodes:
-            reassign_transition_matrix(n, matrix)
+            self.reassign_transition_matrix(n, matrix)
 
     def reassign_transition_matrix(self, node, matrix):
         n = node
