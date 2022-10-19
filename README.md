@@ -25,7 +25,7 @@ true_splits = tree.true_splits()    # 01|23
 ```
 Let site patterns evolve under any submodel of the general markov model.
 ```python
-JC_subs_matrix = tree.build_JC_matrix(branch_length:=0.05)
+JC_subs_matrix = tree.build_JC_matrix(branch_length:=0.05) # Or any other numpy Markov matrix
 tree.reassign_all_transition_matrices(JC_subs_matrix)
 pattern_probs = tree.get_pattern_probabilities()
 ```
