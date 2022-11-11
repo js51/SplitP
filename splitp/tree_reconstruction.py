@@ -4,12 +4,27 @@
     Some methods will return additional information. Not all methods guarantee that the splits returned will be compatible.
 """
 
+from build.lib.splitp.nx_tree import NXTree
 import splitp as sp
 from splitp import tree_helper_functions as hf
 import numpy as np
 
-def erickson_SVD():
-    pass
+def erickson_SVD(alignment, method=sp.Method.flattenings):
+    num_taxa = len(list(alignment.keys())[0]) # Length of first pattern
+    taxa = [str(i) for i in range(num_taxa)]
+    tree = NXTree.dummy_tree(taxa=taxa)
+    twoSplits = tree.all_splits(size=2)
+    minimum_score = 1
+    chosen_split = None
+    for split in twoSplits:
+        subflat = tree.signed_sum_subflattening(split, alignment)
+        score = tree.split_score(subflat)
+        if score < minimum_score:
+            minimum_score = score
+            chosen_split = split
+    chosen_pair = min(chosen_split)
+    print(chosen_pair)
+    
 
 def all_split_scores():
     pass

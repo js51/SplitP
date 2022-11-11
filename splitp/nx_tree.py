@@ -77,6 +77,14 @@ class NXTree:
     def __str__(self):
         return parsers.json_to_newick(json_graph.tree_data(self.nx_graph, self.get_root(return_index=False)))
 
+    @classmethod
+    def dummy_tree(cls, num_taxa=None, taxa=None):
+        if num_taxa is None and taxa is None:
+            raise ValueError("Must specify either num_taxa or taxa")
+        if taxa is None:
+            taxa = [str(i) for i in range(num_taxa)]
+        return cls(f'({",".join(taxa)});')
+
     def all_splits(self, trivial=False, size=None, randomise=False, string_format=True):
         taxa = self.taxa
         if string_format and len(taxa) > 35:
@@ -453,7 +461,7 @@ class NXTree:
         result = { pair.split(":")[0] : pair.split(":")[1] for pair in result_string.split(',') }
         return ''.join(result[k] for k in sorted(result.keys(), key=self.taxa.index))
 
-    def generate_alignment(self, sequence_length):
+    def generate_alignment(self, sequence_length, as_dict=False):
         counts = {}
         for i in range(sequence_length):
             pattern = self.evolve_pattern()
@@ -464,7 +472,7 @@ class NXTree:
         probs = {}
         for k in sorted(counts.keys(), key=lambda p: [self.state_space.index(c) for c in p]):
             probs[k] = counts[k]/float(sequence_length)
-        return pd.DataFrame(probs.items())
+        return probs if as_dict else pd.DataFrame(probs.items())
 
     def draw_from_multinomial(self, LT, n):
         """Use a given table of probabilities from getLikelihoods() and draw from its distribution"""
@@ -587,8 +595,11 @@ class NXTree:
      
     def signed_sum_subflattening(self, split, data_table):
         data_dict = {}
-        for table_pattern, value in data_table.itertuples(index=False, name=None):
-            data_dict[table_pattern] = value
+        if isinstance(data_table, dict):
+            data_dict = data_table
+        else:
+            for table_pattern, value in data_table.itertuples(index=False, name=None):
+                data_dict[table_pattern] = value
         if isinstance(split, str): 
             split = split.split('|')
         num_taxa = sum(len(part) for part in split)
@@ -617,7 +628,8 @@ class NXTree:
         A faster version of signed sum subflattening. Requires a data dictionary and can be supplied with a bundle of 
         re-usable information to reduce the number of calls to the multiplications function.
         """
-        split = split.split('|')
+        if isinstance(split, str): 
+            split = split.split('|')
         sp1, sp2 = len(split[0]), len(split[1])
         subflattening = [[0 for _ in range(3*sp2+1)] for _ in range(3*sp1+1)]
         try:
@@ -647,37 +659,6 @@ class NXTree:
                     signed_sum += product*value
                 subflattening[r][c] = signed_sum
         return np.array(subflattening)
-
-    def sparse_subflattening(self, split, data_table, as_dense_array=False):
-        split = split.split('|')
-        num_taxa = len(split[0]) + len(split[1])
-        H = np.array([[1, -1], [1, 1]])
-        S = np.kron(H, H)
-        rows = []
-        cols = []
-        data = []
-        row_labels = self.__subflattening_labels(len(split[0])) #then these can go
-        col_labels = self.__subflattening_labels(len(split[1]))
-        for row_label in row_labels: # loop over generators instead of lists :)
-            for col_label in col_labels: 
-                pattern = self.__reconstruct_pattern(split, row_label, col_label) 
-                rows.append(row_labels.index(row_label))
-                cols.append(col_labels.index(col_label))
-                signed_sum = 0
-                for r in data_table.itertuples(index=True, name=None):
-                    table_pattern = r[1]
-                    value = r[2]
-                    product = 1
-                    for p, tp in zip(pattern, table_pattern):
-                        product *= S[self.state_space.index(p)][self.state_space.index(tp)]
-                    product *= value
-                    signed_sum += product
-                data.append(signed_sum)
-        subflattening = coo_matrix((data, (rows, cols)), shape=(3*len(split[0])+1, 3*len(split[1])+1))
-        if as_dense_array:
-            return subflattening.toarray()
-        else:
-            return subflattening.todok()
         
     def flattening(self, split, table):
         """Build a flattening matrix from a split
@@ -689,7 +670,8 @@ class NXTree:
         Returns:
             A flattening matrix as a data-frame (to provide labels)
         """
-        split = split.split('|')
+        if isinstance(split, str): 
+            split = split.split('|')
 
         if self.num_bases == 2:
             rowLables = ['{:0{}b}'.format(i, len(split[0])) for i in range(2 ** len(split[0]))]
