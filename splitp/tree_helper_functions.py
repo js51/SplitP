@@ -85,6 +85,7 @@ def all_splits(num_taxa, trivial=False, only_balance=None, randomise=False):
                 if '0' in right:
                     left, right = right, left
                 yield f'{left}|{right}'
+
 ###
 # Functions for reading in a sequence alignment
 
@@ -195,19 +196,3 @@ def check_splits_representatives(split_reps, orbits):
             if split in orbit:
                 represented_orbits.add(frozenset(orbit))
     return len(represented_orbits) == len(orbits)
-
-# Function for scaling the S part of the hard-coded H matrix
-def scaled_h_matrix(_lambda):
-    if _lambda == None:
-        return None, None
-    if _lambda == "identity":
-        return np.matrix([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [1, 1, 1, 1]]), "identity"
-    H = np.matrix([[1, -1], [1, 1]])
-    H = np.kron(H, H)
-    S = np.empty((0, 4))
-    for row in H:
-        if len(set(np.asarray(row)[0])) != 1:
-            S = np.append(S, row, axis=0)
-    S = _lambda * S
-    H = np.append(S, [[1, 1, 1, 1]], axis=0)
-    return (H, _lambda)

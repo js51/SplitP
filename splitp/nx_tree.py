@@ -2,8 +2,8 @@ import copy as cp
 import itertools
 from warnings import warn
 from math import exp, floor
-from networkx import exception
 from itertools import combinations
+import line_profiler as lp
 # Numpy
 import numpy as np
 # Pandas
@@ -20,7 +20,7 @@ from scipy.sparse import dok_matrix
 from scipy.sparse.linalg import svds
 # Random
 import random
-from random import choices, sample
+from random import choices
 # SplitP
 from splitp import tree_helper_functions as hf
 from splitp import parsers
@@ -43,6 +43,7 @@ class NXTree:
         """Initialises a tree with the number of nodes and size of the character set"""
         self.num_bases = numStates
         self.initDist = [1/4,1/4,1/4,1/4]
+        self.generating_newick_string = newickString
         if self.num_bases == 4:
             self.state_space = ('A', 'C', 'G', 'T')
             self.state_space_dict = {char : self.state_space.index(char) for char in self.state_space}
@@ -77,12 +78,15 @@ class NXTree:
     def __str__(self):
         return parsers.json_to_newick(json_graph.tree_data(self.nx_graph, self.get_root(return_index=False)))
 
+    def __eq__(self, other):
+        return self.__str__() == other.__str__()
+
     @classmethod
     def dummy_tree(cls, num_taxa=None, taxa=None):
         if num_taxa is None and taxa is None:
             raise ValueError("Must specify either num_taxa or taxa")
         if taxa is None:
-            taxa = [str(i) for i in range(num_taxa)]
+            taxa = [str(np.base_repr(i, base=max(i+1,2))) if num_taxa <= 36 else f't{str(i)}' for i in range(num_taxa)]
         return cls(f'({",".join(taxa)});')
 
     def all_splits(self, trivial=False, size=None, randomise=False, string_format=True):
@@ -384,21 +388,6 @@ class NXTree:
             L += self.initDist[i] * lTable[root_index, i]
 
         return L
-
-    def svd_error(self, M):
-        """"Returns the SVD for a given matrix (All but two/four largest SVs)"""
-        warn("svd_error is deprecated, use split_score() for a much faster result", DeprecationWarning)
-        sv = list(np.linalg.svd(np.array(M).astype(np.float64), compute_uv=False))
-        sv[0] = 0
-        sv[1] = 0
-        if self.num_bases == 4:
-            sv[2] = 0
-            sv[3] = 0
-        return sum(sv)
-
-    def all_singular_values(self, M):
-        warn("all_singular_values is deprecated, use split_score() for a much faster result", DeprecationWarning)
-        return (list(np.linalg.svd(np.array(M).astype(np.float64), compute_uv=False)))
     
     def __dense_split_score(self, matrix, k=None, singularValues=False, force_frob_norm=False):
         singular_values = list(scipy.linalg.svd(np.array(matrix), full_matrices=False, check_finite=False, compute_uv=False))
@@ -420,10 +409,11 @@ class NXTree:
         else:
             return self.__dense_split_score(matrix, return_singular_values, force_frob_norm_on_dense)
 
-    def get_pattern_probabilities(self):
+    def get_pattern_probabilities(self, as_data_table=True):
         """Returns a full table of site-pattern probabilities (binary character set)"""
         # Creating a table with binary labels and calling likelihood_start() to fill it in with probabilities
         if self.num_bases == 2:
+            warn("get_pattern_probabilities() is depecated for non-binary character sets.", DeprecationWarning)
             emptyArray = np.array(
                 [
                     ['{:0{}b}'.format(i, self.get_num_taxa()),
@@ -434,12 +424,15 @@ class NXTree:
         elif self.num_bases == 4:
             combinations = list(itertools.product(''.join(s for s in self.state_space), repeat=self.get_num_taxa()))
             combinations = [''.join(c) for c in combinations]
-            emptyArray = pd.DataFrame(
-                [
-                    [combinations[i], self.__likelihood_start(combinations[i])]
-                    for i in range(len(combinations))
-                ]
-            )
+            if as_data_table:
+                emptyArray = pd.DataFrame(
+                    [
+                        [combinations[i], self.__likelihood_start(combinations[i])]
+                        for i in range(len(combinations))
+                    ]
+                )
+            else:
+                emptyArray = { combination : self.__likelihood_start(combination) for combination in combinations }
         return emptyArray
 
     def evolve_pattern(self):
@@ -540,54 +533,30 @@ class NXTree:
         if isinstance(split, str): 
             split = split.split('|')
         num_taxa = sum(len(part) for part in split)
+        if isinstance(table, dict):
+            data_dict = table
+        else:
+            for table_pattern, value in table.itertuples(index=False, name=None):
+                data_dict[table_pattern] = value
         if format == 'coo':
             rows = []
             cols = []
             data = []
-            for r in table.itertuples(index=False, name=None):
+            for r in data_dict.items():
                 if r[1] != 0:
                     pattern = r[0]
                     row = self.__index_of(''.join([str(pattern[self.taxa_indexer[s]]) for s in split[0]]))
                     col = self.__index_of(''.join([str(pattern[self.taxa_indexer[s]]) for s in split[1]]))
                     rows.append(row)
                     cols.append(col)
-                    data.append(r[1])
+                    data.append(r[1]) 
             return coo_matrix((data, (rows, cols)), shape=(4**len(split[0]),4**len(split[1])))
         elif format == 'dok':
             flattening = dok_matrix((4**len(split[0]),4**len(split[1])))
-            for r in table.itertuples(index=False, name=None):
+            for r in data_dict.items():
                 pattern = r[0]
                 row = self.__index_of(''.join([str(pattern[self.taxa_indexer[s]]) for s in split[0]]))
                 col = self.__index_of(''.join([str(pattern[self.taxa_indexer[s]]) for s in split[1]]))
-                flattening[row, col] = r[1]
-            return flattening
-
-    def fast_sparse_flattening(self, split, table, format='dok'):
-        """A faster version of signed sum subflattening. Requires a data dictionary and can be supplied with a bundle of 
-        re-usable information to reduce the number of calls to the multiplications function.
-        """
-        if isinstance(split, str): 
-            split = split.split('|')
-        num_taxa = sum(len(part) for part in split)
-        if format == 'coo':
-            rows = []
-            cols = []
-            data = []
-            for r in table.itertuples(index=False, name=None):
-                if r[1] != 0:
-                    pattern = r[0]
-                    row = self.__index_of(''.join([str(pattern[int(s, num_taxa)]) for s in split[0]]))
-                    col = self.__index_of(''.join([str(pattern[int(s, num_taxa)]) for s in split[1]]))
-                    rows.append(row)
-                    cols.append(col)
-                    data.append(r[1])
-            return coo_matrix((data, (rows, cols)), shape=(4**len(split[0]),4**len(split[1])))
-        elif format == 'dok':
-            flattening = dok_matrix((4**len(split[0]),4**len(split[1])))
-            for r in table.itertuples(index=False, name=None):
-                pattern = r[0]
-                row = self.__index_of(''.join([str(pattern[int(s, num_taxa)]) for s in split[0]]))
-                col = self.__index_of(''.join([str(pattern[int(s, num_taxa)]) for s in split[1]]))
                 flattening[row, col] = r[1]
             return flattening
 
@@ -603,7 +572,7 @@ class NXTree:
         if isinstance(split, str): 
             split = split.split('|')
         num_taxa = sum(len(part) for part in split)
-        subflattening = [[0 for i in range(3*len(split[1])+1)] for j in range(3*len(split[0])+1)]
+        subflattening = [[0 for _ in range(3*len(split[1])+1)] for _ in range(3*len(split[0])+1)]
         H = np.array([[1, -1], [1, 1]])
         S = np.kron(H, H)
         S = { (c1, c2) : S[self.state_space.index(c1)][self.state_space.index(c2)] for c1 in self.state_space for c2 in self.state_space}
@@ -622,6 +591,58 @@ class NXTree:
                     signed_sum += product
                 subflattening[row][col] = signed_sum
         return np.array(subflattening)
+
+    def reduced_sparse_flattening(self, split, data_dict, bundle=None):
+        if bundle==None:
+            bundle = {}
+        if isinstance(split, str): 
+            split = split.split('|')
+        flattening_data = {}
+        used_cols = set()
+        for r in data_dict.items():
+            pattern = r[0]
+            row = self.__index_of(''.join([str(pattern[self.taxa_indexer[s]]) for s in split[0]]))
+            col = self.__index_of(''.join([str(pattern[self.taxa_indexer[s]]) for s in split[1]]))
+            used_cols.add(col)
+            try:
+                flattening_data[row][col] = r[1]
+            except KeyError:
+                flattening_data[row] = {col: r[1]}
+        flattening = np.zeros((len(flattening_data), len(used_cols))).tolist() # dok_matrix((len(used_row_indices), len(used_col_indices)))
+        for i, row_index in enumerate(sorted(flattening_data.keys())):
+            row_data = flattening_data[row_index]
+            for j, col_index in enumerate(sorted(used_cols)):
+                try:
+                    flattening[i][j] = row_data[col_index]
+                except KeyError: pass
+        return np.array(flattening)
+
+    def reduced_sparse_flattening(self, split, data_dict, bundle=None):
+        if bundle==None:
+            bundle = {}
+        if isinstance(split, str): 
+            split = split.split('|')
+        flattening_data = {}
+        used_cols = set()
+        for r in data_dict.items():
+            pattern = r[0]
+            row = self.__index_of(''.join([str(pattern[self.taxa_indexer[s]]) for s in split[0]]))
+            col = self.__index_of(''.join([str(pattern[self.taxa_indexer[s]]) for s in split[1]]))
+            used_cols.add(col)
+            try:
+                flattening_data[row][col] = r[1]
+            except KeyError:
+                flattening_data[row] = {col: r[1]}
+        column_sort_order = {}
+
+        for i, used_col in enumerate(sorted(used_cols)):
+            column_sort_order[used_col] = i
+
+        flattening = np.zeros((len(flattening_data), len(used_cols))) # dok_matrix((len(used_row_indices), len(used_col_indices)))
+        for i, (row_index, column_data) in enumerate(sorted(flattening_data.items())):
+            for col_index, prob in column_data.items():
+                    flattening[i, column_sort_order[col_index]] = prob
+        return flattening
 
     def fast_signed_sum_subflattening(self, split, data_dict, bundle=None, labels=None):
         """
@@ -659,95 +680,10 @@ class NXTree:
                     signed_sum += product*value
                 subflattening[r][c] = signed_sum
         return np.array(subflattening)
-        
-    def flattening(self, split, table):
-        """Build a flattening matrix from a split
-
-        Args:
-            split: A string representing the split to build the flattening from
-            table: A pandas data-frame table with site pattern `probabilities'
-
-        Returns:
-            A flattening matrix as a data-frame (to provide labels)
-        """
-        if isinstance(split, str): 
-            split = split.split('|')
-
-        if self.num_bases == 2:
-            rowLables = ['{:0{}b}'.format(i, len(split[0])) for i in range(2 ** len(split[0]))]
-            colLables = ['{:0{}b}'.format(i, len(split[1])) for i in range(2 ** len(split[1]))]
-        elif self.num_bases == 4:
-            rowLables = list(map(''.join, list(itertools.product(''.join(self.state_space), repeat=len(split[0])))))
-            colLables = list(map(''.join, list(itertools.product(''.join(self.state_space), repeat=len(split[1])))))
-
-        F = pd.DataFrame(0, index=rowLables, columns=colLables, dtype=np.float64)
-        # Searching through data table and moving likelihoods to the F matrix
-        for r in table.itertuples(index=True, name='Pandas'):
-            if r[2] != '0.0':
-                pattern = r[1]
-                row = ''.join([str(pattern[int(s)]) for s in split[0]])
-                col = ''.join([str(pattern[int(s)]) for s in split[1]])
-                F.loc[row, col] = r[2]
-
-        return F  # .astype(pd.SparseDtype("float64", 0))
-
-    def __make_mat(self, F, S_hat, left=True):
-        colLabels = list(F)
-        rowLabels = F.index
-        if (str(S_hat), left, F.shape) in self.subflatLRMats:
-            return self.subflatLRMats[(str(S_hat), left, F.shape)]
-        if left:
-            M = np.empty((0, F.shape[0]))
-            rows = len(rowLabels[0])
-        else:
-            M = np.empty((0, F.shape[1]))
-            rows = len(colLabels[0])
-        O = np.ones(len(S_hat) + 1)
-        for r in range(rows):
-            A = np.empty((0, 0))
-            if r == 0:  # First row of M
-                A = S_hat
-                for i in range(rows - 1):
-                    A = np.kron(A, O)
-            else:
-                A = O
-                for i in range(0, r - 1):
-                    A = np.kron(A, O)
-                A = np.kron(A, S_hat)
-                for i in range(rows - r - 1):
-                    A = np.kron(A, O)
-
-            M = np.append(M, A, axis=0)
-
-        rowOfOnes = O
-        for i in range(rows - 1):
-            rowOfOnes = np.kron(rowOfOnes, O)
-        rowOfOnes = rowOfOnes.reshape((1, -1))
-        M = np.append(M, rowOfOnes, axis=0)
-        self.subflatLRMats[(str(S_hat), left, F.shape)] = M
-        return M
-
-    def subflattening_alt(self, F, S=None, returnLRMats=False):
-        if np.all(S) == None:
-            S = np.array([[1, -1], [1, 1]])  # Swapped rows compared to other way
-            S = np.kron(S, S)
-
-        # Remove the constant row to obtain S
-        S_hat = np.empty((0, self.num_bases))
-        for row in S:
-            if list(np.asarray(row)) != [1 for i in range(self.num_bases)]:
-                S_hat = np.append(S_hat, [row], axis=0)
-
-        L = self.__make_mat(F, S_hat, True)
-        R = self.__make_mat(F, S_hat, False)
-        F = np.asarray(F)  # , dtype=np.float64)
-        if not returnLRMats:
-            return L @ F @ R.T
-        else:
-            return (L @ F @ R.T, L, R)
 
     def transformed_flattening(self, F, S=None):
         """ Creates a transformed flattening from a flattening data frame """
+        warn("This function is deprecated. Use the signed sum subflattening function instead", DeprecationWarning)
         if np.all(S) == None:
             H = np.array([[1, -1], [1, 1]])  # Swapped rows compared to other way
             S = np.kron(H, H)
@@ -765,6 +701,7 @@ class NXTree:
 
     def subflattening(self, Ft, specialState='T', type=(1, 1)):
         """ Creates a subflattening from a transformed flattening data frame """
+        warn("This function is deprecated. Use the signed sum subflattening function instead", DeprecationWarning)
         matrix = []
         self.special_state = specialState
         if self.num_bases == 2:

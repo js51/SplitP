@@ -4,27 +4,70 @@
     Some methods will return additional information. Not all methods guarantee that the splits returned will be compatible.
 """
 
-from build.lib.splitp.nx_tree import NXTree
 import splitp as sp
 from splitp import tree_helper_functions as hf
 import numpy as np
+from itertools import combinations
 
-def erickson_SVD(alignment, method=sp.Method.flattenings):
+def erickson_SVD(alignment, taxa=None, method=sp.Method.flattenings):
+    all_scores = {}
+    bundle = {}
+    labels = {}
+
+    def _erickstep(all_taxa, alignment):
+        scores = {}
+        for pair in combinations(taxa, 2):
+            flat_pair = tuple(sorted(element for tup in pair for element in (tup if not isinstance(tup, str) else (tup,))))
+            other = tuple(sorted(element for tup in all_taxa for element in (tup if not isinstance(tup, str) else (tup,)) if element not in flat_pair))
+            split = (flat_pair, other)
+            try: 
+                score = all_scores[split]
+            except KeyError:
+                if method == sp.Method.flattenings:
+                    xflat = tree.reduced_sparse_flattening(split, alignment)
+                elif method == sp.Method.subflattenings:
+                    xflat = tree.fast_signed_sum_subflattening(split, alignment, bundle=bundle, labels=labels)
+                score = tree.split_score(xflat)
+                all_scores[split] = score
+            scores[pair] = (pair, split, score)
+        best_pair, best_split, best_score = min(scores.values(), key=lambda x: x[2])
+        return best_pair, best_split, best_score
+
     num_taxa = len(list(alignment.keys())[0]) # Length of first pattern
-    taxa = [str(i) for i in range(num_taxa)]
-    tree = NXTree.dummy_tree(taxa=taxa)
-    twoSplits = tree.all_splits(size=2)
-    minimum_score = 1
-    chosen_split = None
-    for split in twoSplits:
-        subflat = tree.signed_sum_subflattening(split, alignment)
-        score = tree.split_score(subflat)
-        if score < minimum_score:
-            minimum_score = score
-            chosen_split = split
-    chosen_pair = min(chosen_split)
-    print(chosen_pair)
-    
+    if taxa is None: 
+        taxa = [str(np.base_repr(i, base=max(i+1,2))) if num_taxa <= 36 else f't{str(i)}' for i in range(num_taxa)]
+    tree = sp.NXTree.dummy_tree(taxa=taxa)
+    true_splits = []
+    while len(true_splits) < num_taxa - 2:
+        best_pair, best_split, best_score = _erickstep(taxa, alignment)
+        true_splits.append(tuple(sorted(best_split)))
+        taxa = tuple([element for element in taxa if (element not in best_split[0] and not set(element).issubset(best_split[0]))] + [best_split[0]])
+    return true_splits
+
+def newick_string_from_splits(splits):
+    def _consolidate(tup, smaller_halves):
+        if len(tup) == 2: return tup
+        if len(tup) == 1: return tup[0]
+        if isinstance(tup, str): return tup
+        for smaller_half in smaller_halves:
+            if set(smaller_half).issubset(tup) and len(smaller_half) < len(tup):
+                # then the consolidation is made up of the smaller half and what is left over
+                left_over = tuple(set(tup).difference(set(smaller_half)))
+                try: 
+                    smaller_halves.remove(smaller_half)
+                    smaller_halves.remove(left_over)
+                except ValueError:
+                    pass
+                return tuple((_consolidate(left_over, smaller_halves), _consolidate(smaller_half, smaller_halves)))
+
+    splits = iter(sorted(splits, key=lambda x: min(len(x[0]), len(x[1])), reverse=True))
+    first_split = next(splits)
+    smaller_halves = [min(split, key=len) for split in splits]
+    consolidated_split = tuple(_consolidate(half, smaller_halves) for half in first_split)
+    return str(consolidated_split).replace("'", "").replace(" ", "") + ";"
+
+def tree_from_splits(splits):
+    return sp.NXTree(newick_string_from_splits(splits))
 
 def all_split_scores():
     pass
@@ -48,6 +91,33 @@ def split_tree_parsimony(alignment, splits=None):
         for pattern, value in alignment_dict.items():
             scores[split] += value * (split_tree.hartigan_algorithm(pattern)/(num_taxa-1))
     return scores
+
+def neighbor_joining(distance_matrix):
+    D = distance_matrix
+    # Create the Q matrix
+    Q = np.zeros((len(D), len(D)))
+    for i in range(len(D)):
+        for j in range(len(D)):
+            if i != j:
+                Q[i][j] = (len(D)-2)*D[i][j] - sum(D[i]) - sum(D[j])
+    # Find the minimum value in the Q matrix
+    min_i, min_j = np.unravel_index(np.argmin(Q, axis=None), Q.shape)
+
+def JC_corrected_distance_matrix(alignment):
+    num_taxa = len(list(alignment.keys())[0]) # Length of first pattern
+    taxa = [str(i) for i in range(num_taxa)]
+    distance_matrix = [ [0 for _ in range(num_taxa)] for _ in range(num_taxa)]
+    for i in range(num_taxa):
+        for j in range(i+1, num_taxa):
+            for pattern, value in alignment.items():
+                if pattern[i] != pattern[j]:
+                    distance_matrix[i][j] += value
+                    distance_matrix[j][i] += value
+    for i in range(num_taxa):
+        for j in range(i+1, num_taxa):
+            distance_matrix[i][j] = -3.0/4.0 * np.log(1 - 4.0/3.0 * distance_matrix[i][j])
+            distance_matrix[j][i] = distance_matrix[i][j]
+    return distance_matrix
 
 def euclidean_split_distance(alignment, splits):
     print("assuming sorted taxa")
