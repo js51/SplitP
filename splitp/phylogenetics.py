@@ -1,9 +1,11 @@
 import splitp as sp
 import numpy as np
 from itertools import combinations
+import networkx as nx
 from networkx import dfs_postorder_nodes, bfs_successors
 from splitp import splits, matrices
-import scipy 
+import scipy
+
 
 def parsimony_score(self, pattern):
     """Calculate a parsimony score for a site pattern or split
@@ -69,14 +71,11 @@ def hartigan_algorithm(self, pattern):
             k = {}
             for state in self.state_space:
                 k[state] = len(
-                    set(
-                        child for child in children if state in nodes[child]["S1"])
+                    set(child for child in children if state in nodes[child]["S1"])
                 )
             K = max(k.values())
-            nodes[n]["S1"] = {
-                state for state in self.state_space if k[state] == K}
-            nodes[n]["S2"] = {
-                state for state in self.state_space if k[state] == K - 1}
+            nodes[n]["S1"] = {state for state in self.state_space if k[state] == K}
+            nodes[n]["S2"] = {state for state in self.state_space if k[state] == K - 1}
     # Now compute the score
     top_to_bottom_nodes = [
         x[0] for x in bfs_successors(graph, source=self.get_root(return_index=False))
@@ -130,15 +129,13 @@ def erickson_SVD(alignment, taxa=None, method=sp.Method.flattenings):
                 score = tree.split_score(xflat)
                 all_scores[split] = score
             scores[pair] = (pair, split, score)
-        best_pair, best_split, best_score = min(
-            scores.values(), key=lambda x: x[2])
+        best_pair, best_split, best_score = min(scores.values(), key=lambda x: x[2])
         return best_pair, best_split, best_score
 
     num_taxa = len(list(alignment.keys())[0])  # Length of first pattern
     if taxa is None:
         taxa = [
-            str(np.base_repr(i, base=max(i + 1, 2))
-                ) if num_taxa <= 36 else f"t{str(i)}"
+            str(np.base_repr(i, base=max(i + 1, 2))) if num_taxa <= 36 else f"t{str(i)}"
             for i in range(num_taxa)
         ]
     tree = sp.NXTree.dummy_tree(taxa=taxa)
@@ -184,8 +181,7 @@ def newick_string_from_splits(splits):
                     )
                 )
 
-    splits = iter(sorted(splits, key=lambda x: min(
-        len(x[0]), len(x[1])), reverse=True))
+    splits = iter(sorted(splits, key=lambda x: min(len(x[0]), len(x[1])), reverse=True))
     first_split = next(splits)
     smaller_halves = [min(split, key=len) for split in splits]
     consolidated_split = tuple(
@@ -252,10 +248,8 @@ def euclidean_split_distance(alignment, splits):
     for split in all_splits:
         split_list = split.split("|")
         for pattern, value in alignment_dict.items():
-            part_a = "".join(pattern[int(s, base=num_taxa + 1)]
-                             for s in split_list[0])
-            part_b = "".join(pattern[int(s, base=num_taxa + 1)]
-                             for s in split_list[1])
+            part_a = "".join(pattern[int(s, base=num_taxa + 1)] for s in split_list[0])
+            part_b = "".join(pattern[int(s, base=num_taxa + 1)] for s in split_list[1])
             vec_a = np.array([part_a.count(state) for state in states])
             vec_b = np.array([part_b.count(state) for state in states])
             vec_a = vec_a / np.linalg.norm(vec_a)
@@ -265,27 +259,55 @@ def euclidean_split_distance(alignment, splits):
 
 
 def __dense_split_score(matrix, k=None, singularValues=False, force_frob_norm=False):
-    singular_values = list(scipy.linalg.svd(np.array(matrix), full_matrices=False, check_finite=False, compute_uv=False))
+    singular_values = list(
+        scipy.linalg.svd(
+            np.array(matrix), full_matrices=False, check_finite=False, compute_uv=False
+        )
+    )
     if force_frob_norm:
-        return (1-(sum(val**2 for val in singular_values[0:4]))/(matrices.frobrenius_norm(matrix)**2))**(1/2)
+        return (
+            1
+            - (sum(val**2 for val in singular_values[0:4]))
+            / (matrices.frobrenius_norm(matrix) ** 2)
+        ) ** (1 / 2)
     else:
         min_shape = min(matrix.shape)
-        return (1-(sum(val**2 for val in singular_values[0:4])/sum(val**2 for val in singular_values[0:min_shape])))**(1/2)
+        return (
+            1
+            - (
+                sum(val**2 for val in singular_values[0:4])
+                / sum(val**2 for val in singular_values[0:min_shape])
+            )
+        ) ** (1 / 2)
 
 
-def __sparse_split_score(matrix, return_singular_values=False, data_table_for_frob_norm=None):
-    largest_four_singular_values = scipy.sparse.linalg.svds(matrix, 4, return_singular_vectors=False)
+def __sparse_split_score(
+    matrix, return_singular_values=False, data_table_for_frob_norm=None
+):
+    largest_four_singular_values = scipy.sparse.linalg.svds(
+        matrix, 4, return_singular_vectors=False
+    )
     squared_singular_values = [sigma**2 for sigma in largest_four_singular_values]
     norm = matrices.frobenius_norm(matrix, data_table=data_table_for_frob_norm)
-    return (1-(sum(squared_singular_values)/(norm**2)))**(1/2)
+    return (1 - (sum(squared_singular_values) / (norm**2))) ** (1 / 2)
 
 
-def split_score(matrix, return_singular_values=False, force_frob_norm_on_dense=False, data_table_for_frob_norm=None):
+def split_score(
+    matrix,
+    return_singular_values=False,
+    force_frob_norm_on_dense=False,
+    data_table_for_frob_norm=None,
+):
     if matrices.is_sparse(matrix):
-        return __sparse_split_score(matrix, return_singular_values, data_table_for_frob_norm)
+        return __sparse_split_score(
+            matrix, return_singular_values, data_table_for_frob_norm
+        )
     else:
-        return __dense_split_score(matrix, return_singular_values, force_frob_norm_on_dense)
-    
+        return __dense_split_score(
+            matrix, return_singular_values, force_frob_norm_on_dense
+        )
+
+
 def flattening_rank_1_approximation(flattening, return_vectors=False):
     r = sum(flattening)
     c = sum(flattening.T)
@@ -293,6 +315,7 @@ def flattening_rank_1_approximation(flattening, return_vectors=False):
         return r.T @ c, r.tolist()[0], c.tolist()[0]
     else:
         return r.T @ c
+
 
 def flattening_rank_1_approximation_divergence(flattening):
     _, r, c = flattening_rank_1_approximation(flattening, return_vectors=True)
@@ -302,3 +325,99 @@ def flattening_rank_1_approximation_divergence(flattening):
             if flattening[x, y] != 0:
                 total += flattening[x, y] * np.log(flattening[x, y] / (r[x] * c[y]))
     return total
+
+
+def star_tree(num_leaves):
+    root_index = -1
+    G = nx.DiGraph()
+    G.add_node(root_index)
+    # add the leaves as nodes and edges to the central node
+    for i in range(0, num_leaves):
+        G.add_node(i)
+        G.add_edge(root_index, i)
+    return G
+
+
+def join_nodes(T, i, j, new_node, root_index):
+    # Add new node
+    T.add_node(new_node)
+    T.add_edge(root_index, new_node)
+    # Join nodes
+    T.add_edge(new_node, i)
+    T.add_edge(new_node, j)
+    # Remove old edges
+    T.remove_edge(root_index, i)
+    T.remove_edge(root_index, j)
+
+
+def neighbour_joining(distance_matrix):
+    D = distance_matrix.copy().astype(float)
+    n = D.shape[0]
+
+    new_node = n
+    root_index = -1
+
+    ignore = {-1}
+
+    # Instantiate tree
+    T = star_tree(n)
+
+    nx.draw(T, with_labels=True)
+
+    num_leaves = n
+    while num_leaves > 2:
+        # Instantiate Q matrix
+        Q = np.full((n, n), np.inf)
+        for i in range(n):
+            for j in range(n):
+                if i != j and i not in ignore and j not in ignore:
+                    Q[i, j] = (num_leaves - 2) * D[i, j] - sum(D[i, :]) - sum(D[:, j])
+
+        # Smallest Q pair
+        i, j = np.unravel_index(Q.argmin(), Q.shape)
+        ignore.add(i)
+        ignore.add(j)
+
+        # Join new nodes
+        join_nodes(T, i, j, new_node, root_index)
+
+        # Estimate branch lengths
+        print(D)
+        dist_new_to_i = (1 / 2) * D[i, j] + (1 / (2 * (num_leaves - 2))) * (
+            sum(D[i, :]) - sum(D[j, :])
+        )
+        print(dist_new_to_i)
+        T.edges[new_node, i]["weight"] = dist_new_to_i
+        T.edges[new_node, j]["weight"] = D[i, j] - dist_new_to_i
+
+        # Append new row and column to distance matrix
+        D = np.append(D, np.zeros((1, D.shape[0])), axis=0)
+        D = np.append(D, np.zeros((D.shape[0], 1)), axis=1)
+        n = D.shape[0]
+
+        # Compute distance from other leaves to new node
+        for k in range(n - 1):
+            if k not in ignore:
+                D[k, new_node] = (1 / 2) * (D[i, k] + D[j, k] - D[i, j])
+                D[new_node, k] = D[k, new_node]
+
+        # 'Delete' i and j by setting row and column to an array of zero for i and j
+        D[i, :] = np.zeros(n)
+        D[:, i] = np.zeros(n)
+        D[j, :] = np.zeros(n)
+        D[:, j] = np.zeros(n)
+
+        new_node += 1
+        num_leaves -= 1
+
+    # Join the last two nodes
+    i = new_node - 2
+    j = new_node - 1
+    # Remove the root node and connected edges
+    T.remove_node(root_index)
+    # Join nodes
+    T.add_edge(i, j)
+    # Add branch length
+    T.edges[i, j]["weight"] = D[i, j]
+
+    return T
