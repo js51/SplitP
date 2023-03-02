@@ -3,6 +3,10 @@ from ._setuptools_rust_starter import __all__, __doc__
 from ._setuptools_rust_starter import *
 from splitp.phylogeny import *
 from splitp.enums import *
+from splitp import alignment
+from splitp import constants
+from splitp import constructions
+
 name = "splitp"
 
 # Rust bindings

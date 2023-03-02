@@ -1,9 +1,9 @@
 import splitp as sp
-from splitp import tree_helper_functions as hf
 import numpy as np
 from itertools import combinations
 from networkx import dfs_postorder_nodes, bfs_successors
-
+from splitp import splits, matrices
+import scipy 
 
 def parsimony_score(self, pattern):
     """Calculate a parsimony score for a site pattern or split
@@ -206,7 +206,7 @@ def split_tree_parsimony(alignment, splits=None):
         for table_pattern, value in alignment.itertuples(index=False, name=None):
             alignment_dict[table_pattern] = value
     num_taxa = len(list(alignment_dict.keys())[0])  # Length of first pattern
-    all_splits = list(hf.all_splits(num_taxa)) if splits is None else splits
+    all_splits = list(splits.all_splits(num_taxa)) if splits is None else splits
     scores = {split: 0 for split in all_splits}
     for split in all_splits:
         newick_string = []
@@ -247,7 +247,7 @@ def euclidean_split_distance(alignment, splits):
     for table_pattern, value in alignment.itertuples(index=False, name=None):
         alignment_dict[table_pattern] = value
     num_taxa = len(list(alignment_dict.keys())[0])  # Length of first pattern
-    all_splits = list(hf.all_splits(num_taxa)) if splits == None else splits
+    all_splits = list(splits.all_splits(num_taxa)) if splits == None else splits
     scores = {split: 0 for split in all_splits}
     for split in all_splits:
         split_list = split.split("|")
@@ -262,3 +262,43 @@ def euclidean_split_distance(alignment, splits):
             vec_b = vec_b / np.linalg.norm(vec_b)
             scores[split] += value * (2 - np.linalg.norm(vec_a - vec_b)) / 2
     return scores
+
+
+def __dense_split_score(matrix, k=None, singularValues=False, force_frob_norm=False):
+    singular_values = list(scipy.linalg.svd(np.array(matrix), full_matrices=False, check_finite=False, compute_uv=False))
+    if force_frob_norm:
+        return (1-(sum(val**2 for val in singular_values[0:4]))/(matrices.frobrenius_norm(matrix)**2))**(1/2)
+    else:
+        min_shape = min(matrix.shape)
+        return (1-(sum(val**2 for val in singular_values[0:4])/sum(val**2 for val in singular_values[0:min_shape])))**(1/2)
+
+
+def __sparse_split_score(matrix, return_singular_values=False, data_table_for_frob_norm=None):
+    largest_four_singular_values = scipy.sparse.linalg.svds(matrix, 4, return_singular_vectors=False)
+    squared_singular_values = [sigma**2 for sigma in largest_four_singular_values]
+    norm = matrices.frobenius_norm(matrix, data_table=data_table_for_frob_norm)
+    return (1-(sum(squared_singular_values)/(norm**2)))**(1/2)
+
+
+def split_score(matrix, return_singular_values=False, force_frob_norm_on_dense=False, data_table_for_frob_norm=None):
+    if matrices.is_sparse(matrix):
+        return __sparse_split_score(matrix, return_singular_values, data_table_for_frob_norm)
+    else:
+        return __dense_split_score(matrix, return_singular_values, force_frob_norm_on_dense)
+    
+def flattening_rank_1_approximation(flattening, return_vectors=False):
+    r = sum(flattening)
+    c = sum(flattening.T)
+    if return_vectors:
+        return r.T @ c, r.tolist()[0], c.tolist()[0]
+    else:
+        return r.T @ c
+
+def flattening_rank_1_approximation_divergence(flattening):
+    _, r, c = flattening_rank_1_approximation(flattening, return_vectors=True)
+    total = 0
+    for x in range(len(r)):
+        for y in range(len(c)):
+            if flattening[x, y] != 0:
+                total += flattening[x, y] * np.log(flattening[x, y] / (r[x] * c[y]))
+    return total

@@ -19,13 +19,13 @@ def format_split(tree, split):
         raise ValueError(
             "Cannot produce string format for split with more than 35 taxa."
         )
-    if not all(len(taxon) == 1 for taxon in tree.taxa):
+    if not all(len(taxon) == 1 for taxon in tree.get_taxa()):
         raise ValueError("Cannot produce string format for split with taxa name of length > 1.")
     else:
         return f'{"".join(split[0])}|{"".join(split[1])}'
 
 def all_splits(tree, trivial=False, size=None, randomise=False, string_format=True):
-    taxa = tree.taxa
+    taxa = tree.get_taxa()
     if string_format and len(taxa) > 35:
         raise ValueError(
             "Cannot generate splits for more than 35 taxa in string format. Use string_format=False."
@@ -51,9 +51,9 @@ def all_splits(tree, trivial=False, size=None, randomise=False, string_format=Tr
             right_taxa = sorted(tuple(set(taxa) - set(left_taxa)), key=taxa.index)
             left_taxa = sorted(left_taxa, key=taxa.index)
             left, right = tuple(left_taxa), tuple(right_taxa) 
-            if (self.taxa[0] in right):  # Put taxa[0] on left side of split
+            if (taxa[0] in right):  # Put taxa[0] on left side of split
                 left, right = right, left
             if string_format:
-                yield format_split()
+                yield format_split(tree, (left, right))
             else:
                 yield (left, right)

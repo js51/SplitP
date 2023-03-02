@@ -2,10 +2,10 @@ from splitp.parsers.newick import newick_to_json, json_to_newick
 from networkx import json_graph
 from dataclasses import dataclass
 from networkx import draw
-from splitp.enums import *
+from splitp.enums import DrawFormat
 import splitp.constants as constants
+import numpy as np
 
-@dataclass
 class Phylogeny:
     __slots__ = (
         "name",
@@ -41,6 +41,17 @@ class Phylogeny:
         return json_to_newick(
             json_graph.tree_data(self.networkx_graph, self.root(return_index=False))
         )
+    
+    def reassign_transition_matrices(self, transition_matrix):
+        """DEPRECATED: Reassign transition matrices to all nodes in the tree"""
+        for node in self.networkx_graph.nodes:
+            self.networkx_graph.nodes[node]["transition_matrix"] = np.array(transition_matrix)
+    
+    def get_num_nodes(self):
+        return len(self.networkx_graph.nodes)
+    
+    def node_index(self, node):
+        return list(self.networkx_graph.nodes).index(node)
 
     def __eq__(self, other):
         """Check equality of JSON objects"""
@@ -82,6 +93,9 @@ class Phylogeny:
 
     def get_taxa(self):
         return [n for n in self.networkx_graph.nodes if self.is_leaf(n)]
+    
+    def get_num_taxa(self):
+        return len(self.get_taxa())
 
     def is_leaf(self, n_index_or_name):
         """Determines whether a node is a leaf node from it's index."""

@@ -5,10 +5,10 @@ import splitp.constants as constants
 
 
 def flattening(
+    taxa,
     split,
     pattern_probabilities,
-    flattening_format=FlatFormat.sparse,
-    taxa=None,
+    flattening_format=FlatFormat.sparse
 ):
     if flattening_format is FlatFormat.sparse:
         return __sparse_flattening(split, pattern_probabilities, taxa)

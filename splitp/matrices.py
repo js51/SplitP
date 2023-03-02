@@ -1,9 +1,11 @@
+import scipy
+import numpy as np
 
 def is_sparse(matrix):
-    return issparse(matrix)
+    return scipy.sparse.issparse(matrix)
 
 
-def frob_norm(matrix, data_table=None):
+def frobenius_norm(matrix, data_table=None):
     """Calculates the Frobenius Norm for a given matrix"""
     if data_table is not None:
         return sum(val**2 for _, val in data_table.itertuples(index=False))**(1/2)
