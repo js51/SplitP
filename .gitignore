@@ -108,6 +108,5 @@ venv.bak/
 docsrc/_build
 
 # Extra stuff
-*.fa
 .DS_Store
 
