@@ -1,5 +1,4 @@
 import setuptools
-from setuptools_rust import RustExtension
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
@@ -26,9 +25,4 @@ setuptools.setup(
     python_requires='>=3.6',
     package_data={'splitp': ['*.txt']},
     include_package_data=True,
-    rust_extensions=[
-        RustExtension(
-            "splitp._setuptools_rust_starter"
-        )
-    ],
 )
