@@ -350,21 +350,22 @@ def join_nodes(T, i, j, new_node, root_index):
     T.remove_edge(root_index, j)
 
 
-def neighbour_joining(distance_matrix):
+def neighbour_joining(distance_matrix, labels=None, return_newick=False):
+
+    # Initialise
     D = distance_matrix.copy().astype(float)
     n = D.shape[0]
-
     new_node = n
     root_index = -1
-
     ignore = {-1}
-
-    # Instantiate tree
     T = star_tree(n)
-
-    nx.draw(T, with_labels=True)
-
     num_leaves = n
+    if labels is not None:
+        # Add a label to each node
+        for i in range(n):
+            T.nodes[i]['label'] = labels[i]
+
+    # NJ Algorithm
     while num_leaves > 2:
         # Instantiate Q matrix
         Q = np.full((n, n), np.inf)
@@ -382,11 +383,9 @@ def neighbour_joining(distance_matrix):
         join_nodes(T, i, j, new_node, root_index)
 
         # Estimate branch lengths
-        print(D)
         dist_new_to_i = (1 / 2) * D[i, j] + (1 / (2 * (num_leaves - 2))) * (
             sum(D[i, :]) - sum(D[j, :])
         )
-        print(dist_new_to_i)
         T.edges[new_node, i]["weight"] = dist_new_to_i
         T.edges[new_node, j]["weight"] = D[i, j] - dist_new_to_i
 
@@ -421,3 +420,74 @@ def neighbour_joining(distance_matrix):
     T.edges[i, j]["weight"] = D[i, j]
 
     return T
+
+def distance_matrix(networkx_tree):
+    """Distance matrix of a tree.
+
+    Args:
+        networkx_tree (networkx.DiGraph): A tree.
+    
+    Returns:
+        numpy.ndarray: A distance matrix.
+    """
+    # Get all the leaves
+    leaf_nodes = [node for node in networkx_tree.nodes if networkx_tree.out_degree(node) == 0]
+    # Create the distance matrix
+    distance_matrix = np.zeros((len(leaf_nodes), len(leaf_nodes)))
+    for i in range(len(leaf_nodes)):
+        for j in range(i + 1, len(leaf_nodes)):
+            distance = nx.shortest_path_length(networkx_tree.to_undirected(), leaf_nodes[i], leaf_nodes[j], weight="weight")
+            distance_matrix[i, j] = distance
+            distance_matrix[j, i] = distance
+    return distance_matrix
+
+def midpoint_rooting(networkx_tree, weight_label="weight"):
+    """Midpoint rooting of a tree.
+
+    Args:
+        networkx_tree (networkx.DiGraph): A tree.
+    
+    Returns:
+        networkx.DiGraph: A rooted tree.
+    """
+    # Get all the leaves
+    leaf_nodes = [node for node in networkx_tree.nodes if networkx_tree.out_degree(node) == 0]
+    # Get the distance matrix
+    D = distance_matrix(networkx_tree)
+    # Get the index of the largest distance
+    max_dist = np.max(D)
+    i, j = np.unravel_index(np.argmax(D, axis=None), D.shape)
+    # Get the undirected version of the tree
+    tree_undirected = networkx_tree.to_undirected()
+    # Get the path between the two leaves
+    path = nx.shortest_path(tree_undirected, leaf_nodes[i], leaf_nodes[j])
+    midpoint_dist = max_dist / 2 
+    # Travel along the path until the midpoint is reached. Then go back and add a new node
+    current_dist = 0
+    prev_dist = 0
+    print(path)
+    for k in range(len(path) - 1):
+        prev_dist = current_dist
+        current_dist += tree_undirected[path[k]][path[k + 1]][weight_label]
+        if current_dist >= midpoint_dist:
+            # Add a new node
+            new_node = -1
+            networkx_tree.add_node(new_node)
+            # Add the edges
+            networkx_tree.add_edge(new_node, path[k])
+            networkx_tree.add_edge(new_node, path[k + 1])
+            # Remove the old edges
+            if (path[k], path[k + 1]) in networkx_tree.edges:
+                networkx_tree.remove_edge(path[k], path[k + 1])
+            elif (path[k + 1], path[k]) in networkx_tree.edges:
+                networkx_tree.remove_edge(path[k + 1], path[k])
+            else:
+                raise ValueError("Edge not found. Is tree already rooted?")
+            # Add the branch lengths
+            networkx_tree.edges[new_node, path[k]][weight_label] = current_dist - midpoint_dist
+            networkx_tree.edges[new_node, path[k + 1]][weight_label] = midpoint_dist - prev_dist
+            break
+
+
+
+

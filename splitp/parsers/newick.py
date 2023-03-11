@@ -36,7 +36,7 @@ def newick_to_json(
             child_JSON = newick_to_json(
                 child_string, namestring, lengthstring, childrenstring, generate_names
             )
-            if (not name) and generate_names:
+            if generate_names:
                 generated_name_parts.append(child_JSON[namestring])
             child_nodes_JSON.append(child_JSON)
         if generate_names:
@@ -45,13 +45,15 @@ def newick_to_json(
     return node
 
 
-def json_to_newick(json_dict):
+def json_to_newick(
+    json_dict, namestring="id", lengthstring="branch_length", childrenstring="children"
+):
     """Converts a JSON tree to a newick string
 
     Arguments:
             json_dict: The JSON tree to convert to newick.
     """
-    return __json_to_newick(json_dict) + ";"
+    return __json_to_newick(json_dict, namestring, lengthstring, childrenstring) + ";"
 
 
 def __json_to_newick(
@@ -62,19 +64,19 @@ def __json_to_newick(
         if childrenstring in json_dict:
             string += (
                 "("
-                + __json_to_newick(json_dict[childrenstring])
+                + __json_to_newick(json_dict[childrenstring], namestring, lengthstring, childrenstring)
                 + ")"
-                + json_dict[namestring]
+                + str(json_dict[namestring])
             )
         else:
-            string += json_dict[namestring]
+            string += str(json_dict[namestring])
         if lengthstring in json_dict:
             string += ":" + str(json_dict[lengthstring])
         return string
     else:
         string = ""
         for dict in json_dict:
-            string += __json_to_newick(dict) + ","
+            string += __json_to_newick(dict, namestring, lengthstring, childrenstring) + ","
         return string[0:-1]
 
 
@@ -95,3 +97,20 @@ def __split_into_children(children_string):
             last_stop = i + 1
     pieces.append(string[last_stop:])
     return pieces
+
+def move_tree_edge_labels_to_nodes(tree, remove_edge_attributes=True):
+    """Every node is given all of the attributes of it's in-edge
+
+    Arguments:
+            tree: The tree to move edge labels to nodes in.
+            remove_edge_attributes: Whether or not to remove the edge attributes after moving them to the nodes.
+    """
+    for node in tree.nodes:
+        if tree.in_degree(node) > 0:
+            in_edge = list(tree.in_edges(node))[0]
+            for attr in tree[in_edge[0]][in_edge[1]]:
+                tree.nodes[node][attr] = tree[in_edge[0]][in_edge[1]][attr]
+            if remove_edge_attributes:
+                tree[in_edge[0]][in_edge[1]].clear()
+
+    return tree
