@@ -5,14 +5,16 @@ import splitp.constants as constants
 
 
 def flattening(
-    taxa,
     split,
     pattern_probabilities,
     flattening_format=FlatFormat.sparse
 ):
+    if isinstance(split, str):
+        split = split.split("|")
+    taxa = set(split[0]) | set(split[1])
     if flattening_format is FlatFormat.sparse:
         return __sparse_flattening(split, pattern_probabilities, taxa)
-    elif flattening_format is FlatFormat.reduced:
+    if flattening_format is FlatFormat.reduced:
         return __reduced_flattening(split, pattern_probabilities, taxa)
 
 

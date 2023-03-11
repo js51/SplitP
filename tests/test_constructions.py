@@ -2,8 +2,6 @@ import numpy as np
 from splitp.constructions import flattening, subflattening
 from splitp.enums import FlatFormat
 
-taxa = (0,1,2,3)
-
 pattern_probs = {
     "ATCG": 2/5,
     "GATC": 1/5,
@@ -40,7 +38,7 @@ def test_flattening():
         # AA AC AG AT CA CC CG CT GA GC GG GT TA TC TG TT
     ])
 
-    computed_flattening = flattening(true_split, pattern_probs, taxa=taxa).todense()
+    computed_flattening = flattening(true_split, pattern_probs).todense()
     np.testing.assert_array_equal(computed_flattening, F)
 
     F = np.array([
@@ -64,7 +62,7 @@ def test_flattening():
         # AA AC AG AT CA CC CG CT GA GC GG GT TA TC TG TT
     ])
 
-    computed_flattening = flattening(false_split, pattern_probs, taxa=taxa).todense()
+    computed_flattening = flattening(false_split, pattern_probs).todense()
     np.testing.assert_array_equal(computed_flattening, F)
 
 
@@ -76,7 +74,7 @@ def test_reduced_flattening():
         [  0,  0, .2,  0 ],
     ])
 
-    computed_flattening = flattening(true_split, pattern_probs, flattening_format=FlatFormat.reduced, taxa=taxa)
+    computed_flattening = flattening(true_split, pattern_probs, flattening_format=FlatFormat.reduced)
     np.testing.assert_array_equal(computed_flattening, F)
 
     F = np.array([
@@ -86,13 +84,13 @@ def test_reduced_flattening():
         [  0, .2,  0,  0 ],
     ])
 
-    computed_flattening = flattening(false_split, pattern_probs, flattening_format=FlatFormat.reduced, taxa=taxa)
+    computed_flattening = flattening(false_split, pattern_probs, flattening_format=FlatFormat.reduced)
     np.testing.assert_array_equal(computed_flattening, F)
 
 def test_subflattening():
     # Semi-manual computation for the subflattening:
     for split in splits:
-        computed_flattening = flattening(split, pattern_probs, taxa=taxa).todense()
+        computed_flattening = flattening(split, pattern_probs).todense()
         S = np.array([
             [1,-1],
             [1, 1]

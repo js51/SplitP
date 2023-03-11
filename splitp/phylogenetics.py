@@ -180,8 +180,12 @@ def newick_string_from_splits(splits):
                         _consolidate(smaller_half, smaller_halves),
                     )
                 )
-
-    splits = iter(sorted(splits, key=lambda x: min(len(x[0]), len(x[1])), reverse=True))
+    splits = sorted(splits, key=lambda x: min(len(x[0]), len(x[1])), reverse=True)
+    if len(splits) == 1:
+        return str(splits[0]).replace("'", "").replace(" ", "") + ";"
+    if len(splits) == 0:
+        return ";"
+    splits = iter(splits)
     first_split = next(splits)
     smaller_halves = [min(split, key=len) for split in splits]
     consolidated_split = tuple(
