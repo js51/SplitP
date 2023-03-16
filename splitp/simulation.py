@@ -6,15 +6,16 @@ from networkx import dfs_tree
 from splitp import constants
 
 
-def evolve_pattern(tree, model):
+def evolve_pattern(tree, model=None):
     def __evolve_on_subtree(subtree, state):
         root_node = [n for n, d in subtree.in_degree() if d == 0][0]
         children = list(subtree.successors(root_node))
-        probs = list(
-            tree.networkx_graph.nodes[root_node]["transition_matrix"][
-                :, constants.DNA_state_space.index(state)
-            ]
-        )
+        if model == None: # Get the transition matrix from the phylogeny
+                M = (tree.networkx_graph.nodes[root_node])["transition_matrix"]
+        else:
+            branch_length = (tree.networkx_graph.nodes[root_node])["branch_length"]
+            M = model.transition_matrix(branch_length)
+        probs = list(M[:, constants.DNA_state_space.index(state)])
         new_state = choices(constants.DNA_state_space, probs)[0]
         if len(children) == 0:
             return f"{str(root_node)}:{new_state}"
@@ -76,30 +77,34 @@ def get_pattern_probabilities(tree, model=None):
     )
     combinations = ["".join(c) for c in combinations]
     emptyArray = {
-        combination: __likelihood_start(tree, combination) for combination in combinations
+        combination: __likelihood_start(tree, combination, model) for combination in combinations
     }
     return emptyArray
 
 
-def __likelihood(tree, n, likelihood_table):
+def __likelihood(tree, n, likelihood_table, model):
     """Recursive part of the likelihood algorithm"""
     for b in range(4):
         L = 1
         for d in tree.get_descendants(n, return_iter=True):
             d_index = tree.node_index(d)
-            M = (tree.networkx_graph.nodes[d])["transition_matrix"]
+            if model == None: # Get the transition matrix from the phylogeny
+                M = (tree.networkx_graph.nodes[d])["transition_matrix"]
+            else:
+                branch_length = (tree.networkx_graph.nodes[d])["branch_length"]
+                M = model.transition_matrix(branch_length)
             s = 0
             for b2 in range(4):
                 if likelihood_table[d_index, b2] == None:
-                    __likelihood(tree, d, likelihood_table)
+                    __likelihood(tree, d, likelihood_table, model)
                 s += M[b2, b] * likelihood_table[d_index, b2]
             L *= s
         likelihood_table[tree.node_index(n), b] = L
     if not tree.is_root(n):
-        __likelihood(tree, tree.get_parent(n), likelihood_table)
+        __likelihood(tree, tree.get_parent(n), likelihood_table, model)
 
 
-def __likelihood_start(tree, pattern):
+def __likelihood_start(tree, pattern, model):
     """Starts the likelihood algorithm.
 
     Starts the likelihood algorithm to determine the probability of seeing a given site pattern.
@@ -139,7 +144,7 @@ def __likelihood_start(tree, pattern):
         ):  # If the node has descendants and they are all leaves
             initNode = n
 
-    __likelihood(tree, initNode, likelihood_table)  # Should fill in the entire table
+    __likelihood(tree, initNode, likelihood_table, model)  # Should fill in the entire table
 
     root_index = tree.node_index(tree.root(return_index=False))
     L = 0
