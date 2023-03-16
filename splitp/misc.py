@@ -118,3 +118,9 @@ def scale_TR_rate_matrix(tree, Q, return_scale_factor=False):
         return scale_factor
     else:
         return scale_factor*np.array(Q)
+    
+def strip_newick(newick):
+    import re
+    regex = re.compile("(:|(?<=\)))[^,)]*?((?=(\)|,)|;))")
+    newick = regex.sub("", newick)
+    return newick
