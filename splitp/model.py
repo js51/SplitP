@@ -60,6 +60,9 @@ class GTR(model):
         scale = -np.dot(equilibrium_distribution, np.diag(Q))
         self.rate_matrix = Q / scale
 
+    def __str__(self) -> str:
+        return self.name
+
     @classmethod
     def JukesCantor(cls, rate=1, state_space=constants.DNA_state_space, name="Jukes-Cantor model"):
         """ A Jukes-Cantor model of evolution. """

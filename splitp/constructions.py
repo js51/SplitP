@@ -9,9 +9,20 @@ def flattening(
     pattern_probabilities,
     flattening_format=FlatFormat.sparse
 ):
+    """
+    Compute the flattening of a split given a pattern probability dictionary.
+
+    Args:
+        split (str or list): The split to compute the flattening of.
+        pattern_probabilities (dict): A dictionary of pattern probabilities.
+        flattening_format (FlatFormat): The format to return the flattening in.
+
+    Returns:
+        The flattening of the split in the specified format.
+    """
     if isinstance(split, str):
         split = split.split("|")
-    taxa = set(split[0]) | set(split[1])
+    taxa = sorted(set(split[0]) | set(split[1]))
     if flattening_format is FlatFormat.sparse:
         return __sparse_flattening(split, pattern_probabilities, taxa)
     if flattening_format is FlatFormat.reduced:

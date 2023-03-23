@@ -313,8 +313,8 @@ def split_score(
 
 
 def flattening_rank_1_approximation(flattening, return_vectors=False):
-    r = sum(flattening)
-    c = sum(flattening.T)
+    r = np.array([sum(flattening)])
+    c = np.array([sum(flattening.T)])
     if return_vectors:
         return r.T @ c, r.tolist()[0], c.tolist()[0]
     else:
@@ -324,10 +324,10 @@ def flattening_rank_1_approximation(flattening, return_vectors=False):
 def flattening_rank_1_approximation_divergence(flattening):
     _, r, c = flattening_rank_1_approximation(flattening, return_vectors=True)
     total = 0
-    for x in range(len(r)):
-        for y in range(len(c)):
+    for x in range(len(c)):
+        for y in range(len(r)):
             if flattening[x, y] != 0:
-                total += flattening[x, y] * np.log(flattening[x, y] / (r[x] * c[y]))
+                total += flattening[x, y] * np.log(flattening[x, y] / (r[y] * c[x]))
     return total
 
 
