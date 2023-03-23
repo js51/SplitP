@@ -10,7 +10,7 @@ tree.draw()
 
 # %%
 # Define the model
-model = sp.model.GTR.JukesCantor()
+model = sp.model.GTR.Kimura(0.5)
 
 # %%
 # Generate a sequence alignment
@@ -25,7 +25,7 @@ all_splits = list(sp.splits.all_splits(tree, string_format=False))
 # For each split, compute the flattening and store the result
 flattenings = []
 for split in all_splits:
-    flattenings.append(sp.flattening(split, alignment))
+    flattenings.append(sp.flattening(split, alignment, sp.FlatFormat.reduced))
 
 # %%
 # Compute split scores and KL divergences for each flattening
@@ -34,6 +34,6 @@ split_scores = []
 KL_scores = []
 for flat in flattenings:
     split_scores.append(sp.phylogenetics.split_score(flat))
-    KL_scores.append(sp.phylogenetics.flattening_rank_1_approximation_divergence(np.array(flat.todense())))
+    KL_scores.append(sp.phylogenetics.flattening_rank_1_approximation_divergence(np.array(flat)))
 
 # %%

@@ -78,15 +78,7 @@ class Phylogeny:
     def get_parent(self, n):
         """Returns the parent node for a given node"""
         return list(self.nx_graph.predecessors(n))[0]
-
-    def get_descendants(self, n, return_iter=False):
-        """Returns a list of children/descendents of a given node"""
-        return (
-            list(self.nx_graph.successors(n))
-            if not return_iter
-            else self.nx_graph.successors(n)
-        )
-
+    
     def nodes(self):
         """Returns a list of all nodes in the tree."""
         return list(self.networkx_graph.nodes)
@@ -123,24 +115,23 @@ class Phylogeny:
 
     def splits(self, include_trivial=False, as_strings=False):
         """Returns set of all splits displayed by the tree."""
+        from networkx.algorithms.traversal.depth_first_search import dfs_tree
         all_taxa = [x for x in self.get_taxa()]
         splits = set()
         for node in list(self.nodes()):
-            split = (
-                tuple(
+            subtree = dfs_tree(self.networkx_graph, node)
+            left = tuple(
                     sorted(
                         [
-                            node
-                            for node in self.get_descendants(node)
-                            if node in all_taxa
+                            leaf
+                            for leaf in subtree.nodes
+                            if leaf in all_taxa
                         ],
                         key=all_taxa.index,
                     )
-                ),
-                tuple(
-                    sorted((i for i in all_taxa if i not in node), key=all_taxa.index)
-                ),
-            )
+                )
+            right = tuple(sorted((i for i in all_taxa if i not in left), key=all_taxa.index))
+            split = (left, right)
             if all_taxa[0] not in split[0]:
                 split = (split[1], split[0])
             if include_trivial or (len(split[0]) > 1 and len(split[1]) > 1):
