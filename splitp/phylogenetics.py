@@ -3,7 +3,8 @@ import numpy as np
 from itertools import combinations
 import networkx as nx
 from networkx import dfs_postorder_nodes, bfs_successors
-from splitp import matrix, splits
+from splitp import splits
+from splitp.matrix import is_sparse, frobenius_norm
 import scipy
 
 
@@ -292,7 +293,7 @@ def __sparse_split_score(
         matrix, 4, return_singular_vectors=False
     )
     squared_singular_values = [sigma**2 for sigma in largest_four_singular_values]
-    norm = matrix.frobenius_norm(matrix, data_table=data_table_for_frob_norm)
+    norm = frobenius_norm(matrix, data_table=data_table_for_frob_norm)
     return (1 - (sum(squared_singular_values) / (norm**2))) ** (1 / 2)
 
 
@@ -302,7 +303,7 @@ def split_score(
     force_frob_norm_on_dense=False,
     data_table_for_frob_norm=None,
 ):
-    if matrix.is_sparse(matrix):
+    if is_sparse(matrix):
         return __sparse_split_score(
             matrix, return_singular_values, data_table_for_frob_norm
         )
