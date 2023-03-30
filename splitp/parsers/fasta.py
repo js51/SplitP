@@ -1,6 +1,4 @@
 import collections
-import numpy as np
-import pandas as pd
 
 def fasta_to_dict(path_to_file):
     file = open(path_to_file, "r")
