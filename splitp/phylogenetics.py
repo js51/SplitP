@@ -3,7 +3,7 @@ import numpy as np
 from itertools import combinations
 import networkx as nx
 from networkx import dfs_postorder_nodes, bfs_successors
-from splitp import splits, matrices
+from splitp import matrix, splits
 import scipy
 
 
@@ -272,7 +272,7 @@ def __dense_split_score(matrix, k=None, singularValues=False, force_frob_norm=Fa
         return (
             1
             - (sum(val**2 for val in singular_values[0:4]))
-            / (matrices.frobrenius_norm(matrix) ** 2)
+            / (matrix.frobrenius_norm(matrix) ** 2)
         ) ** (1 / 2)
     else:
         min_shape = min(matrix.shape)
@@ -292,7 +292,7 @@ def __sparse_split_score(
         matrix, 4, return_singular_vectors=False
     )
     squared_singular_values = [sigma**2 for sigma in largest_four_singular_values]
-    norm = matrices.frobenius_norm(matrix, data_table=data_table_for_frob_norm)
+    norm = matrix.frobenius_norm(matrix, data_table=data_table_for_frob_norm)
     return (1 - (sum(squared_singular_values) / (norm**2))) ** (1 / 2)
 
 
@@ -302,7 +302,7 @@ def split_score(
     force_frob_norm_on_dense=False,
     data_table_for_frob_norm=None,
 ):
-    if matrices.is_sparse(matrix):
+    if matrix.is_sparse(matrix):
         return __sparse_split_score(
             matrix, return_singular_values, data_table_for_frob_norm
         )

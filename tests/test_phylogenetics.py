@@ -1,7 +1,7 @@
 import pytest
 from splitp.parsers import newick, fasta
+import networkx as nx
 from splitp.phylogeny import Phylogeny
-from splitp.misc import strip_newick
 import splitp.phylogenetics
 
 def test_newick_string_from_splits(test_cases_trees):
@@ -11,5 +11,9 @@ def test_newick_string_from_splits(test_cases_trees):
             phylogeny = Phylogeny(true_newick_string)
             splits = list(phylogeny.splits())
             newick_string = splitp.phylogenetics.newick_string_from_splits(splits)
-            test_splits = list(Phylogeny(newick_string).splits())
-            assert set(test_splits) == set(splits)
+            # Now check if the two Phylogenies are isomorphic
+            ph1 = Phylogeny(newick.strip_newick(newick_string)).unrooted_networkx_graph()
+            ph2 = Phylogeny(newick.strip_newick(true_newick_string)).unrooted_networkx_graph()
+            print(ph1.edges())
+            print(ph2.edges())
+            assert nx.is_isomorphic(ph1, ph2)

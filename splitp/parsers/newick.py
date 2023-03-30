@@ -1,3 +1,5 @@
+import re
+
 def newick_to_json(
     newick_string,
     namestring="id",
@@ -114,3 +116,8 @@ def move_tree_edge_labels_to_nodes(tree, remove_edge_attributes=True):
                 tree[in_edge[0]][in_edge[1]].clear()
 
     return tree
+
+def strip_newick(newick):
+    regex = re.compile("(:|(?<=\)))[^,)]*?((?=(\)|,)|;))")
+    newick = regex.sub("", newick)
+    return newick

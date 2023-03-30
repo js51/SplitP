@@ -42,6 +42,26 @@ class Phylogeny:
             json_graph.tree_data(self.networkx_graph, self.root(return_index=False))
         )
     
+    def unrooted_networkx_graph(self):
+        """Return the unrooted version of the tree"""
+        # Make a copy of the graph
+        unrooted_graph = self.networkx_graph.copy()
+        # Get the root node
+        root_node = self.root(return_index=False)
+        # If the root node has more than 2 children, return the original graph
+        if len(list(unrooted_graph.successors(root_node))) > 2:
+            return unrooted_graph.to_undirected()
+        # Get the root node children
+        root_children = list(unrooted_graph.successors(self.root(return_index=False)))
+        # Remove the root node
+        unrooted_graph.remove_node(self.root(return_index=False))
+        # Connect the two root node children
+        unrooted_graph.add_edge(root_children[0], root_children[1])
+        # Make undirected
+        unrooted_graph = unrooted_graph.to_undirected()
+        # Return the unrooted graph
+        return unrooted_graph
+    
     def reassign_transition_matrices(self, transition_matrix):
         """DEPRECATED: Reassign transition matrices to all nodes in the tree"""
         for node in self.networkx_graph.nodes:
