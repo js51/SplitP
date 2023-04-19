@@ -9,9 +9,10 @@ class Model(Enum):
 class Method(Enum):
     def _generate_next_value_(name, start, count, last_values):
         return name
-    flattenings = auto()
-    subflattenings = auto()
+    flattening = auto()
+    subflattening = auto()
     distance = auto()
+    mutual_information = auto()
 
 class DrawFormat(Enum):
     def _generate_next_value_(name, start, count, last_values):

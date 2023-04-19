@@ -94,10 +94,9 @@ def hartigan_algorithm(self, pattern):
     return score
 
 
-def erickson_SVD(alignment, taxa=None, method=sp.Method.flattenings):
+def erickson_SVD(alignment, taxa=None, method=sp.Method.flattening):
     all_scores = {}
-    bundle = {}
-    labels = {}
+    subflattening_data = {}
 
     def _erickstep(all_taxa, alignment):
         scores = {}
@@ -121,13 +120,19 @@ def erickson_SVD(alignment, taxa=None, method=sp.Method.flattenings):
             try:
                 score = all_scores[split]
             except KeyError:
-                if method == sp.Method.flattenings:
-                    xflat = tree.reduced_sparse_flattening(split, alignment)
-                elif method == sp.Method.subflattenings:
-                    xflat = tree.fast_signed_sum_subflattening(
-                        split, alignment, bundle=bundle, labels=labels
-                    )
-                score = tree.split_score(xflat)
+                score = np.inf
+                if method == sp.Method.flattening:
+                    flattening = sp.flattening(split, alignment, sp.FlatFormat.reduced)
+                    score = sp.split_score(flattening)
+
+                elif method == sp.Method.subflattening:
+                    subflattening = sp.subflattening(split, alignment, subflattening_data)
+                    score = sp.split_score(subflattening)
+
+                elif method == sp.Method.mutual_information:
+                    flattening = sp.flattening(split, alignment, sp.FlatFormat.reduced)
+                    score = sp.phylogenetics.flattening_rank_1_approximation_divergence(flattening)
+
                 all_scores[split] = score
             scores[pair] = (pair, split, score)
         best_pair, best_split, best_score = min(scores.values(), key=lambda x: x[2])
@@ -139,7 +144,7 @@ def erickson_SVD(alignment, taxa=None, method=sp.Method.flattenings):
             str(np.base_repr(i, base=max(i + 1, 2))) if num_taxa <= 36 else f"t{str(i)}"
             for i in range(num_taxa)
         ]
-    tree = sp.NXTree.dummy_tree(taxa=taxa)
+
     true_splits = []
     while len(true_splits) < num_taxa - 2:
         best_pair, best_split, best_score = _erickstep(taxa, alignment)

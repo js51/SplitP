@@ -1,6 +1,7 @@
 from splitp import Phylogeny
 from math import floor
 import numpy as np
+import random
 
 def balanced_newick_tree(num_taxa):
     if num_taxa % 2 != 0:
