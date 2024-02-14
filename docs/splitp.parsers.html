@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>splitp.parsers package &mdash; SplitP  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            SplitP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">splitp.parsers package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-splitp.parsers.fasta">splitp.parsers.fasta module</a><ul>
+<li><a class="reference internal" href="#splitp.parsers.fasta.fasta_to_dict"><code class="docutils literal notranslate"><span class="pre">fasta_to_dict()</span></code></a></li>
+<li><a class="reference internal" href="#splitp.parsers.fasta.get_pattern_counts"><code class="docutils literal notranslate"><span class="pre">get_pattern_counts()</span></code></a></li>
+<li><a class="reference internal" href="#splitp.parsers.fasta.pattern_counts_to_probs"><code class="docutils literal notranslate"><span class="pre">pattern_counts_to_probs()</span></code></a></li>
+<li><a class="reference internal" href="#splitp.parsers.fasta.pattern_probs_from_alignment"><code class="docutils literal notranslate"><span class="pre">pattern_probs_from_alignment()</span></code></a></li>
+<li><a class="reference internal" href="#splitp.parsers.fasta.read_alignment_from_file"><code class="docutils literal notranslate"><span class="pre">read_alignment_from_file()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-splitp.parsers.newick">splitp.parsers.newick module</a><ul>
+<li><a class="reference internal" href="#splitp.parsers.newick.json_to_newick"><code class="docutils literal notranslate"><span class="pre">json_to_newick()</span></code></a></li>
+<li><a class="reference internal" href="#splitp.parsers.newick.move_tree_edge_labels_to_nodes"><code class="docutils literal notranslate"><span class="pre">move_tree_edge_labels_to_nodes()</span></code></a></li>
+<li><a class="reference internal" href="#splitp.parsers.newick.newick_to_json"><code class="docutils literal notranslate"><span class="pre">newick_to_json()</span></code></a></li>
+<li><a class="reference internal" href="#splitp.parsers.newick.strip_newick"><code class="docutils literal notranslate"><span class="pre">strip_newick()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-splitp.parsers">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SplitP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">splitp.parsers package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/splitp.parsers.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="splitp-parsers-package">
+<h1>splitp.parsers package<a class="headerlink" href="#splitp-parsers-package" title="Permalink to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+</section>
+<section id="module-splitp.parsers.fasta">
+<span id="splitp-parsers-fasta-module"></span><h2>splitp.parsers.fasta module<a class="headerlink" href="#module-splitp.parsers.fasta" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="splitp.parsers.fasta.fasta_to_dict">
+<span class="sig-prename descclassname"><span class="pre">splitp.parsers.fasta.</span></span><span class="sig-name descname"><span class="pre">fasta_to_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_to_file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.parsers.fasta.fasta_to_dict" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="splitp.parsers.fasta.get_pattern_counts">
+<span class="sig-prename descclassname"><span class="pre">splitp.parsers.fasta.</span></span><span class="sig-name descname"><span class="pre">get_pattern_counts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alignment</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.parsers.fasta.get_pattern_counts" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="splitp.parsers.fasta.pattern_counts_to_probs">
+<span class="sig-prename descclassname"><span class="pre">splitp.parsers.fasta.</span></span><span class="sig-name descname"><span class="pre">pattern_counts_to_probs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">patterns</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seqLen</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.parsers.fasta.pattern_counts_to_probs" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="splitp.parsers.fasta.pattern_probs_from_alignment">
+<span class="sig-prename descclassname"><span class="pre">splitp.parsers.fasta.</span></span><span class="sig-name descname"><span class="pre">pattern_probs_from_alignment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_to_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_sequence_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.parsers.fasta.pattern_probs_from_alignment" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="splitp.parsers.fasta.read_alignment_from_file">
+<span class="sig-prename descclassname"><span class="pre">splitp.parsers.fasta.</span></span><span class="sig-name descname"><span class="pre">read_alignment_from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_to_file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.parsers.fasta.read_alignment_from_file" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-splitp.parsers.newick">
+<span id="splitp-parsers-newick-module"></span><h2>splitp.parsers.newick module<a class="headerlink" href="#module-splitp.parsers.newick" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="splitp.parsers.newick.json_to_newick">
+<span class="sig-prename descclassname"><span class="pre">splitp.parsers.newick.</span></span><span class="sig-name descname"><span class="pre">json_to_newick</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">json_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">namestring</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'id'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lengthstring</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'branch_length'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">childrenstring</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'children'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.parsers.newick.json_to_newick" title="Permalink to this definition"></a></dt>
+<dd><p>Converts a JSON tree to a newick string</p>
+<dl class="simple">
+<dt>Arguments:</dt><dd><p>json_dict: The JSON tree to convert to newick.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="splitp.parsers.newick.move_tree_edge_labels_to_nodes">
+<span class="sig-prename descclassname"><span class="pre">splitp.parsers.newick.</span></span><span class="sig-name descname"><span class="pre">move_tree_edge_labels_to_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_edge_attributes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.parsers.newick.move_tree_edge_labels_to_nodes" title="Permalink to this definition"></a></dt>
+<dd><p>Every node is given all of the attributes of it’s in-edge</p>
+<dl class="simple">
+<dt>Arguments:</dt><dd><p>tree: The tree to move edge labels to nodes in.
+remove_edge_attributes: Whether or not to remove the edge attributes after moving them to the nodes.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="splitp.parsers.newick.newick_to_json">
+<span class="sig-prename descclassname"><span class="pre">splitp.parsers.newick.</span></span><span class="sig-name descname"><span class="pre">newick_to_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">newick_string</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">namestring</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'id'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lengthstring</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'branch_length'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">childrenstring</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'children'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generate_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.parsers.newick.newick_to_json" title="Permalink to this definition"></a></dt>
+<dd><p>Parses a newick string (example “((A,B),C)”) into JSON format accepted by NetworkX</p>
+<dl>
+<dt>Arguments:</dt><dd><dl class="simple">
+<dt>newick_string: The newick string to convert to JSON. Names, branch lengths and named</dt><dd><p>internal nodes accepted. If no names are given, an ID is generated for the name if generate_names=True.</p>
+</dd>
+</dl>
+<p>namestring: The label for node name to use in the JSON (default “id”).
+lengthstring: The label for branch length to use in the JSON (default “branch_length”).
+childrenstring: The label for children arrays to use in the JSON (default “children”).
+generate_names: Whether or not to generate names if none are given</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="splitp.parsers.newick.strip_newick">
+<span class="sig-prename descclassname"><span class="pre">splitp.parsers.newick.</span></span><span class="sig-name descname"><span class="pre">strip_newick</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">newick</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.parsers.newick.strip_newick" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-splitp.parsers">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-splitp.parsers" title="Permalink to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Joshua Stevenson.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

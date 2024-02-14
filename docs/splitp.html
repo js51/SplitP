@@ -1,220 +1,461 @@
-
 <!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>splitp package &#8212; SplitP  documentation</title>
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
-    <script src="_static/doctools.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>splitp package &mdash; SplitP  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
-   
-  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-  
-  
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
 
-  </head><body>
-  
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
           
-
-          <div class="body" role="main">
-            
-  <div class="section" id="splitp-package">
-<h1>splitp package<a class="headerlink" href="#splitp-package" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+          
+          <a href="index.html" class="icon icon-home">
+            SplitP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
 </div>
-<div class="section" id="module-splitp.nx_tree">
-<span id="splitp-nx-tree-module"></span><h2>splitp.nx_tree module<a class="headerlink" href="#module-splitp.nx_tree" title="Permalink to this headline">¶</a></h2>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">splitp package</a><ul>
+<li><a class="reference internal" href="#subpackages">Subpackages</a></li>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-splitp.constants">splitp.constants module</a></li>
+<li><a class="reference internal" href="#module-splitp.constructions">splitp.constructions module</a><ul>
+<li><a class="reference internal" href="#splitp.constructions.flattening"><code class="docutils literal notranslate"><span class="pre">flattening()</span></code></a></li>
+<li><a class="reference internal" href="#splitp.constructions.subflattening"><code class="docutils literal notranslate"><span class="pre">subflattening()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-splitp.enums">splitp.enums module</a><ul>
+<li><a class="reference internal" href="#splitp.enums.DrawFormat"><code class="docutils literal notranslate"><span class="pre">DrawFormat</span></code></a><ul>
+<li><a class="reference internal" href="#splitp.enums.DrawFormat.ASCII"><code class="docutils literal notranslate"><span class="pre">DrawFormat.ASCII</span></code></a></li>
+<li><a class="reference internal" href="#splitp.enums.DrawFormat.matplotlib"><code class="docutils literal notranslate"><span class="pre">DrawFormat.matplotlib</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#splitp.enums.FlatFormat"><code class="docutils literal notranslate"><span class="pre">FlatFormat</span></code></a><ul>
+<li><a class="reference internal" href="#splitp.enums.FlatFormat.reduced"><code class="docutils literal notranslate"><span class="pre">FlatFormat.reduced</span></code></a></li>
+<li><a class="reference internal" href="#splitp.enums.FlatFormat.sparse"><code class="docutils literal notranslate"><span class="pre">FlatFormat.sparse</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#splitp.enums.Method"><code class="docutils literal notranslate"><span class="pre">Method</span></code></a><ul>
+<li><a class="reference internal" href="#splitp.enums.Method.distance"><code class="docutils literal notranslate"><span class="pre">Method.distance</span></code></a></li>
+<li><a class="reference internal" href="#splitp.enums.Method.flattening"><code class="docutils literal notranslate"><span class="pre">Method.flattening</span></code></a></li>
+<li><a class="reference internal" href="#splitp.enums.Method.mutual_information"><code class="docutils literal notranslate"><span class="pre">Method.mutual_information</span></code></a></li>
+<li><a class="reference internal" href="#splitp.enums.Method.subflattening"><code class="docutils literal notranslate"><span class="pre">Method.subflattening</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#splitp.enums.Model"><code class="docutils literal notranslate"><span class="pre">Model</span></code></a><ul>
+<li><a class="reference internal" href="#splitp.enums.Model.JC"><code class="docutils literal notranslate"><span class="pre">Model.JC</span></code></a></li>
+<li><a class="reference internal" href="#splitp.enums.Model.K2ST"><code class="docutils literal notranslate"><span class="pre">Model.K2ST</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-splitp.matrix">splitp.matrix module</a><ul>
+<li><a class="reference internal" href="#splitp.matrix.frobenius_norm"><code class="docutils literal notranslate"><span class="pre">frobenius_norm()</span></code></a></li>
+<li><a class="reference internal" href="#splitp.matrix.is_sparse"><code class="docutils literal notranslate"><span class="pre">is_sparse()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-splitp.model">splitp.model module</a><ul>
+<li><a class="reference internal" href="#splitp.model.GTR"><code class="docutils literal notranslate"><span class="pre">GTR</span></code></a><ul>
+<li><a class="reference internal" href="#splitp.model.GTR.JukesCantor"><code class="docutils literal notranslate"><span class="pre">GTR.JukesCantor()</span></code></a></li>
+<li><a class="reference internal" href="#splitp.model.GTR.Kimura"><code class="docutils literal notranslate"><span class="pre">GTR.Kimura()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#splitp.model.model"><code class="docutils literal notranslate"><span class="pre">model</span></code></a><ul>
+<li><a class="reference internal" href="#splitp.model.model.transition_matrix"><code class="docutils literal notranslate"><span class="pre">model.transition_matrix()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-splitp.phylogenetics">splitp.phylogenetics module</a><ul>
+<li><a class="reference internal" href="#splitp.phylogenetics.JC_corrected_distance_matrix"><code class="docutils literal notranslate"><span class="pre">JC_corrected_distance_matrix()</span></code></a></li>
+<li><a class="reference internal" href="#splitp.phylogenetics.distance_matrix"><code class="docutils literal notranslate"><span class="pre">distance_matrix()</span></code></a></li>
+<li><a class="reference internal" href="#splitp.phylogenetics.erickson_SVD"><code class="docutils literal notranslate"><span class="pre">erickson_SVD()</span></code></a></li>
+<li><a class="reference internal" href="#splitp.phylogenetics.euclidean_split_distance"><code class="docutils literal notranslate"><span class="pre">euclidean_split_distance()</span></code></a></li>
+<li><a class="reference internal" href="#splitp.phylogenetics.flattening_rank_1_approximation"><code class="docutils literal notranslate"><span class="pre">flattening_rank_1_approximation()</span></code></a></li>
+<li><a class="reference internal" href="#splitp.phylogenetics.flattening_rank_1_approximation_divergence"><code class="docutils literal notranslate"><span class="pre">flattening_rank_1_approximation_divergence()</span></code></a></li>
+<li><a class="reference internal" href="#splitp.phylogenetics.hartigan_algorithm"><code class="docutils literal notranslate"><span class="pre">hartigan_algorithm()</span></code></a></li>
+<li><a class="reference internal" href="#splitp.phylogenetics.join_nodes"><code class="docutils literal notranslate"><span class="pre">join_nodes()</span></code></a></li>
+<li><a class="reference internal" href="#splitp.phylogenetics.midpoint_rooting"><code class="docutils literal notranslate"><span class="pre">midpoint_rooting()</span></code></a></li>
+<li><a class="reference internal" href="#splitp.phylogenetics.neighbour_joining"><code class="docutils literal notranslate"><span class="pre">neighbour_joining()</span></code></a></li>
+<li><a class="reference internal" href="#splitp.phylogenetics.newick_string_from_splits"><code class="docutils literal notranslate"><span class="pre">newick_string_from_splits()</span></code></a></li>
+<li><a class="reference internal" href="#splitp.phylogenetics.parsimony_score"><code class="docutils literal notranslate"><span class="pre">parsimony_score()</span></code></a></li>
+<li><a class="reference internal" href="#splitp.phylogenetics.split_score"><code class="docutils literal notranslate"><span class="pre">split_score()</span></code></a></li>
+<li><a class="reference internal" href="#splitp.phylogenetics.split_tree_parsimony"><code class="docutils literal notranslate"><span class="pre">split_tree_parsimony()</span></code></a></li>
+<li><a class="reference internal" href="#splitp.phylogenetics.star_tree"><code class="docutils literal notranslate"><span class="pre">star_tree()</span></code></a></li>
+<li><a class="reference internal" href="#splitp.phylogenetics.tree_from_splits"><code class="docutils literal notranslate"><span class="pre">tree_from_splits()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-splitp.phylogeny">splitp.phylogeny module</a><ul>
+<li><a class="reference internal" href="#splitp.phylogeny.Phylogeny"><code class="docutils literal notranslate"><span class="pre">Phylogeny</span></code></a><ul>
+<li><a class="reference internal" href="#splitp.phylogeny.Phylogeny.draw"><code class="docutils literal notranslate"><span class="pre">Phylogeny.draw()</span></code></a></li>
+<li><a class="reference internal" href="#splitp.phylogeny.Phylogeny.format_split"><code class="docutils literal notranslate"><span class="pre">Phylogeny.format_split()</span></code></a></li>
+<li><a class="reference internal" href="#splitp.phylogeny.Phylogeny.get_descendants"><code class="docutils literal notranslate"><span class="pre">Phylogeny.get_descendants()</span></code></a></li>
+<li><a class="reference internal" href="#splitp.phylogeny.Phylogeny.get_num_nodes"><code class="docutils literal notranslate"><span class="pre">Phylogeny.get_num_nodes()</span></code></a></li>
+<li><a class="reference internal" href="#splitp.phylogeny.Phylogeny.get_num_taxa"><code class="docutils literal notranslate"><span class="pre">Phylogeny.get_num_taxa()</span></code></a></li>
+<li><a class="reference internal" href="#splitp.phylogeny.Phylogeny.get_parent"><code class="docutils literal notranslate"><span class="pre">Phylogeny.get_parent()</span></code></a></li>
+<li><a class="reference internal" href="#splitp.phylogeny.Phylogeny.get_taxa"><code class="docutils literal notranslate"><span class="pre">Phylogeny.get_taxa()</span></code></a></li>
+<li><a class="reference internal" href="#splitp.phylogeny.Phylogeny.is_leaf"><code class="docutils literal notranslate"><span class="pre">Phylogeny.is_leaf()</span></code></a></li>
+<li><a class="reference internal" href="#splitp.phylogeny.Phylogeny.is_root"><code class="docutils literal notranslate"><span class="pre">Phylogeny.is_root()</span></code></a></li>
+<li><a class="reference internal" href="#splitp.phylogeny.Phylogeny.name"><code class="docutils literal notranslate"><span class="pre">Phylogeny.name</span></code></a></li>
+<li><a class="reference internal" href="#splitp.phylogeny.Phylogeny.networkx_graph"><code class="docutils literal notranslate"><span class="pre">Phylogeny.networkx_graph</span></code></a></li>
+<li><a class="reference internal" href="#splitp.phylogeny.Phylogeny.newick_string"><code class="docutils literal notranslate"><span class="pre">Phylogeny.newick_string</span></code></a></li>
+<li><a class="reference internal" href="#splitp.phylogeny.Phylogeny.node_index"><code class="docutils literal notranslate"><span class="pre">Phylogeny.node_index()</span></code></a></li>
+<li><a class="reference internal" href="#splitp.phylogeny.Phylogeny.nodes"><code class="docutils literal notranslate"><span class="pre">Phylogeny.nodes()</span></code></a></li>
+<li><a class="reference internal" href="#splitp.phylogeny.Phylogeny.reassign_transition_matrices"><code class="docutils literal notranslate"><span class="pre">Phylogeny.reassign_transition_matrices()</span></code></a></li>
+<li><a class="reference internal" href="#splitp.phylogeny.Phylogeny.root"><code class="docutils literal notranslate"><span class="pre">Phylogeny.root()</span></code></a></li>
+<li><a class="reference internal" href="#splitp.phylogeny.Phylogeny.splits"><code class="docutils literal notranslate"><span class="pre">Phylogeny.splits()</span></code></a></li>
+<li><a class="reference internal" href="#splitp.phylogeny.Phylogeny.unrooted_networkx_graph"><code class="docutils literal notranslate"><span class="pre">Phylogeny.unrooted_networkx_graph()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-splitp.simulation">splitp.simulation module</a><ul>
+<li><a class="reference internal" href="#splitp.simulation.draw_from_multinomial"><code class="docutils literal notranslate"><span class="pre">draw_from_multinomial()</span></code></a></li>
+<li><a class="reference internal" href="#splitp.simulation.evolve_pattern"><code class="docutils literal notranslate"><span class="pre">evolve_pattern()</span></code></a></li>
+<li><a class="reference internal" href="#splitp.simulation.generate_alignment"><code class="docutils literal notranslate"><span class="pre">generate_alignment()</span></code></a></li>
+<li><a class="reference internal" href="#splitp.simulation.get_pattern_probabilities"><code class="docutils literal notranslate"><span class="pre">get_pattern_probabilities()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-splitp.splits">splitp.splits module</a><ul>
+<li><a class="reference internal" href="#splitp.splits.all_splits"><code class="docutils literal notranslate"><span class="pre">all_splits()</span></code></a></li>
+<li><a class="reference internal" href="#splitp.splits.format_split"><code class="docutils literal notranslate"><span class="pre">format_split()</span></code></a></li>
+<li><a class="reference internal" href="#splitp.splits.shuffle"><code class="docutils literal notranslate"><span class="pre">shuffle()</span></code></a></li>
+<li><a class="reference internal" href="#splitp.splits.split_balance"><code class="docutils literal notranslate"><span class="pre">split_balance()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-splitp.squangles">splitp.squangles module</a><ul>
+<li><a class="reference internal" href="#splitp.squangles.SquangleEvaluator"><code class="docutils literal notranslate"><span class="pre">SquangleEvaluator</span></code></a><ul>
+<li><a class="reference internal" href="#splitp.squangles.SquangleEvaluator.evaluate_polynomial"><code class="docutils literal notranslate"><span class="pre">SquangleEvaluator.evaluate_polynomial()</span></code></a></li>
+<li><a class="reference internal" href="#splitp.squangles.SquangleEvaluator.get_polynomials"><code class="docutils literal notranslate"><span class="pre">SquangleEvaluator.get_polynomials()</span></code></a></li>
+<li><a class="reference internal" href="#splitp.squangles.SquangleEvaluator.read_polynomial"><code class="docutils literal notranslate"><span class="pre">SquangleEvaluator.read_polynomial()</span></code></a></li>
+<li><a class="reference internal" href="#splitp.squangles.SquangleEvaluator.to_int"><code class="docutils literal notranslate"><span class="pre">SquangleEvaluator.to_int()</span></code></a></li>
+<li><a class="reference internal" href="#splitp.squangles.SquangleEvaluator.to_pattern"><code class="docutils literal notranslate"><span class="pre">SquangleEvaluator.to_pattern()</span></code></a></li>
+<li><a class="reference internal" href="#splitp.squangles.SquangleEvaluator.transformed_prob_dist"><code class="docutils literal notranslate"><span class="pre">SquangleEvaluator.transformed_prob_dist()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-splitp.trees">splitp.trees module</a><ul>
+<li><a class="reference internal" href="#splitp.trees.balanced_newick_tree"><code class="docutils literal notranslate"><span class="pre">balanced_newick_tree()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-splitp">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SplitP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">splitp package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/splitp.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="splitp-package">
+<h1>splitp package<a class="headerlink" href="#splitp-package" title="Permalink to this heading"></a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="splitp.parsers.html">splitp.parsers package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="splitp.parsers.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="splitp.parsers.html#module-splitp.parsers.fasta">splitp.parsers.fasta module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="splitp.parsers.html#splitp.parsers.fasta.fasta_to_dict"><code class="docutils literal notranslate"><span class="pre">fasta_to_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="splitp.parsers.html#splitp.parsers.fasta.get_pattern_counts"><code class="docutils literal notranslate"><span class="pre">get_pattern_counts()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="splitp.parsers.html#splitp.parsers.fasta.pattern_counts_to_probs"><code class="docutils literal notranslate"><span class="pre">pattern_counts_to_probs()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="splitp.parsers.html#splitp.parsers.fasta.pattern_probs_from_alignment"><code class="docutils literal notranslate"><span class="pre">pattern_probs_from_alignment()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="splitp.parsers.html#splitp.parsers.fasta.read_alignment_from_file"><code class="docutils literal notranslate"><span class="pre">read_alignment_from_file()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="splitp.parsers.html#module-splitp.parsers.newick">splitp.parsers.newick module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="splitp.parsers.html#splitp.parsers.newick.json_to_newick"><code class="docutils literal notranslate"><span class="pre">json_to_newick()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="splitp.parsers.html#splitp.parsers.newick.move_tree_edge_labels_to_nodes"><code class="docutils literal notranslate"><span class="pre">move_tree_edge_labels_to_nodes()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="splitp.parsers.html#splitp.parsers.newick.newick_to_json"><code class="docutils literal notranslate"><span class="pre">newick_to_json()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="splitp.parsers.html#splitp.parsers.newick.strip_newick"><code class="docutils literal notranslate"><span class="pre">strip_newick()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="splitp.parsers.html#module-splitp.parsers">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+</section>
+<section id="module-splitp.constants">
+<span id="splitp-constants-module"></span><h2>splitp.constants module<a class="headerlink" href="#module-splitp.constants" title="Permalink to this heading"></a></h2>
+<p>Declare constants for the splitp package.</p>
+</section>
+<section id="module-splitp.constructions">
+<span id="splitp-constructions-module"></span><h2>splitp.constructions module<a class="headerlink" href="#module-splitp.constructions" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="splitp.constructions.flattening">
+<span class="sig-prename descclassname"><span class="pre">splitp.constructions.</span></span><span class="sig-name descname"><span class="pre">flattening</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">split</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pattern_probabilities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flattening_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">FlatFormat.sparse</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.constructions.flattening" title="Permalink to this definition"></a></dt>
+<dd><p>Compute the flattening of a split given a pattern probability dictionary.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>split (str or list): The split to compute the flattening of.
+pattern_probabilities (dict): A dictionary of pattern probabilities.
+flattening_format (FlatFormat): The format to return the flattening in.</p>
+</dd>
+<dt>Returns:</dt><dd><p>The flattening of the split in the specified format.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="splitp.constructions.subflattening">
+<span class="sig-prename descclassname"><span class="pre">splitp.constructions.</span></span><span class="sig-name descname"><span class="pre">subflattening</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">split</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pattern_probabilities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.constructions.subflattening" title="Permalink to this definition"></a></dt>
+<dd><p>A faster version of signed sum subflattening. Requires a data dictionary and can be supplied with a bundle of
+re-usable information to reduce the number of calls to the multiplications function.</p>
+</dd></dl>
+
+</section>
+<section id="module-splitp.enums">
+<span id="splitp-enums-module"></span><h2>splitp.enums module<a class="headerlink" href="#module-splitp.enums" title="Permalink to this heading"></a></h2>
 <dl class="py class">
-<dt id="splitp.nx_tree.NXTree">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">splitp.nx_tree.</span></code><code class="sig-name descname"><span class="pre">NXTree</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">newickString</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">numStates</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">taxa_ordering</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="splitp.enums.DrawFormat">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">splitp.enums.</span></span><span class="sig-name descname"><span class="pre">DrawFormat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.enums.DrawFormat" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p>An enumeration.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="splitp.enums.DrawFormat.ASCII">
+<span class="sig-name descname"><span class="pre">ASCII</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ASCII'</span></em><a class="headerlink" href="#splitp.enums.DrawFormat.ASCII" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="splitp.enums.DrawFormat.matplotlib">
+<span class="sig-name descname"><span class="pre">matplotlib</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'matplotlib'</span></em><a class="headerlink" href="#splitp.enums.DrawFormat.matplotlib" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="splitp.enums.FlatFormat">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">splitp.enums.</span></span><span class="sig-name descname"><span class="pre">FlatFormat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.enums.FlatFormat" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p>An enumeration.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="splitp.enums.FlatFormat.reduced">
+<span class="sig-name descname"><span class="pre">reduced</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'reduced'</span></em><a class="headerlink" href="#splitp.enums.FlatFormat.reduced" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="splitp.enums.FlatFormat.sparse">
+<span class="sig-name descname"><span class="pre">sparse</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'sparse'</span></em><a class="headerlink" href="#splitp.enums.FlatFormat.sparse" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="splitp.enums.Method">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">splitp.enums.</span></span><span class="sig-name descname"><span class="pre">Method</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.enums.Method" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p>An enumeration.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="splitp.enums.Method.distance">
+<span class="sig-name descname"><span class="pre">distance</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'distance'</span></em><a class="headerlink" href="#splitp.enums.Method.distance" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="splitp.enums.Method.flattening">
+<span class="sig-name descname"><span class="pre">flattening</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'flattening'</span></em><a class="headerlink" href="#splitp.enums.Method.flattening" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="splitp.enums.Method.mutual_information">
+<span class="sig-name descname"><span class="pre">mutual_information</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'mutual_information'</span></em><a class="headerlink" href="#splitp.enums.Method.mutual_information" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="splitp.enums.Method.subflattening">
+<span class="sig-name descname"><span class="pre">subflattening</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'subflattening'</span></em><a class="headerlink" href="#splitp.enums.Method.subflattening" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="splitp.enums.Model">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">splitp.enums.</span></span><span class="sig-name descname"><span class="pre">Model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.enums.Model" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p>An enumeration.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="splitp.enums.Model.JC">
+<span class="sig-name descname"><span class="pre">JC</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'JC'</span></em><a class="headerlink" href="#splitp.enums.Model.JC" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="splitp.enums.Model.K2ST">
+<span class="sig-name descname"><span class="pre">K2ST</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'K2ST'</span></em><a class="headerlink" href="#splitp.enums.Model.K2ST" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-splitp.matrix">
+<span id="splitp-matrix-module"></span><h2>splitp.matrix module<a class="headerlink" href="#module-splitp.matrix" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="splitp.matrix.frobenius_norm">
+<span class="sig-prename descclassname"><span class="pre">splitp.matrix.</span></span><span class="sig-name descname"><span class="pre">frobenius_norm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_table</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.matrix.frobenius_norm" title="Permalink to this definition"></a></dt>
+<dd><p>Calculates the Frobenius Norm for a given matrix</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="splitp.matrix.is_sparse">
+<span class="sig-prename descclassname"><span class="pre">splitp.matrix.</span></span><span class="sig-name descname"><span class="pre">is_sparse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.matrix.is_sparse" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-splitp.model">
+<span id="splitp-model-module"></span><h2>splitp.model module<a class="headerlink" href="#module-splitp.model" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="splitp.model.GTR">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">splitp.model.</span></span><span class="sig-name descname"><span class="pre">GTR</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Generic</span> <span class="pre">GTR</span> <span class="pre">model'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state_space</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">equilibrium_distribution</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">additional_parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.model.GTR" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#splitp.model.model" title="splitp.model.model"><code class="xref py py-class docutils literal notranslate"><span class="pre">model</span></code></a></p>
+<p>A general time reversible model of evolution.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="splitp.model.GTR.JukesCantor">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">JukesCantor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state_space</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('A',</span> <span class="pre">'C',</span> <span class="pre">'G',</span> <span class="pre">'T')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Jukes-Cantor</span> <span class="pre">model'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.model.GTR.JukesCantor" title="Permalink to this definition"></a></dt>
+<dd><p>A Jukes-Cantor model of evolution.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="splitp.model.GTR.Kimura">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Kimura</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transversion_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transition_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state_space</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('A',</span> <span class="pre">'C',</span> <span class="pre">'G',</span> <span class="pre">'T')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Kimura</span> <span class="pre">model'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.model.GTR.Kimura" title="Permalink to this definition"></a></dt>
+<dd><p>A Kimura model of evolution.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="splitp.model.model">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">splitp.model.</span></span><span class="sig-name descname"><span class="pre">model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state_space</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_dist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rate_matrix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.model.model" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>A rooted phylogenetic tree.</p>
-<p>A rooted phylogenetic tree consisting of a collection of node objects and an adjacency matrix</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="splitp.model.model.transition_matrix">
+<span class="sig-name descname"><span class="pre">transition_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.model.model.transition_matrix" title="Permalink to this definition"></a></dt>
+<dd><p>Return the transition matrix for the model.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-splitp.phylogenetics">
+<span id="splitp-phylogenetics-module"></span><h2>splitp.phylogenetics module<a class="headerlink" href="#module-splitp.phylogenetics" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="splitp.phylogenetics.JC_corrected_distance_matrix">
+<span class="sig-prename descclassname"><span class="pre">splitp.phylogenetics.</span></span><span class="sig-name descname"><span class="pre">JC_corrected_distance_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alignment</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.phylogenetics.JC_corrected_distance_matrix" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="splitp.phylogenetics.distance_matrix">
+<span class="sig-prename descclassname"><span class="pre">splitp.phylogenetics.</span></span><span class="sig-name descname"><span class="pre">distance_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">networkx_tree</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.phylogenetics.distance_matrix" title="Permalink to this definition"></a></dt>
+<dd><p>Distance matrix of a tree.</p>
 <dl class="simple">
-<dt>Attributes:</dt><dd><p>num_nodes: The number of nodes in the tree
-num_bases: The size of the character set for the phylogeny
-nodes: A list of node objects representing the nodes in the tree
-adjM: An adjacency matrix describing the connections within the tree
-initDist: The initial distribution of states/characters at the root of the tree.</p>
+<dt>Args:</dt><dd><p>networkx_tree (networkx.DiGraph): A tree.</p>
 </dd>
-</dl>
-<dl class="py method">
-<dt id="splitp.nx_tree.NXTree.add_node">
-<code class="sig-name descname"><span class="pre">add_node</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">branch_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_node</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.add_node" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds a new node to the tree</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>n: The node object to add into the tree.
-in_node: The name of the parent node, default is None and is used for the root.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="splitp.nx_tree.NXTree.adjacency_matrix">
-<code class="sig-name descname"><span class="pre">adjacency_matrix</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.adjacency_matrix" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="splitp.nx_tree.NXTree.all_singular_values">
-<code class="sig-name descname"><span class="pre">all_singular_values</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">M</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.all_singular_values" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="splitp.nx_tree.NXTree.all_splits">
-<code class="sig-name descname"><span class="pre">all_splits</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trivial</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_balance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">randomise</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.all_splits" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="splitp.nx_tree.NXTree.build_JC_matrix">
-<code class="sig-name descname"><span class="pre">build_JC_matrix</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">l</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.build_JC_matrix" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="splitp.nx_tree.NXTree.build_K2ST_matrix">
-<code class="sig-name descname"><span class="pre">build_K2ST_matrix</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transition</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transversion</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.build_K2ST_matrix" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="splitp.nx_tree.NXTree.draw_from_multinomial">
-<code class="sig-name descname"><span class="pre">draw_from_multinomial</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">LT</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.draw_from_multinomial" title="Permalink to this definition">¶</a></dt>
-<dd><p>Use a given table of probabilities from getLikelihoods() and draw from its distribution</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="splitp.nx_tree.NXTree.evolve_pattern">
-<code class="sig-name descname"><span class="pre">evolve_pattern</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.evolve_pattern" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="splitp.nx_tree.NXTree.false_splits">
-<code class="sig-name descname"><span class="pre">false_splits</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">only_balance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">randomise</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.false_splits" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="splitp.nx_tree.NXTree.fast_signed_sum_subflattening">
-<code class="sig-name descname"><span class="pre">fast_signed_sum_subflattening</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">split</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bundle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.fast_signed_sum_subflattening" title="Permalink to this definition">¶</a></dt>
-<dd><p>A faster version of signed sum subflattening. Requires a data dictionary and can be supplied with a bundle of 
-re-usable information to reduce the number of calls to the multiplications function.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="splitp.nx_tree.NXTree.fast_sparse_flattening">
-<code class="sig-name descname"><span class="pre">fast_sparse_flattening</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">split</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'dok'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.fast_sparse_flattening" title="Permalink to this definition">¶</a></dt>
-<dd><p>A faster version of signed sum subflattening. Requires a data dictionary and can be supplied with a bundle of 
-re-usable information to reduce the number of calls to the multiplications function.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="splitp.nx_tree.NXTree.flattening">
-<code class="sig-name descname"><span class="pre">flattening</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">split</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.flattening" title="Permalink to this definition">¶</a></dt>
-<dd><p>Build a flattening matrix from a split</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>split: A string representing the split to build the flattening from
-table: A pandas data-frame table with site pattern <a href="#id1"><span class="problematic" id="id2">`</span></a>probabilities’</p>
-</dd>
-<dt>Returns:</dt><dd><p>A flattening matrix as a data-frame (to provide labels)</p>
+<dt>Returns:</dt><dd><p>numpy.ndarray: A distance matrix.</p>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="splitp.nx_tree.NXTree.generate_alignment">
-<code class="sig-name descname"><span class="pre">generate_alignment</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sequence_length</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.generate_alignment" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="splitp.phylogenetics.erickson_SVD">
+<span class="sig-prename descclassname"><span class="pre">splitp.phylogenetics.</span></span><span class="sig-name descname"><span class="pre">erickson_SVD</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alignment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">taxa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Method.flattening</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.phylogenetics.erickson_SVD" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
-<dl class="py method">
-<dt id="splitp.nx_tree.NXTree.get_descendants">
-<code class="sig-name descname"><span class="pre">get_descendants</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_iter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.get_descendants" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a list of children/descendents of a given node</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="splitp.phylogenetics.euclidean_split_distance">
+<span class="sig-prename descclassname"><span class="pre">splitp.phylogenetics.</span></span><span class="sig-name descname"><span class="pre">euclidean_split_distance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alignment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">splits</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.phylogenetics.euclidean_split_distance" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="splitp.phylogenetics.flattening_rank_1_approximation">
+<span class="sig-prename descclassname"><span class="pre">splitp.phylogenetics.</span></span><span class="sig-name descname"><span class="pre">flattening_rank_1_approximation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flattening</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_vectors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.phylogenetics.flattening_rank_1_approximation" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="splitp.phylogenetics.flattening_rank_1_approximation_divergence">
+<span class="sig-prename descclassname"><span class="pre">splitp.phylogenetics.</span></span><span class="sig-name descname"><span class="pre">flattening_rank_1_approximation_divergence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flattening</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.phylogenetics.flattening_rank_1_approximation_divergence" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="splitp.phylogenetics.hartigan_algorithm">
+<span class="sig-prename descclassname"><span class="pre">splitp.phylogenetics.</span></span><span class="sig-name descname"><span class="pre">hartigan_algorithm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pattern</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.phylogenetics.hartigan_algorithm" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="splitp.phylogenetics.join_nodes">
+<span class="sig-prename descclassname"><span class="pre">splitp.phylogenetics.</span></span><span class="sig-name descname"><span class="pre">join_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">T</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">root_index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.phylogenetics.join_nodes" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="splitp.phylogenetics.midpoint_rooting">
+<span class="sig-prename descclassname"><span class="pre">splitp.phylogenetics.</span></span><span class="sig-name descname"><span class="pre">midpoint_rooting</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">networkx_tree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'weight'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.phylogenetics.midpoint_rooting" title="Permalink to this definition"></a></dt>
+<dd><p>Midpoint rooting of a tree.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>networkx_tree (networkx.DiGraph): A tree.</p>
+</dd>
+<dt>Returns:</dt><dd><p>networkx.DiGraph: A rooted tree.</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="splitp.nx_tree.NXTree.get_num_taxa">
-<code class="sig-name descname"><span class="pre">get_num_taxa</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.get_num_taxa" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the number of taxa/leaf-nodes in the tree</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="splitp.nx_tree.NXTree.get_parent">
-<code class="sig-name descname"><span class="pre">get_parent</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.get_parent" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the parent node for a given node</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="splitp.nx_tree.NXTree.get_pattern_probabilities">
-<code class="sig-name descname"><span class="pre">get_pattern_probabilities</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.get_pattern_probabilities" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a full table of site-pattern probabilities (binary character set)</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="splitp.nx_tree.NXTree.get_root">
-<code class="sig-name descname"><span class="pre">get_root</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">return_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.get_root" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the root node</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="splitp.nx_tree.NXTree.hartigan_algorithm">
-<code class="sig-name descname"><span class="pre">hartigan_algorithm</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.hartigan_algorithm" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="splitp.phylogenetics.neighbour_joining">
+<span class="sig-prename descclassname"><span class="pre">splitp.phylogenetics.</span></span><span class="sig-name descname"><span class="pre">neighbour_joining</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">distance_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_newick</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.phylogenetics.neighbour_joining" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
-<dl class="py method">
-<dt id="splitp.nx_tree.NXTree.index_of_node">
-<code class="sig-name descname"><span class="pre">index_of_node</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.index_of_node" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="splitp.phylogenetics.newick_string_from_splits">
+<span class="sig-prename descclassname"><span class="pre">splitp.phylogenetics.</span></span><span class="sig-name descname"><span class="pre">newick_string_from_splits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">splits</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.phylogenetics.newick_string_from_splits" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
-<dl class="py method">
-<dt id="splitp.nx_tree.NXTree.is_leaf">
-<code class="sig-name descname"><span class="pre">is_leaf</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_index_or_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.is_leaf" title="Permalink to this definition">¶</a></dt>
-<dd><p>Determines whether a node is a leaf node from it’s index.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="splitp.nx_tree.NXTree.is_root">
-<code class="sig-name descname"><span class="pre">is_root</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_index_or_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.is_root" title="Permalink to this definition">¶</a></dt>
-<dd><p>Determines whether a node is a root node from it’s index.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="splitp.nx_tree.NXTree.node_index">
-<code class="sig-name descname"><span class="pre">node_index</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.node_index" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="splitp.nx_tree.NXTree.node_name">
-<code class="sig-name descname"><span class="pre">node_name</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.node_name" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="splitp.nx_tree.NXTree.nodes">
-<code class="sig-name descname"><span class="pre">nodes</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.nodes" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="splitp.nx_tree.NXTree.nodes_list">
-<code class="sig-name descname"><span class="pre">nodes_list</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.nodes_list" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="splitp.nx_tree.NXTree.num_nodes">
-<code class="sig-name descname"><span class="pre">num_nodes</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.num_nodes" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="splitp.nx_tree.NXTree.parsimony_score">
-<code class="sig-name descname"><span class="pre">parsimony_score</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.parsimony_score" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="splitp.phylogenetics.parsimony_score">
+<span class="sig-prename descclassname"><span class="pre">splitp.phylogenetics.</span></span><span class="sig-name descname"><span class="pre">parsimony_score</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pattern</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.phylogenetics.parsimony_score" title="Permalink to this definition"></a></dt>
 <dd><p>Calculate a parsimony score for a site pattern or split</p>
 <dl class="simple">
 <dt>Args:</dt><dd><p>pattern: A string representing a site pattern or split</p>
@@ -224,303 +465,305 @@ table: A pandas data-frame table with site pattern <a href="#id1"><span class="p
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="splitp.nx_tree.NXTree.rate_matrix">
-<code class="sig-name descname"><span class="pre">rate_matrix</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.rate_matrix" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="splitp.nx_tree.NXTree.reassign_all_transition_matrices">
-<code class="sig-name descname"><span class="pre">reassign_all_transition_matrices</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.reassign_all_transition_matrices" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="splitp.nx_tree.NXTree.scale_TR_rate_matrix">
-<code class="sig-name descname"><span class="pre">scale_TR_rate_matrix</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Q</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_scale_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.scale_TR_rate_matrix" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="splitp.nx_tree.NXTree.signed_sum_subflattening">
-<code class="sig-name descname"><span class="pre">signed_sum_subflattening</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">split</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_table</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.signed_sum_subflattening" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="splitp.nx_tree.NXTree.sparse_flattening">
-<code class="sig-name descname"><span class="pre">sparse_flattening</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">split</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'dok'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.sparse_flattening" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="splitp.nx_tree.NXTree.sparse_subflattening">
-<code class="sig-name descname"><span class="pre">sparse_subflattening</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">split</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">as_dense_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.sparse_subflattening" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="splitp.nx_tree.NXTree.split_score">
-<code class="sig-name descname"><span class="pre">split_score</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_singular_values</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_frob_norm_on_dense</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_table_for_frob_norm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.split_score" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="splitp.nx_tree.NXTree.subflattening">
-<code class="sig-name descname"><span class="pre">subflattening</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Ft</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">specialState</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'T'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(1,</span> <span class="pre">1)</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.subflattening" title="Permalink to this definition">¶</a></dt>
-<dd><p>Creates a subflattening from a transformed flattening data frame</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="splitp.nx_tree.NXTree.subflattening_alt">
-<code class="sig-name descname"><span class="pre">subflattening_alt</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">F</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">S</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">returnLRMats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.subflattening_alt" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="splitp.nx_tree.NXTree.svd_error">
-<code class="sig-name descname"><span class="pre">svd_error</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">M</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.svd_error" title="Permalink to this definition">¶</a></dt>
-<dd><p>“Returns the SVD for a given matrix (All but two/four largest SVs)</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="splitp.nx_tree.NXTree.transformed_flattening">
-<code class="sig-name descname"><span class="pre">transformed_flattening</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">F</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">S</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.transformed_flattening" title="Permalink to this definition">¶</a></dt>
-<dd><p>Creates a transformed flattening from a flattening data frame</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="splitp.nx_tree.NXTree.true_splits">
-<code class="sig-name descname"><span class="pre">true_splits</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">include_trivial</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.true_splits" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns set of all true splits in the tree.</p>
-</dd></dl>
-
-</dd></dl>
-
-</div>
-<div class="section" id="module-splitp.parsers">
-<span id="splitp-parsers-module"></span><h2>splitp.parsers module<a class="headerlink" href="#module-splitp.parsers" title="Permalink to this headline">¶</a></h2>
 <dl class="py function">
-<dt id="splitp.parsers.json_to_newick">
-<code class="sig-prename descclassname"><span class="pre">splitp.parsers.</span></code><code class="sig-name descname"><span class="pre">json_to_newick</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">json_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">namestring</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'id'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lengthstring</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'branch_length'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">childrenstring</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'children'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.parsers.json_to_newick" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="splitp.phylogenetics.split_score">
+<span class="sig-prename descclassname"><span class="pre">splitp.phylogenetics.</span></span><span class="sig-name descname"><span class="pre">split_score</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_singular_values</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_frob_norm_on_dense</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_table_for_frob_norm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.phylogenetics.split_score" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt id="splitp.parsers.newick_to_json">
-<code class="sig-prename descclassname"><span class="pre">splitp.parsers.</span></code><code class="sig-name descname"><span class="pre">newick_to_json</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">newick_string</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">namestring</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'id'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lengthstring</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'branch_length'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">childrenstring</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'children'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generate_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.parsers.newick_to_json" title="Permalink to this definition">¶</a></dt>
-<dd><p>Parses a newick string (example “((A,B),C)”) into JSON format accepted by NetworkX</p>
-<dl>
-<dt>Args:</dt><dd><dl class="simple">
-<dt>newick_string: The newick string to convert to JSON. Names, branch lengths and named </dt><dd><p>internal nodes accepted. If no names are given, an ID is generated for the name if generate_names=True.</p>
-</dd>
-</dl>
-<p>namestring: The label for node name to use in the JSON (default “id”).
-lengthstring: The label for branch length to use in the JSON (default “branch_length”).
-childrenstring: The label for children arrays to use in the JSON (default “children”).
-generate_names: Whether or not to generate names if none are given</p>
-</dd>
-</dl>
-</dd></dl>
+<dt class="sig sig-object py" id="splitp.phylogenetics.split_tree_parsimony">
+<span class="sig-prename descclassname"><span class="pre">splitp.phylogenetics.</span></span><span class="sig-name descname"><span class="pre">split_tree_parsimony</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alignment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">splits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.phylogenetics.split_tree_parsimony" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
 
-</div>
-<div class="section" id="module-splitp.squangles">
-<span id="splitp-squangles-module"></span><h2>splitp.squangles module<a class="headerlink" href="#module-splitp.squangles" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="splitp.phylogenetics.star_tree">
+<span class="sig-prename descclassname"><span class="pre">splitp.phylogenetics.</span></span><span class="sig-name descname"><span class="pre">star_tree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_leaves</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.phylogenetics.star_tree" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="splitp.phylogenetics.tree_from_splits">
+<span class="sig-prename descclassname"><span class="pre">splitp.phylogenetics.</span></span><span class="sig-name descname"><span class="pre">tree_from_splits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">splits</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.phylogenetics.tree_from_splits" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-splitp.phylogeny">
+<span id="splitp-phylogeny-module"></span><h2>splitp.phylogeny module<a class="headerlink" href="#module-splitp.phylogeny" title="Permalink to this heading"></a></h2>
 <dl class="py class">
-<dt id="splitp.squangles.SquangleEvaluator">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">splitp.squangles.</span></code><code class="sig-name descname"><span class="pre">SquangleEvaluator</span></code><a class="headerlink" href="#splitp.squangles.SquangleEvaluator" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="splitp.phylogeny.Phylogeny">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">splitp.phylogeny.</span></span><span class="sig-name descname"><span class="pre">Phylogeny</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">newick_string</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.phylogeny.Phylogeny" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py method">
-<dt id="splitp.squangles.SquangleEvaluator.evaluate_polynomial">
-<code class="sig-name descname"><span class="pre">evaluate_polynomial</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">poly</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.squangles.SquangleEvaluator.evaluate_polynomial" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="splitp.phylogeny.Phylogeny.draw">
+<span class="sig-name descname"><span class="pre">draw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">draw_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">DrawFormat.ASCII</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.phylogeny.Phylogeny.draw" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="splitp.squangles.SquangleEvaluator.get_flattening">
-<code class="sig-name descname"><span class="pre">get_flattening</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">DTable</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.squangles.SquangleEvaluator.get_flattening" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="splitp.phylogeny.Phylogeny.format_split">
+<span class="sig-name descname"><span class="pre">format_split</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">split</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.phylogeny.Phylogeny.format_split" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="splitp.squangles.SquangleEvaluator.get_polynomials">
-<code class="sig-name descname"><span class="pre">get_polynomials</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#splitp.squangles.SquangleEvaluator.get_polynomials" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="splitp.phylogeny.Phylogeny.get_descendants">
+<span class="sig-name descname"><span class="pre">get_descendants</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_iter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.phylogeny.Phylogeny.get_descendants" title="Permalink to this definition"></a></dt>
+<dd><p>Returns a list of children/descendents of a given node</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="splitp.phylogeny.Phylogeny.get_num_nodes">
+<span class="sig-name descname"><span class="pre">get_num_nodes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#splitp.phylogeny.Phylogeny.get_num_nodes" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="splitp.squangles.SquangleEvaluator.read_polynomial">
-<code class="sig-name descname"><span class="pre">read_polynomial</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.squangles.SquangleEvaluator.read_polynomial" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="splitp.phylogeny.Phylogeny.get_num_taxa">
+<span class="sig-name descname"><span class="pre">get_num_taxa</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#splitp.phylogeny.Phylogeny.get_num_taxa" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="splitp.squangles.SquangleEvaluator.test_pattern_conversion">
-<code class="sig-name descname"><span class="pre">test_pattern_conversion</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#splitp.squangles.SquangleEvaluator.test_pattern_conversion" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="splitp.phylogeny.Phylogeny.get_parent">
+<span class="sig-name descname"><span class="pre">get_parent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.phylogeny.Phylogeny.get_parent" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the parent node for a given node</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="splitp.phylogeny.Phylogeny.get_taxa">
+<span class="sig-name descname"><span class="pre">get_taxa</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#splitp.phylogeny.Phylogeny.get_taxa" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="splitp.squangles.SquangleEvaluator.to_int">
-<code class="sig-name descname"><span class="pre">to_int</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.squangles.SquangleEvaluator.to_int" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="splitp.phylogeny.Phylogeny.is_leaf">
+<span class="sig-name descname"><span class="pre">is_leaf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_index_or_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.phylogeny.Phylogeny.is_leaf" title="Permalink to this definition"></a></dt>
+<dd><p>Determines whether a node is a leaf node from it’s index.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="splitp.phylogeny.Phylogeny.is_root">
+<span class="sig-name descname"><span class="pre">is_root</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.phylogeny.Phylogeny.is_root" title="Permalink to this definition"></a></dt>
+<dd><p>Determines whether a node is a root node from its index.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="splitp.phylogeny.Phylogeny.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#splitp.phylogeny.Phylogeny.name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="splitp.phylogeny.Phylogeny.networkx_graph">
+<span class="sig-name descname"><span class="pre">networkx_graph</span></span><a class="headerlink" href="#splitp.phylogeny.Phylogeny.networkx_graph" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="splitp.phylogeny.Phylogeny.newick_string">
+<span class="sig-name descname"><span class="pre">newick_string</span></span><a class="headerlink" href="#splitp.phylogeny.Phylogeny.newick_string" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="splitp.squangles.SquangleEvaluator.to_pattern">
-<code class="sig-name descname"><span class="pre">to_pattern</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">integer</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.squangles.SquangleEvaluator.to_pattern" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="splitp.phylogeny.Phylogeny.node_index">
+<span class="sig-name descname"><span class="pre">node_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.phylogeny.Phylogeny.node_index" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="splitp.squangles.SquangleEvaluator.transformed_prob_dist">
-<code class="sig-name descname"><span class="pre">transformed_prob_dist</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prob_dist</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.squangles.SquangleEvaluator.transformed_prob_dist" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="splitp.phylogeny.Phylogeny.nodes">
+<span class="sig-name descname"><span class="pre">nodes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#splitp.phylogeny.Phylogeny.nodes" title="Permalink to this definition"></a></dt>
+<dd><p>Returns a list of all nodes in the tree.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="splitp.phylogeny.Phylogeny.reassign_transition_matrices">
+<span class="sig-name descname"><span class="pre">reassign_transition_matrices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transition_matrix</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.phylogeny.Phylogeny.reassign_transition_matrices" title="Permalink to this definition"></a></dt>
+<dd><p>DEPRECATED: Reassign transition matrices to all nodes in the tree</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="splitp.phylogeny.Phylogeny.root">
+<span class="sig-name descname"><span class="pre">root</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">return_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.phylogeny.Phylogeny.root" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the root node</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="splitp.phylogeny.Phylogeny.splits">
+<span class="sig-name descname"><span class="pre">splits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">include_trivial</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">as_strings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.phylogeny.Phylogeny.splits" title="Permalink to this definition"></a></dt>
+<dd><p>Returns set of all splits displayed by the tree.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="splitp.phylogeny.Phylogeny.unrooted_networkx_graph">
+<span class="sig-name descname"><span class="pre">unrooted_networkx_graph</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#splitp.phylogeny.Phylogeny.unrooted_networkx_graph" title="Permalink to this definition"></a></dt>
+<dd><p>Return the unrooted version of the tree</p>
+</dd></dl>
 
 </dd></dl>
 
-</div>
-<div class="section" id="module-splitp.tree_helper_functions">
-<span id="splitp-tree-helper-functions-module"></span><h2>splitp.tree_helper_functions module<a class="headerlink" href="#module-splitp.tree_helper_functions" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="module-splitp.simulation">
+<span id="splitp-simulation-module"></span><h2>splitp.simulation module<a class="headerlink" href="#module-splitp.simulation" title="Permalink to this heading"></a></h2>
 <dl class="py function">
-<dt id="splitp.tree_helper_functions.all_splits">
-<code class="sig-prename descclassname"><span class="pre">splitp.tree_helper_functions.</span></code><code class="sig-name descname"><span class="pre">all_splits</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_taxa</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trivial</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_balance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">randomise</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.tree_helper_functions.all_splits" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generates all splits as string-representations</p>
+<dt class="sig sig-object py" id="splitp.simulation.draw_from_multinomial">
+<span class="sig-prename descclassname"><span class="pre">splitp.simulation.</span></span><span class="sig-name descname"><span class="pre">draw_from_multinomial</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern_probabilities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.simulation.draw_from_multinomial" title="Permalink to this definition"></a></dt>
+<dd><p>Use a given table of probabilities from get_pattern_probabilities() and draw from its distribution</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="splitp.simulation.evolve_pattern">
+<span class="sig-prename descclassname"><span class="pre">splitp.simulation.</span></span><span class="sig-name descname"><span class="pre">evolve_pattern</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.simulation.evolve_pattern" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="splitp.simulation.generate_alignment">
+<span class="sig-prename descclassname"><span class="pre">splitp.simulation.</span></span><span class="sig-name descname"><span class="pre">generate_alignment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sequence_length</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.simulation.generate_alignment" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="splitp.simulation.get_pattern_probabilities">
+<span class="sig-prename descclassname"><span class="pre">splitp.simulation.</span></span><span class="sig-name descname"><span class="pre">get_pattern_probabilities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.simulation.get_pattern_probabilities" title="Permalink to this definition"></a></dt>
+<dd><p>Returns a full table of site-pattern probabilities (binary character set)</p>
+</dd></dl>
+
+</section>
+<section id="module-splitp.splits">
+<span id="splitp-splits-module"></span><h2>splitp.splits module<a class="headerlink" href="#module-splitp.splits" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="splitp.splits.all_splits">
+<span class="sig-prename descclassname"><span class="pre">splitp.splits.</span></span><span class="sig-name descname"><span class="pre">all_splits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trivial</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">randomise</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">string_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.splits.all_splits" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="splitp.splits.format_split">
+<span class="sig-prename descclassname"><span class="pre">splitp.splits.</span></span><span class="sig-name descname"><span class="pre">format_split</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">split</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.splits.format_split" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="splitp.splits.shuffle">
+<span class="sig-prename descclassname"><span class="pre">splitp.splits.</span></span><span class="sig-name descname"><span class="pre">shuffle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.splits.shuffle" title="Permalink to this definition"></a></dt>
+<dd><p>Modify a sequence in-place by shuffling its contents.</p>
+<p>This function only shuffles the array along the first axis of a
+multi-dimensional array. The order of sub-arrays is changed but
+their contents remains the same.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>New code should use the <cite>~numpy.random.Generator.shuffle</cite>
+method of a <cite>~numpy.random.Generator</cite> instance instead;
+please see the <span class="xref std std-ref">random-quick-start</span>.</p>
+</div>
+<section id="parameters">
+<h3>Parameters<a class="headerlink" href="#parameters" title="Permalink to this heading"></a></h3>
 <dl class="simple">
-<dt>Args:</dt><dd><p>num_taxa: The number of taxa on the tree.
-trivial: Whether or not to calculate trivial splits, default True.
-only_trivial: Whether to ONLY create trivial splits, default False.</p>
-</dd>
-<dt>Returns:</dt><dd><p>A list of string-representations of splits (using ‘|’-notation)</p>
+<dt>x<span class="classifier">ndarray or MutableSequence</span></dt><dd><p>The array, list or mutable sequence to be shuffled.</p>
 </dd>
 </dl>
+</section>
+<section id="returns">
+<h3>Returns<a class="headerlink" href="#returns" title="Permalink to this heading"></a></h3>
+<p>None</p>
+</section>
+<section id="see-also">
+<h3>See Also<a class="headerlink" href="#see-also" title="Permalink to this heading"></a></h3>
+<p>random.Generator.shuffle: which should be used for new code.</p>
+</section>
+<section id="examples">
+<h3>Examples<a class="headerlink" href="#examples" title="Permalink to this heading"></a></h3>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span>
+<span class="go">[1 7 5 2 9 4 3 6 0 8] # random</span>
+</pre></div>
+</div>
+<p>Multi-dimensional arrays are only shuffled along the first axis:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">9</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span>
+<span class="go">array([[3, 4, 5], # random</span>
+<span class="go">       [6, 7, 8],</span>
+<span class="go">       [0, 1, 2]])</span>
+</pre></div>
+</div>
+</section>
 </dd></dl>
 
 <dl class="py function">
-<dt id="splitp.tree_helper_functions.balanced_newick_tree">
-<code class="sig-prename descclassname"><span class="pre">splitp.tree_helper_functions.</span></code><code class="sig-name descname"><span class="pre">balanced_newick_tree</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_taxa</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.tree_helper_functions.balanced_newick_tree" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="splitp.tree_helper_functions.check_splits_representatives">
-<code class="sig-prename descclassname"><span class="pre">splitp.tree_helper_functions.</span></code><code class="sig-name descname"><span class="pre">check_splits_representatives</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">split_reps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orbits</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.tree_helper_functions.check_splits_representatives" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="splitp.tree_helper_functions.frob_norm">
-<code class="sig-prename descclassname"><span class="pre">splitp.tree_helper_functions.</span></code><code class="sig-name descname"><span class="pre">frob_norm</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_table</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.tree_helper_functions.frob_norm" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculates the Frobenius Norm for a given matrix</p>
-</dd></dl>
-
-<dl class="py function">
-<dt id="splitp.tree_helper_functions.get_balance">
-<code class="sig-prename descclassname"><span class="pre">splitp.tree_helper_functions.</span></code><code class="sig-name descname"><span class="pre">get_balance</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">asTuple</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.tree_helper_functions.get_balance" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="splitp.splits.split_balance">
+<span class="sig-prename descclassname"><span class="pre">splitp.splits.</span></span><span class="sig-name descname"><span class="pre">split_balance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">asTuple</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.splits.split_balance" title="Permalink to this definition"></a></dt>
 <dd><p>Returns a string formatted ‘X|X’ which describes the balance of a given split string</p>
 </dd></dl>
 
-<dl class="py function">
-<dt id="splitp.tree_helper_functions.get_pattern_counts">
-<code class="sig-prename descclassname"><span class="pre">splitp.tree_helper_functions.</span></code><code class="sig-name descname"><span class="pre">get_pattern_counts</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alignment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">asNumpyArray</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.tree_helper_functions.get_pattern_counts" title="Permalink to this definition">¶</a></dt>
+</section>
+<section id="module-splitp.squangles">
+<span id="splitp-squangles-module"></span><h2>splitp.squangles module<a class="headerlink" href="#module-splitp.squangles" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="splitp.squangles.SquangleEvaluator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">splitp.squangles.</span></span><span class="sig-name descname"><span class="pre">SquangleEvaluator</span></span><a class="headerlink" href="#splitp.squangles.SquangleEvaluator" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="splitp.squangles.SquangleEvaluator.evaluate_polynomial">
+<span class="sig-name descname"><span class="pre">evaluate_polynomial</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">poly</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.squangles.SquangleEvaluator.evaluate_polynomial" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
-<dl class="py function">
-<dt id="splitp.tree_helper_functions.is_sparse">
-<code class="sig-prename descclassname"><span class="pre">splitp.tree_helper_functions.</span></code><code class="sig-name descname"><span class="pre">is_sparse</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.tree_helper_functions.is_sparse" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="splitp.squangles.SquangleEvaluator.get_polynomials">
+<span class="sig-name descname"><span class="pre">get_polynomials</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#splitp.squangles.SquangleEvaluator.get_polynomials" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
-<dl class="py function">
-<dt id="splitp.tree_helper_functions.make_substitution_matrix">
-<code class="sig-prename descclassname"><span class="pre">splitp.tree_helper_functions.</span></code><code class="sig-name descname"><span class="pre">make_substitution_matrix</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subs_prob</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.tree_helper_functions.make_substitution_matrix" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="splitp.squangles.SquangleEvaluator.read_polynomial">
+<span class="sig-name descname"><span class="pre">read_polynomial</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.squangles.SquangleEvaluator.read_polynomial" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
-<dl class="py function">
-<dt id="splitp.tree_helper_functions.normalised">
-<code class="sig-prename descclassname"><span class="pre">splitp.tree_helper_functions.</span></code><code class="sig-name descname"><span class="pre">normalised</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scores</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.tree_helper_functions.normalised" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="splitp.squangles.SquangleEvaluator.to_int">
+<span class="sig-name descname"><span class="pre">to_int</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.squangles.SquangleEvaluator.to_int" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
-<dl class="py function">
-<dt id="splitp.tree_helper_functions.pattern_counts_to_probs">
-<code class="sig-prename descclassname"><span class="pre">splitp.tree_helper_functions.</span></code><code class="sig-name descname"><span class="pre">pattern_counts_to_probs</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">patterns</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seqLen</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.tree_helper_functions.pattern_counts_to_probs" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="splitp.squangles.SquangleEvaluator.to_pattern">
+<span class="sig-name descname"><span class="pre">to_pattern</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">integer</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.squangles.SquangleEvaluator.to_pattern" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
-<dl class="py function">
-<dt id="splitp.tree_helper_functions.pattern_probs_from_alignment">
-<code class="sig-prename descclassname"><span class="pre">splitp.tree_helper_functions.</span></code><code class="sig-name descname"><span class="pre">pattern_probs_from_alignment</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pathToFile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.tree_helper_functions.pattern_probs_from_alignment" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="splitp.squangles.SquangleEvaluator.transformed_prob_dist">
+<span class="sig-name descname"><span class="pre">transformed_prob_dist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prob_dist</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.squangles.SquangleEvaluator.transformed_prob_dist" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
-<dl class="py function">
-<dt id="splitp.tree_helper_functions.read_alignment_from_file">
-<code class="sig-prename descclassname"><span class="pre">splitp.tree_helper_functions.</span></code><code class="sig-name descname"><span class="pre">read_alignment_from_file</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pathToFile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.tree_helper_functions.read_alignment_from_file" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="splitp.tree_helper_functions.scaled_h_matrix">
-<code class="sig-prename descclassname"><span class="pre">splitp.tree_helper_functions.</span></code><code class="sig-name descname"><span class="pre">scaled_h_matrix</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">_lambda</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.tree_helper_functions.scaled_h_matrix" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="splitp.tree_helper_functions.scores_to_weights">
-<code class="sig-prename descclassname"><span class="pre">splitp.tree_helper_functions.</span></code><code class="sig-name descname"><span class="pre">scores_to_weights</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scores</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.tree_helper_functions.scores_to_weights" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="splitp.tree_helper_functions.split_equivalence_classes">
-<code class="sig-prename descclassname"><span class="pre">splitp.tree_helper_functions.</span></code><code class="sig-name descname"><span class="pre">split_equivalence_classes</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">splits</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.tree_helper_functions.split_equivalence_classes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Breaks up list of splits into equivalence classes under the canonical action of the specified group.</p>
 </dd></dl>
 
-</div>
-<div class="section" id="module-splitp">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-splitp" title="Permalink to this headline">¶</a></h2>
-</div>
-</div>
+</section>
+<section id="module-splitp.trees">
+<span id="splitp-trees-module"></span><h2>splitp.trees module<a class="headerlink" href="#module-splitp.trees" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="splitp.trees.balanced_newick_tree">
+<span class="sig-prename descclassname"><span class="pre">splitp.trees.</span></span><span class="sig-name descname"><span class="pre">balanced_newick_tree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_taxa</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.trees.balanced_newick_tree" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-splitp">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-splitp" title="Permalink to this heading"></a></h2>
+</section>
+</section>
 
 
+           </div>
           </div>
-          
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Joshua Stevenson.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="index.html">SplitP</a></h1>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
 
-
-
-
-
-
-
-
-<h3>Navigation</h3>
-
-<div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="index.html">Documentation overview</a><ul>
-  </ul></li>
-</ul>
-</div>
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script>$('#searchbox').show(0);</script>
-
-
-
-
-
-
-
-
-        </div>
-      </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="footer">
-      &copy;2021, Joshua Stevenson.
-      
-      |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
-      
-      |
-      <a href="_sources/splitp.rst.txt"
-          rel="nofollow">Page source</a>
-    </div>
-
-    
-
-    
-  </body>
+</body>
 </html>

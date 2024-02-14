@@ -1,21 +1,85 @@
 splitp package
 ==============
 
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   splitp.parsers
+
 Submodules
 ----------
 
-splitp.nx\_tree module
-----------------------
+splitp.constants module
+-----------------------
 
-.. automodule:: splitp.nx_tree
+.. automodule:: splitp.constants
    :members:
    :undoc-members:
    :show-inheritance:
 
-splitp.parsers module
----------------------
+splitp.constructions module
+---------------------------
 
-.. automodule:: splitp.parsers
+.. automodule:: splitp.constructions
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+splitp.enums module
+-------------------
+
+.. automodule:: splitp.enums
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+splitp.matrix module
+--------------------
+
+.. automodule:: splitp.matrix
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+splitp.model module
+-------------------
+
+.. automodule:: splitp.model
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+splitp.phylogenetics module
+---------------------------
+
+.. automodule:: splitp.phylogenetics
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+splitp.phylogeny module
+-----------------------
+
+.. automodule:: splitp.phylogeny
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+splitp.simulation module
+------------------------
+
+.. automodule:: splitp.simulation
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+splitp.splits module
+--------------------
+
+.. automodule:: splitp.splits
    :members:
    :undoc-members:
    :show-inheritance:
@@ -28,10 +92,10 @@ splitp.squangles module
    :undoc-members:
    :show-inheritance:
 
-splitp.tree\_helper\_functions module
--------------------------------------
+splitp.trees module
+-------------------
 
-.. automodule:: splitp.tree_helper_functions
+.. automodule:: splitp.trees
    :members:
    :undoc-members:
    :show-inheritance:

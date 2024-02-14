@@ -1,0 +1,6 @@
+rm -r ../docs/*
+mv index.rst ..
+rm *.rst
+mv ../index.rst .
+sphinx-apidoc -o . ../splitp
+make github
