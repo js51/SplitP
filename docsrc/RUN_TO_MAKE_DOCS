@@ -4,3 +4,4 @@ rm *.rst
 mv ../index.rst .
 sphinx-apidoc -o . ../splitp
 make github
+cp ./CNAME ../docs
