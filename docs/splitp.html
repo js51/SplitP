@@ -73,14 +73,48 @@ in_node: The name of the parent node, default is None and is used for the root.<
 <dd></dd></dl>
 
 <dl class="py method">
+<dt id="splitp.nx_tree.NXTree.all_splits">
+<code class="sig-name descname"><span class="pre">all_splits</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trivial</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_balance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">randomise</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.all_splits" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt id="splitp.nx_tree.NXTree.build_JC_matrix">
 <code class="sig-name descname"><span class="pre">build_JC_matrix</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">l</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.build_JC_matrix" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="splitp.nx_tree.NXTree.build_K2ST_matrix">
+<code class="sig-name descname"><span class="pre">build_K2ST_matrix</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transition</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transversion</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.build_K2ST_matrix" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="splitp.nx_tree.NXTree.draw_from_multinomial">
 <code class="sig-name descname"><span class="pre">draw_from_multinomial</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">LT</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.draw_from_multinomial" title="Permalink to this definition">¶</a></dt>
 <dd><p>Use a given table of probabilities from getLikelihoods() and draw from its distribution</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="splitp.nx_tree.NXTree.evolve_pattern">
+<code class="sig-name descname"><span class="pre">evolve_pattern</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.evolve_pattern" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="splitp.nx_tree.NXTree.false_splits">
+<code class="sig-name descname"><span class="pre">false_splits</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">only_balance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">randomise</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.false_splits" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="splitp.nx_tree.NXTree.fast_signed_sum_subflattening">
+<code class="sig-name descname"><span class="pre">fast_signed_sum_subflattening</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">split</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bundle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.fast_signed_sum_subflattening" title="Permalink to this definition">¶</a></dt>
+<dd><p>A faster version of signed sum subflattening. Requires a data dictionary and can be supplied with a bundle of 
+re-usable information to reduce the number of calls to the multiplications function.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="splitp.nx_tree.NXTree.fast_sparse_flattening">
+<code class="sig-name descname"><span class="pre">fast_sparse_flattening</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">split</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'dok'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.fast_sparse_flattening" title="Permalink to this definition">¶</a></dt>
+<dd><p>A faster version of signed sum subflattening. Requires a data dictionary and can be supplied with a bundle of 
+re-usable information to reduce the number of calls to the multiplications function.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -95,6 +129,11 @@ table: A pandas data-frame table with site pattern <a href="#id1"><span class="p
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="py method">
+<dt id="splitp.nx_tree.NXTree.generate_alignment">
+<code class="sig-name descname"><span class="pre">generate_alignment</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sequence_length</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.generate_alignment" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt id="splitp.nx_tree.NXTree.get_descendants">
@@ -125,6 +164,11 @@ table: A pandas data-frame table with site pattern <a href="#id1"><span class="p
 <code class="sig-name descname"><span class="pre">get_root</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">return_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.get_root" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the root node</p>
 </dd></dl>
+
+<dl class="py method">
+<dt id="splitp.nx_tree.NXTree.hartigan_algorithm">
+<code class="sig-name descname"><span class="pre">hartigan_algorithm</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.hartigan_algorithm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt id="splitp.nx_tree.NXTree.index_of_node">
@@ -181,8 +225,18 @@ table: A pandas data-frame table with site pattern <a href="#id1"><span class="p
 </dd></dl>
 
 <dl class="py method">
+<dt id="splitp.nx_tree.NXTree.rate_matrix">
+<code class="sig-name descname"><span class="pre">rate_matrix</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.rate_matrix" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt id="splitp.nx_tree.NXTree.reassign_all_transition_matrices">
 <code class="sig-name descname"><span class="pre">reassign_all_transition_matrices</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.reassign_all_transition_matrices" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="splitp.nx_tree.NXTree.scale_TR_rate_matrix">
+<code class="sig-name descname"><span class="pre">scale_TR_rate_matrix</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Q</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_scale_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.scale_TR_rate_matrix" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -226,6 +280,12 @@ table: A pandas data-frame table with site pattern <a href="#id1"><span class="p
 <dt id="splitp.nx_tree.NXTree.transformed_flattening">
 <code class="sig-name descname"><span class="pre">transformed_flattening</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">F</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">S</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.transformed_flattening" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a transformed flattening from a flattening data frame</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="splitp.nx_tree.NXTree.true_splits">
+<code class="sig-name descname"><span class="pre">true_splits</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">include_trivial</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.nx_tree.NXTree.true_splits" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns set of all true splits in the tree.</p>
 </dd></dl>
 
 </dd></dl>
@@ -297,6 +357,11 @@ generate_names: Whether or not to generate names if none are given</p>
 <code class="sig-name descname"><span class="pre">to_pattern</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">integer</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.squangles.SquangleEvaluator.to_pattern" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="py method">
+<dt id="splitp.squangles.SquangleEvaluator.transformed_prob_dist">
+<code class="sig-name descname"><span class="pre">transformed_prob_dist</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prob_dist</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.squangles.SquangleEvaluator.transformed_prob_dist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 </div>
@@ -315,6 +380,16 @@ only_trivial: Whether to ONLY create trivial splits, default False.</p>
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="py function">
+<dt id="splitp.tree_helper_functions.balanced_newick_tree">
+<code class="sig-prename descclassname"><span class="pre">splitp.tree_helper_functions.</span></code><code class="sig-name descname"><span class="pre">balanced_newick_tree</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_taxa</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.tree_helper_functions.balanced_newick_tree" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="splitp.tree_helper_functions.check_splits_representatives">
+<code class="sig-prename descclassname"><span class="pre">splitp.tree_helper_functions.</span></code><code class="sig-name descname"><span class="pre">check_splits_representatives</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">split_reps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orbits</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.tree_helper_functions.check_splits_representatives" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py function">
 <dt id="splitp.tree_helper_functions.frob_norm">
@@ -344,6 +419,11 @@ only_trivial: Whether to ONLY create trivial splits, default False.</p>
 <dd></dd></dl>
 
 <dl class="py function">
+<dt id="splitp.tree_helper_functions.normalised">
+<code class="sig-prename descclassname"><span class="pre">splitp.tree_helper_functions.</span></code><code class="sig-name descname"><span class="pre">normalised</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scores</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.tree_helper_functions.normalised" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
 <dt id="splitp.tree_helper_functions.pattern_counts_to_probs">
 <code class="sig-prename descclassname"><span class="pre">splitp.tree_helper_functions.</span></code><code class="sig-name descname"><span class="pre">pattern_counts_to_probs</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">patterns</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seqLen</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.tree_helper_functions.pattern_counts_to_probs" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -367,6 +447,12 @@ only_trivial: Whether to ONLY create trivial splits, default False.</p>
 <dt id="splitp.tree_helper_functions.scores_to_weights">
 <code class="sig-prename descclassname"><span class="pre">splitp.tree_helper_functions.</span></code><code class="sig-name descname"><span class="pre">scores_to_weights</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scores</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.tree_helper_functions.scores_to_weights" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="py function">
+<dt id="splitp.tree_helper_functions.split_equivalence_classes">
+<code class="sig-prename descclassname"><span class="pre">splitp.tree_helper_functions.</span></code><code class="sig-name descname"><span class="pre">split_equivalence_classes</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">splits</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#splitp.tree_helper_functions.split_equivalence_classes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Breaks up list of splits into equivalence classes under the canonical action of the specified group.</p>
+</dd></dl>
 
 </div>
 <div class="section" id="module-splitp">
