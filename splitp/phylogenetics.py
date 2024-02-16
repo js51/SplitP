@@ -6,6 +6,7 @@ from networkx import dfs_postorder_nodes, bfs_successors
 from splitp import splits
 from splitp.matrix import is_sparse, frobenius_norm
 import scipy
+from math import sqrt
 
 
 def parsimony_score(self, pattern):
@@ -94,7 +95,7 @@ def hartigan_algorithm(self, pattern):
     return score
 
 
-def erickson_SVD(alignment, taxa=None, method=sp.Method.flattening):
+def erickson_SVD(alignment, taxa=None, method=sp.Method.flattening, show_work=False):
     all_scores = {}
     subflattening_data = {}
 
@@ -135,6 +136,7 @@ def erickson_SVD(alignment, taxa=None, method=sp.Method.flattening):
 
                 all_scores[split] = score
             scores[pair] = (pair, split, score)
+        if show_work: print(f"Scores: {scores}")
         best_pair, best_split, best_score = min(scores.values(), key=lambda x: x[2])
         return best_pair, best_split, best_score
 
@@ -299,7 +301,8 @@ def __sparse_split_score(
     )
     squared_singular_values = [sigma**2 for sigma in largest_four_singular_values]
     norm = frobenius_norm(matrix, data_table=data_table_for_frob_norm)
-    return (1 - (sum(squared_singular_values) / (norm**2))) ** (1 / 2)
+    operand = 1 - (sum(squared_singular_values) / (norm**2))
+    return sqrt(operand if operand > 0 else 0)
 
 
 def split_score(
@@ -497,7 +500,4 @@ def midpoint_rooting(networkx_tree, weight_label="weight"):
             networkx_tree.edges[new_node, path[k]][weight_label] = current_dist - midpoint_dist
             networkx_tree.edges[new_node, path[k + 1]][weight_label] = midpoint_dist - prev_dist
             break
-
-
-
-
+        

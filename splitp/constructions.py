@@ -96,6 +96,9 @@ def subflattening(split, pattern_probabilities, data=None):
     re-usable information to reduce the number of calls to the multiplications function.
     """
     state_space = constants.DNA_state_space
+    taxa = sorted(set(split[0]) | set(split[1]))
+    taxa_indexer = {taxon: i for i, taxon in enumerate(taxa)}
+
     if data is None:
         data = {}
     try:
@@ -107,7 +110,7 @@ def subflattening(split, pattern_probabilities, data=None):
 
     if isinstance(split, str):
         split = split.split("|")
-    sp1, sp2 = len(split[0]), len(split[1])
+    sp1, sp2 = map(len, split)
     subflattening = [[0 for _ in range(3 * sp2 + 1)] for _ in range(3 * sp1 + 1)]
     try:
         row_labels = labels[sp1]
@@ -126,7 +129,7 @@ def subflattening(split, pattern_probabilities, data=None):
     )
     for r, row in enumerate(row_labels):
         for c, col in enumerate(col_labels):
-            pattern = __reconstruct_pattern(split, row, col)
+            pattern = __reconstruct_pattern(split, row, col, taxa_indexer)
             signed_sum = 0
             for table_pattern, value in pattern_probabilities.items():
                 try:
@@ -168,11 +171,10 @@ def __subflattening_labels_generator(length):
     yield "".join(special_state for _ in range(n))
 
 
-def __reconstruct_pattern(split, row_label, col_label):
-    n = len(split[0]) + len(split[1])
+def __reconstruct_pattern(split, row_label, col_label, taxa_indexer):
+    n = len(taxa_indexer)
     pattern = {}
-    for splindex, loc in enumerate(split[0]):
-        pattern[int(str(loc), n) if len(str(loc)) == 1 else int(str(loc)[1:])] = row_label[splindex]
-    for splindex, loc in enumerate(split[1]):
-        pattern[int(str(loc), n) if len(str(loc)) == 1 else int(str(loc)[1:])] = col_label[splindex]
+    for split_half, label in zip(split, (row_label, col_label)):
+        for split_index, taxon in enumerate(split_half):
+            pattern[taxa_indexer[taxon]] = label[split_index]
     return "".join(pattern[i] for i in range(n))
