@@ -6,6 +6,7 @@ from splitp.enums import DrawFormat
 import splitp.constants as constants
 import numpy as np
 
+
 class Phylogeny:
     __slots__ = (
         "name",
@@ -17,6 +18,7 @@ class Phylogeny:
         self,
         newick_string,
         name=None,
+        override_branch_length=None,
     ):
         """A rooted phylogenetic tree.
 
@@ -33,15 +35,24 @@ class Phylogeny:
 
         # Build networkx graph from newick string
         self.networkx_graph = json_graph.tree_graph(
-            newick_to_json(self.newick_string, generate_names=True)
+            newick_to_json(
+                self.newick_string,
+                generate_names=True,
+                override_branch_length=override_branch_length,
+            )
         )
+
+        if override_branch_length:
+            self.newick_string = json_to_newick(
+                json_graph.tree_data(self.networkx_graph, self.root(return_index=False))
+            )
 
     def __str__(self):
         """Return the tree in JSON format"""
         return json_to_newick(
             json_graph.tree_data(self.networkx_graph, self.root(return_index=False))
         )
-    
+
     def unrooted_networkx_graph(self):
         """Return the unrooted version of the tree"""
         # Make a copy of the graph
@@ -61,15 +72,17 @@ class Phylogeny:
         unrooted_graph = unrooted_graph.to_undirected()
         # Return the unrooted graph
         return unrooted_graph
-    
+
     def reassign_transition_matrices(self, transition_matrix):
         """DEPRECATED: Reassign transition matrices to all nodes in the tree"""
         for node in self.networkx_graph.nodes:
-            self.networkx_graph.nodes[node]["transition_matrix"] = np.array(transition_matrix)
-    
+            self.networkx_graph.nodes[node]["transition_matrix"] = np.array(
+                transition_matrix
+            )
+
     def get_num_nodes(self):
         return len(self.networkx_graph.nodes)
-    
+
     def node_index(self, node):
         return list(self.networkx_graph.nodes).index(node)
 
@@ -98,14 +111,14 @@ class Phylogeny:
     def get_parent(self, n):
         """Returns the parent node for a given node"""
         return list(self.nx_graph.predecessors(n))[0]
-    
+
     def nodes(self):
         """Returns a list of all nodes in the tree."""
         return list(self.networkx_graph.nodes)
 
     def get_taxa(self):
         return [n for n in self.networkx_graph.nodes if self.is_leaf(n)]
-    
+
     def get_num_taxa(self):
         return len(self.get_taxa())
 
@@ -136,21 +149,20 @@ class Phylogeny:
     def splits(self, include_trivial=False, as_strings=False):
         """Returns set of all splits displayed by the tree."""
         from networkx.algorithms.traversal.depth_first_search import dfs_tree
+
         all_taxa = [x for x in self.get_taxa()]
         splits = set()
         for node in list(self.nodes()):
             subtree = dfs_tree(self.networkx_graph, node)
             left = tuple(
-                    sorted(
-                        [
-                            leaf
-                            for leaf in subtree.nodes
-                            if leaf in all_taxa
-                        ],
-                        key=all_taxa.index,
-                    )
+                sorted(
+                    [leaf for leaf in subtree.nodes if leaf in all_taxa],
+                    key=all_taxa.index,
                 )
-            right = tuple(sorted((i for i in all_taxa if i not in left), key=all_taxa.index))
+            )
+            right = tuple(
+                sorted((i for i in all_taxa if i not in left), key=all_taxa.index)
+            )
             split = (left, right)
             if all_taxa[0] not in split[0]:
                 split = (split[1], split[0])

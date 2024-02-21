@@ -1,11 +1,13 @@
 import re
 
+
 def newick_to_json(
     newick_string,
     namestring="id",
     lengthstring="branch_length",
     childrenstring="children",
     generate_names=False,
+    override_branch_length=None,
 ):
     """Parses a newick string (example "((A,B),C)") into JSON format accepted by NetworkX
 
@@ -19,13 +21,16 @@ def newick_to_json(
     """
     newick_string = newick_string.strip(";")
     node = dict()
-    info = newick_string[newick_string.rfind(")") + 1:]
+    info = newick_string[newick_string.rfind(")") + 1 :]
     info = info.split(":")
     name = info[0]
     node[namestring] = name
     length = ""
-    if len(info) > 1:
+    if override_branch_length is not None:  # use override
+        length = override_branch_length
+    elif len(info) > 1:  # use length given in newick
         length = info[1]
+    if length != "":  # we have some kind of length
         node[lengthstring] = float(length)
     children_string = newick_string[0 : newick_string.rfind(")") + 1]
     if children_string != "":
@@ -36,7 +41,12 @@ def newick_to_json(
         generated_name_parts = []
         for child_string in children_string:
             child_JSON = newick_to_json(
-                child_string, namestring, lengthstring, childrenstring, generate_names
+                child_string,
+                namestring,
+                lengthstring,
+                childrenstring,
+                generate_names,
+                override_branch_length=override_branch_length,
             )
             if generate_names:
                 generated_name_parts.append(child_JSON[namestring])
@@ -66,7 +76,9 @@ def __json_to_newick(
         if childrenstring in json_dict:
             string += (
                 "("
-                + __json_to_newick(json_dict[childrenstring], namestring, lengthstring, childrenstring)
+                + __json_to_newick(
+                    json_dict[childrenstring], namestring, lengthstring, childrenstring
+                )
                 + ")"
                 + str(json_dict[namestring])
             )
@@ -78,7 +90,9 @@ def __json_to_newick(
     else:
         string = ""
         for dict in json_dict:
-            string += __json_to_newick(dict, namestring, lengthstring, childrenstring) + ","
+            string += (
+                __json_to_newick(dict, namestring, lengthstring, childrenstring) + ","
+            )
         return string[0:-1]
 
 
@@ -100,6 +114,7 @@ def __split_into_children(children_string):
     pieces.append(string[last_stop:])
     return pieces
 
+
 def move_tree_edge_labels_to_nodes(tree, remove_edge_attributes=True):
     """Every node is given all of the attributes of it's in-edge
 
@@ -116,6 +131,7 @@ def move_tree_edge_labels_to_nodes(tree, remove_edge_attributes=True):
                 tree[in_edge[0]][in_edge[1]].clear()
 
     return tree
+
 
 def strip_newick(newick):
     regex = re.compile("(:|(?<=\)))[^,)]*?((?=(\)|,)|;))")

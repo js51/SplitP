@@ -64,7 +64,7 @@ def draw_from_multinomial(pattern_probabilities, n):
     for p, pattern in enumerate(patterns):
         if data[p] != 0:
             results[pattern] = data[p]
-    return
+    return results
 
 
 def get_pattern_probabilities(tree, model=None):
@@ -80,6 +80,8 @@ def get_pattern_probabilities(tree, model=None):
         combination: __likelihood_start(tree, combination, model) for combination in combinations
     }
     return emptyArray
+
+pattern_probabilities = get_pattern_probabilities
 
 
 def __likelihood(tree, n, likelihood_table, model):

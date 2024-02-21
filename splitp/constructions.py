@@ -4,11 +4,7 @@ from scipy.sparse import dok_matrix, coo_matrix
 import splitp.constants as constants
 
 
-def flattening(
-    split,
-    pattern_probabilities,
-    flattening_format=FlatFormat.sparse
-):
+def flattening(split, pattern_probabilities, flattening_format=FlatFormat.sparse):
     """
     Compute the flattening of a split given a pattern probability dictionary.
 
@@ -56,8 +52,12 @@ def __reduced_flattening(split, pattern_probabilities, taxa):
     return flattening
 
 
-def __sparse_flattening(split, pattern_probabilities, taxa):
-    format = "dok" # Temporary hard-coded choice
+def __sparse_flattening(
+    split, pattern_probabilities, taxa, ban_row_patterns=None, ban_col_patterns=None
+):
+    format = "dok"  # Temporary hard-coded choice
+    if format != "dok":
+        raise NotImplementedError("Only dok format is currently supported")
     if isinstance(split, str):
         split = split.split("|")
     taxa_indexer = {taxon: i for i, taxon in enumerate(taxa)}
@@ -84,11 +84,17 @@ def __sparse_flattening(split, pattern_probabilities, taxa):
         flattening = dok_matrix((4 ** len(split[0]), 4 ** len(split[1])))
         for r in pattern_probabilities.items():
             pattern = r[0]
-            row = __index_of("".join([str(pattern[taxa_indexer[s]]) for s in split[0]]))
-            col = __index_of("".join([str(pattern[taxa_indexer[s]]) for s in split[1]]))
-            flattening[row, col] = r[1]
+            row_pattern = "".join([str(pattern[taxa_indexer[s]]) for s in split[0]])
+            row = __index_of(row_pattern)
+            col_pattern = "".join([str(pattern[taxa_indexer[s]]) for s in split[1]])
+            col = __index_of(col_pattern)
+            if (ban_col_patterns is not None and col_pattern.count(ban_col_patterns) > 1) or (ban_row_patterns is not None and row_pattern.count(ban_row_patterns) > 1):
+                    flattening[row, col] = 0
+            else:
+                flattening[row, col] = r[1]
         return flattening
 
+sparse_flattening_with_banned_patterns = __sparse_flattening
 
 def subflattening(split, pattern_probabilities, data=None):
     """

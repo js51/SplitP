@@ -3,7 +3,7 @@ from math import floor
 import numpy as np
 import random
 
-def balanced_newick_tree(num_taxa):
+def balanced_newick_tree(num_taxa, branch_length=None):
     if num_taxa % 2 != 0:
         raise ValueError(
             "There is no balanced tree on {num_taxa} taxa. Please specify an even number.")
@@ -15,7 +15,7 @@ def balanced_newick_tree(num_taxa):
         leaf_name = str(np.base_repr(i, base=max(i+1, 2))
                         ) if num_taxa <= 36 else f't{str(i)}'
         newick_string = newick_string.replace('_', leaf_name, 1)
-    return Phylogeny(newick_string)
+    return Phylogeny(newick_string, override_branch_length=branch_length)
 
 def __balanced_newick_subtree(nt, left=False):
     if nt == 2:

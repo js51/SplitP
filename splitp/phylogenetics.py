@@ -6,6 +6,7 @@ from networkx import dfs_postorder_nodes, bfs_successors
 from splitp import splits
 from splitp.matrix import is_sparse, frobenius_norm
 import scipy
+import splitp.constants as constants
 from math import sqrt
 
 
@@ -321,17 +322,28 @@ def split_score(
         )
 
 
-def flattening_rank_1_approximation(flattening, return_vectors=False):
+def flattening_rank_1_approximation(flattening, return_vectors=False, dont_compute_matrix=False):
     r = np.array([sum(flattening)])
     c = np.array([sum(flattening.T)])
+    approximation = None if dont_compute_matrix else r.T @ c
     if return_vectors:
-        return r.T @ c, r.tolist()[0], c.tolist()[0]
+        return approximation, r.tolist()[0], c.tolist()[0]
     else:
-        return r.T @ c
+        return approximation
 
+
+def flattening_rank_k_approximation(split, alignment):
+    taxa = sorted(set(split[0]) | set(split[1]))
+    sums_of_rows = [
+        sum(sp.constructions.sparse_flattening_with_banned_patterns(split, alignment, taxa, ban_row_patterns=char)) for char in constants.DNA_state_space
+    ]
+    sums_of_cols = [
+        sum(sp.constructions.sparse_flattening_with_banned_patterns(split, alignment, taxa, ban_col_patterns=char).T) for char in constants.DNA_state_space
+    ]
+    return sum(A.T * B for A, B in zip(sums_of_rows, sums_of_cols))
 
 def flattening_rank_1_approximation_divergence(flattening):
-    _, r, c = flattening_rank_1_approximation(flattening, return_vectors=True)
+    _, r, c = flattening_rank_1_approximation(flattening, return_vectors=True, dont_compute_matrix=True)
     total = 0
     for x in range(len(c)):
         for y in range(len(r)):
@@ -500,4 +512,3 @@ def midpoint_rooting(networkx_tree, weight_label="weight"):
             networkx_tree.edges[new_node, path[k]][weight_label] = current_dist - midpoint_dist
             networkx_tree.edges[new_node, path[k + 1]][weight_label] = midpoint_dist - prev_dist
             break
-        

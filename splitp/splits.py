@@ -24,7 +24,7 @@ def format_split(tree, split):
     else:
         return f'{"".join(split[0])}|{"".join(split[1])}'
 
-def all_splits(tree, trivial=False, size=None, randomise=False, string_format=True):
+def all_splits(tree, trivial=False, size=None, randomise=False, string_format=False):
     taxa = tree.get_taxa()
     if string_format and len(taxa) > 35:
         raise ValueError(
