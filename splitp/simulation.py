@@ -3,7 +3,7 @@ import numpy as np
 from warnings import warn
 from random import choices
 from networkx import dfs_tree
-from splitp import constants
+from splitp import constants, alignment
 
 
 def evolve_pattern(tree, model=None):
@@ -35,7 +35,7 @@ def evolve_pattern(tree, model=None):
     result = {
         pair.split(":")[0]: pair.split(":")[1] for pair in result_string.split(",")
     }
-    taxa = tree.get_taxa()
+    taxa = tree.taxa
     return "".join(result[k] for k in sorted(result.keys(), key=taxa.index))
 
 
@@ -52,6 +52,7 @@ def generate_alignment(tree, model, sequence_length):
         counts.keys(), key=lambda p: [constants.DNA_state_space.index(c) for c in p]
     ):
         probs[k] = counts[k] / float(sequence_length)
+    
     return probs
 
 
@@ -69,7 +70,6 @@ def draw_from_multinomial(pattern_probabilities, n):
 
 def get_pattern_probabilities(tree, model=None):
     """Returns a full table of site-pattern probabilities (binary character set)"""
-    # Creating a table with binary labels and calling likelihood_start() to fill it in with probabilities
     combinations = list(
         itertools.product(
             "".join(s for s in constants.DNA_state_space), repeat=tree.get_num_taxa()
@@ -79,6 +79,7 @@ def get_pattern_probabilities(tree, model=None):
     emptyArray = {
         combination: __likelihood_start(tree, combination, model) for combination in combinations
     }
+    pattern_probs = alignment.Alignment(emptyArray, taxa=tree.taxa)
     return emptyArray
 
 pattern_probabilities = get_pattern_probabilities
@@ -124,7 +125,7 @@ def __likelihood_start(tree, pattern, model):
     pattern = [
         _to_int(p) for p in pattern
     ]  # A list of indices which correspond to taxa.
-    taxa = tree.get_taxa()  # The list of taxa.
+    taxa = tree.taxa # The list of taxa.
     # Likelihood table for dynamic prog alg ~ lTable[node_index, character]
     likelihood_table = np.array(
         [[None for _ in range(4)] for _ in range(tree.get_num_nodes())]

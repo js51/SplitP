@@ -18,7 +18,10 @@ def flattening(split, pattern_probabilities, flattening_format=FlatFormat.sparse
     """
     if isinstance(split, str):
         split = split.split("|")
-    taxa = sorted(set(split[0]) | set(split[1]))
+    try:
+        taxa = pattern_probabilities.taxa
+    except AttributeError:
+        taxa = sorted(set.union(*map(set, split)))
     if flattening_format is FlatFormat.sparse:
         return __sparse_flattening(split, pattern_probabilities, taxa)
     if flattening_format is FlatFormat.reduced:
@@ -88,13 +91,19 @@ def __sparse_flattening(
             row = __index_of(row_pattern)
             col_pattern = "".join([str(pattern[taxa_indexer[s]]) for s in split[1]])
             col = __index_of(col_pattern)
-            if (ban_col_patterns is not None and col_pattern.count(ban_col_patterns) > 1) or (ban_row_patterns is not None and row_pattern.count(ban_row_patterns) > 1):
-                    flattening[row, col] = 0
+            if (
+                ban_col_patterns is not None and col_pattern.count(ban_col_patterns) > 1
+            ) or (
+                ban_row_patterns is not None and row_pattern.count(ban_row_patterns) > 1
+            ):
+                flattening[row, col] = 0
             else:
                 flattening[row, col] = r[1]
         return flattening
 
+
 sparse_flattening_with_banned_patterns = __sparse_flattening
+
 
 def subflattening(split, pattern_probabilities, data=None):
     """
@@ -102,7 +111,10 @@ def subflattening(split, pattern_probabilities, data=None):
     re-usable information to reduce the number of calls to the multiplications function.
     """
     state_space = constants.DNA_state_space
-    taxa = sorted(set(split[0]) | set(split[1]))
+    try:
+        taxa = pattern_probabilities.taxa
+    except AttributeError:
+        taxa = sorted(set.union(*map(set, split)))
     taxa_indexer = {taxon: i for i, taxon in enumerate(taxa)}
 
     if data is None:

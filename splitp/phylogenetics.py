@@ -128,16 +128,21 @@ def erickson_SVD(alignment, taxa=None, method=sp.Method.flattening, show_work=Fa
                     score = sp.split_score(flattening)
 
                 elif method == sp.Method.subflattening:
-                    subflattening = sp.subflattening(split, alignment, subflattening_data)
+                    subflattening = sp.subflattening(
+                        split, alignment, subflattening_data
+                    )
                     score = sp.split_score(subflattening)
 
                 elif method == sp.Method.mutual_information:
                     flattening = sp.flattening(split, alignment, sp.FlatFormat.reduced)
-                    score = sp.phylogenetics.flattening_rank_1_approximation_divergence(flattening)
+                    score = sp.phylogenetics.flattening_rank_1_approximation_divergence(
+                        flattening
+                    )
 
                 all_scores[split] = score
             scores[pair] = (pair, split, score)
-        if show_work: print(f"Scores: {scores}")
+        if show_work:
+            print(f"Scores: {scores}")
         best_pair, best_split, best_score = min(scores.values(), key=lambda x: x[2])
         return best_pair, best_split, best_score
 
@@ -189,6 +194,7 @@ def newick_string_from_splits(splits):
                         _consolidate(smaller_half, smaller_halves),
                     )
                 )
+
     splits = sorted(splits, key=lambda x: min(len(x[0]), len(x[1])), reverse=True)
     if len(splits) == 1:
         return str(splits[0]).replace("'", "").replace(" ", "") + ";"
@@ -322,7 +328,9 @@ def split_score(
         )
 
 
-def flattening_rank_1_approximation(flattening, return_vectors=False, dont_compute_matrix=False):
+def flattening_rank_1_approximation(
+    flattening, return_vectors=False, dont_compute_matrix=False
+):
     r = np.array([sum(flattening)])
     c = np.array([sum(flattening.T)])
     approximation = None if dont_compute_matrix else r.T @ c
@@ -335,15 +343,28 @@ def flattening_rank_1_approximation(flattening, return_vectors=False, dont_compu
 def flattening_rank_k_approximation(split, alignment):
     taxa = sorted(set(split[0]) | set(split[1]))
     sums_of_rows = [
-        sum(sp.constructions.sparse_flattening_with_banned_patterns(split, alignment, taxa, ban_row_patterns=char)) for char in constants.DNA_state_space
+        sum(
+            sp.constructions.sparse_flattening_with_banned_patterns(
+                split, alignment, taxa, ban_row_patterns=char
+            )
+        )
+        for char in constants.DNA_state_space
     ]
     sums_of_cols = [
-        sum(sp.constructions.sparse_flattening_with_banned_patterns(split, alignment, taxa, ban_col_patterns=char).T) for char in constants.DNA_state_space
+        sum(
+            sp.constructions.sparse_flattening_with_banned_patterns(
+                split, alignment, taxa, ban_col_patterns=char
+            ).T
+        )
+        for char in constants.DNA_state_space
     ]
     return sum(A.T * B for A, B in zip(sums_of_rows, sums_of_cols))
 
+
 def flattening_rank_1_approximation_divergence(flattening):
-    _, r, c = flattening_rank_1_approximation(flattening, return_vectors=True, dont_compute_matrix=True)
+    _, r, c = flattening_rank_1_approximation(
+        flattening, return_vectors=True, dont_compute_matrix=True
+    )
     total = 0
     for x in range(len(c)):
         for y in range(len(r)):
@@ -388,7 +409,7 @@ def neighbour_joining(distance_matrix, labels=None, return_newick=False):
     if labels is not None:
         # Add a label to each node
         for i in range(n):
-            T.nodes[i]['label'] = labels[i]
+            T.nodes[i]["label"] = labels[i]
 
     # NJ Algorithm
     while num_leaves > 2:
@@ -446,37 +467,48 @@ def neighbour_joining(distance_matrix, labels=None, return_newick=False):
 
     return T
 
+
 def distance_matrix(networkx_tree):
     """Distance matrix of a tree.
 
     Args:
         networkx_tree (networkx.DiGraph): A tree.
-    
+
     Returns:
         numpy.ndarray: A distance matrix.
     """
     # Get all the leaves
-    leaf_nodes = [node for node in networkx_tree.nodes if networkx_tree.out_degree(node) == 0]
+    leaf_nodes = [
+        node for node in networkx_tree.nodes if networkx_tree.out_degree(node) == 0
+    ]
     # Create the distance matrix
     distance_matrix = np.zeros((len(leaf_nodes), len(leaf_nodes)))
     for i in range(len(leaf_nodes)):
         for j in range(i + 1, len(leaf_nodes)):
-            distance = nx.shortest_path_length(networkx_tree.to_undirected(), leaf_nodes[i], leaf_nodes[j], weight="weight")
+            distance = nx.shortest_path_length(
+                networkx_tree.to_undirected(),
+                leaf_nodes[i],
+                leaf_nodes[j],
+                weight="weight",
+            )
             distance_matrix[i, j] = distance
             distance_matrix[j, i] = distance
     return distance_matrix
+
 
 def midpoint_rooting(networkx_tree, weight_label="weight"):
     """Midpoint rooting of a tree.
 
     Args:
         networkx_tree (networkx.DiGraph): A tree.
-    
+
     Returns:
         networkx.DiGraph: A rooted tree.
     """
     # Get all the leaves
-    leaf_nodes = [node for node in networkx_tree.nodes if networkx_tree.out_degree(node) == 0]
+    leaf_nodes = [
+        node for node in networkx_tree.nodes if networkx_tree.out_degree(node) == 0
+    ]
     # Get the distance matrix
     D = distance_matrix(networkx_tree)
     # Get the index of the largest distance
@@ -486,7 +518,7 @@ def midpoint_rooting(networkx_tree, weight_label="weight"):
     tree_undirected = networkx_tree.to_undirected()
     # Get the path between the two leaves
     path = nx.shortest_path(tree_undirected, leaf_nodes[i], leaf_nodes[j])
-    midpoint_dist = max_dist / 2 
+    midpoint_dist = max_dist / 2
     # Travel along the path until the midpoint is reached. Then go back and add a new node
     current_dist = 0
     prev_dist = 0
@@ -509,6 +541,10 @@ def midpoint_rooting(networkx_tree, weight_label="weight"):
             else:
                 raise ValueError("Edge not found. Is tree already rooted?")
             # Add the branch lengths
-            networkx_tree.edges[new_node, path[k]][weight_label] = current_dist - midpoint_dist
-            networkx_tree.edges[new_node, path[k + 1]][weight_label] = midpoint_dist - prev_dist
+            networkx_tree.edges[new_node, path[k]][weight_label] = (
+                current_dist - midpoint_dist
+            )
+            networkx_tree.edges[new_node, path[k + 1]][weight_label] = (
+                midpoint_dist - prev_dist
+            )
             break

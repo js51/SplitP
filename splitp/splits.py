@@ -25,7 +25,7 @@ def format_split(tree, split):
         return f'{"".join(split[0])}|{"".join(split[1])}'
 
 def all_splits(tree, trivial=False, size=None, randomise=False, string_format=False):
-    taxa = tree.get_taxa()
+    taxa = tree.taxa
     if string_format and len(taxa) > 35:
         raise ValueError(
             "Cannot generate splits for more than 35 taxa in string format. Use string_format=False."
@@ -34,10 +34,10 @@ def all_splits(tree, trivial=False, size=None, randomise=False, string_format=Fa
         sizes_to_do = [size]
     else:
         sizes_to_do = list(
-            range(1 if trivial else 2, floor(tree.get_num_taxa() / 2) + 1)
+            range(1 if trivial else 2, floor(len(taxa) / 2) + 1)
         )
     for bal in sizes_to_do:
-        even_split = bal == tree.get_num_taxa() / 2
+        even_split = bal == len(taxa) / 2
         if not even_split:
             combos = combinations(taxa, bal)
         else: # We don't want to double up by selecting 012 and then 345

@@ -8,17 +8,14 @@ import numpy as np
 
 
 class Phylogeny:
-    __slots__ = (
-        "name",
-        "networkx_graph",
-        "newick_string",
-    )
+    __slots__ = ("name", "networkx_graph", "newick_string", "taxa")
 
     def __init__(
         self,
         newick_string,
         name=None,
         override_branch_length=None,
+        taxa_sort_order=None,
     ):
         """A rooted phylogenetic tree.
 
@@ -27,6 +24,8 @@ class Phylogeny:
         Attributes:
             name: A name for the tree
             networkx_graph: the underlying networkx graph
+            newick_string: the newick string representation of the tree
+            taxa_sort_order: the order in which taxa are sorted in the tree
         """
 
         # Set chosen tree properties
@@ -46,6 +45,15 @@ class Phylogeny:
             self.newick_string = json_to_newick(
                 json_graph.tree_data(self.networkx_graph, self.root(return_index=False))
             )
+
+        if taxa_sort_order is None:
+            self.taxa = sorted(self.get_taxa())
+        else:
+            self.taxa = taxa_sort_order
+            if set(self.taxa) != set(self.get_taxa()):
+                raise ValueError(
+                    "The taxa sort order must contain all taxa in the tree."
+                )
 
     def __str__(self):
         """Return the tree in JSON format"""
@@ -72,13 +80,6 @@ class Phylogeny:
         unrooted_graph = unrooted_graph.to_undirected()
         # Return the unrooted graph
         return unrooted_graph
-
-    def reassign_transition_matrices(self, transition_matrix):
-        """DEPRECATED: Reassign transition matrices to all nodes in the tree"""
-        for node in self.networkx_graph.nodes:
-            self.networkx_graph.nodes[node]["transition_matrix"] = np.array(
-                transition_matrix
-            )
 
     def get_num_nodes(self):
         return len(self.networkx_graph.nodes)
@@ -120,7 +121,7 @@ class Phylogeny:
         return [n for n in self.networkx_graph.nodes if self.is_leaf(n)]
 
     def get_num_taxa(self):
-        return len(self.get_taxa())
+        return len(self.taxa)
 
     def is_leaf(self, n_index_or_name):
         """Determines whether a node is a leaf node from it's index."""
@@ -150,7 +151,7 @@ class Phylogeny:
         """Returns set of all splits displayed by the tree."""
         from networkx.algorithms.traversal.depth_first_search import dfs_tree
 
-        all_taxa = [x for x in self.get_taxa()]
+        all_taxa = [x for x in self.taxa]
         splits = set()
         for node in list(self.nodes()):
             subtree = dfs_tree(self.networkx_graph, node)
@@ -178,7 +179,7 @@ class Phylogeny:
             raise ValueError(
                 "Cannot produce string format for split with more than 35 taxa."
             )
-        if all(len(taxon) == 1 for taxon in self.get_taxa()):
+        if all(len(taxon) == 1 for taxon in self.taxa):
             return f'{"".join(split[0])}|{"".join(split[1])}'
 
     def draw(self, draw_format=DrawFormat.ASCII):
