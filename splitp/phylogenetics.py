@@ -420,8 +420,16 @@ def neighbour_joining(distance_matrix, labels=None, return_newick=False):
                 if i != j and i not in ignore and j not in ignore:
                     Q[i, j] = (num_leaves - 2) * D[i, j] - sum(D[i, :]) - sum(D[:, j])
 
-        # Smallest Q pair
-        i, j = np.unravel_index(Q.argmin(), Q.shape)
+        # Get the smallest value in Q
+        min_value = np.min(Q)
+        # get all the incidences of the smallest value
+        min_indices = np.where(Q == min_value)
+        # transform into tuples
+        min_pairs = list(zip(*min_indices))
+        # Choose one at random
+        i, j = min_pairs[np.random.randint(len(min_pairs))]
+
+        #i, j = np.unravel_index(Q.argmin(), Q.shape)
         ignore.add(i)
         ignore.add(j)
 
@@ -456,8 +464,8 @@ def neighbour_joining(distance_matrix, labels=None, return_newick=False):
         num_leaves -= 1
 
     # Join the last two nodes
-    i = new_node - 2
-    j = new_node - 1
+    i = max(set(range(n)) - ignore)
+    j = max(set(range(n)) - ignore - {i})
     # Remove the root node and connected edges
     T.remove_node(root_index)
     # Join nodes
